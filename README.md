@@ -7,9 +7,9 @@ Hi guys for the backend setup, I installed some key dependencies and created a b
 1. Installation
      - cd to the backend folder
      - in the terminal type:
-         npm init -y (creates package.json file)
-         npm i express mongoose dotenv (dependencies)
-         npm i -D nodemon (devDependency that restarts app automatically when there are changes )
+         -npm init -y (creates package.json file)
+         -npm i express mongoose dotenv (dependencies)
+         -npm i -D nodemon (devDependency that restarts app automatically when there are changes )
 
 
 2. package.json configurations
