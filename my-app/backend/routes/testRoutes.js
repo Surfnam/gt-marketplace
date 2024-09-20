@@ -15,11 +15,3 @@ router.put('/updateListing/:id', updateListing)
 
 export default router;
 
-
-//get all Users
-
-//get all Listings
-
-// delete all Users
-
-//delete all Listings
