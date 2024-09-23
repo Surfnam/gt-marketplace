@@ -41,7 +41,7 @@ export const getListingByCategory = async (req, res) => {
         const {category} = req.params;
         
         // Query the database for the category
-        const listings = await Listing.findByCategory(category);
+        const listings = await Listing.findByCategory({category});
 
         // Case where listing is not found
         if (listings.length === 0) {
@@ -53,10 +53,10 @@ export const getListingByCategory = async (req, res) => {
 
         // Return the listing
         res.status(200).json(listings);
-    } catch (error) {
+    } catch (err) {
         // Logging the error
-        console.error(error);
-        res.status(500).json({message: error.message});
+        console.error(err);
+        res.status(500).json({message: err.message});
     }
 };
 
@@ -79,9 +79,9 @@ export const getListingByPrice = async (req, res) => {
 
         // Return the listing
         res.status(200).json(listings);
-    } catch (error) {
+    } catch (err) {
         // Logging the error
-        console.error(error);
-        res.status(500).json({message: error.message});
+        console.error(err);
+        res.status(500).json({message: err.message});
     }
 };
