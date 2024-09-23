@@ -40,6 +40,18 @@ const listingSchema = new mongoose.Schema({
     }],
 }, {timestamps:true})
 
+// Static method to find by category
+listingSchema.statics.findByCategory = function(category) {
+    // Retrieves the first match for the query, otherwise returns null
+    return this.findOne({category: category});
+};
+
+// Static method to find by price range
+listingSchema.statics.findByPriceRange = function(min, max) {
+    // Retrieves every match that falls within the price range
+    return this.find({price: {$gte: min, $lte: max}});
+};
+
 const Listing = mongoose.model("Listing", listingSchema);
 
 export default Listing;
