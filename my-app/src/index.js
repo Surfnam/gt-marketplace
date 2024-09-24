@@ -6,6 +6,7 @@ import Login from './Login';
 import Register from './Register';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { createRoot } from 'react-dom';
+import Home from './Home';
 
 // ReactDOM.render( 
 //   <Router>
@@ -28,6 +29,7 @@ root.render(
       <Route path="/" element={<App />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/home" element={<Home />} />
     </Routes>
   </Router>
 );
