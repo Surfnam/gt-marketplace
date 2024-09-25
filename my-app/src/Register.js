@@ -1,20 +1,36 @@
+// src/Register.js
 import React, { useState } from 'react';
 import './Auth.css';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase';
 
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleRegister = (e) => {
-    e.preventDefault(); // This will prevent the blank or false email enetered by the user
-    // This function will handle the registration process when connected to the backend
-    console.log('Register function triggered', { email, password, confirmPassword });
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError(''); // Clear previous errors
+    setSuccess(''); // Clear any success messages
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('User registered successfully:', userCredential.user);
+      setSuccess('Registration successful! You can now log in.');
+    } catch (error) {
+      console.error('Error registering user:', error);
+      setError(error.message);
+    }
   };
 
-// THIS handleRegister FUNCTION WILL BE TRIGGERED WHEN THE LOGIN BUTTON IS CLICKED, AND CAN BE USED TO CONNECT TO THE BACKEND TO AUTHENTICATE THE USER
-// THE LOGIN INFO WILL BE UPDATED IN THE BROWSER'S CONSOLE, WHICH CAN BE SEEN WHEN YOU ARE AT THE WEBPAGE AND PRESS F12, GOTO THE "CONSOLE" TAB
-// If needed, a confirmation email can be sent to the user's email address to verify the user's email address
   return (
     <div className="auth-container">
       <h2>Register</h2>
@@ -26,7 +42,7 @@ function Register() {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required = {true}
+            required
           />
         </div>
         <div className="input-group">
@@ -36,7 +52,7 @@ function Register() {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required = {true}
+            required
           />
         </div>
         <div className="input-group">
@@ -49,6 +65,8 @@ function Register() {
             required
           />
         </div>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {success && <p style={{ color: 'green' }}>{success}</p>}
         <button type="submit" className="auth-button">Register</button>
       </form>
     </div>
