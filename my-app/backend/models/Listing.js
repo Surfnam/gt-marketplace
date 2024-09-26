@@ -43,7 +43,7 @@ const listingSchema = new mongoose.Schema({
 // Static method to find by category
 listingSchema.statics.findByCategory = function(category) {
     // Retrieves the first match for the query, otherwise returns null
-    return this.findOne({category: category});
+    return this.find({category: category});
 };
 
 // Static method to find by price range

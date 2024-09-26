@@ -64,7 +64,7 @@ export const getListingByCategory = async (req, res) => {
         const {category} = req.params;
         
         // Query the database for the category
-        const listings = await Listing.findByCategory({category});
+        const listings = await Listing.findByCategory(category);
 
         // Case where listing is not found
         if (listings.length === 0) {
@@ -85,12 +85,14 @@ export const getListingByCategory = async (req, res) => {
 
 export const getListingByPrice = async (req, res) => {
     try {
-
         // Filtering based on min and max price ranges
         const {min, max} = req.query;
+        // Converting min and max to numbers
+        const minPrice = parseFloat(min);
+        const maxPrice = parseFloat(max);
 
         // Query the database for the price range
-        const listings = await Listing.findByPriceRange(min, max);
+        const listings = await Listing.findByPriceRange(minPrice, maxPrice);
 
         // Case where listing is not found
         if (listings.length === 0) {
