@@ -35,3 +35,53 @@ export const getListingById = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getListingByCategory = async (req, res) => {
+    try {
+        const {category} = req.params;
+        
+        // Query the database for the category
+        const listings = await Listing.findByCategory({category});
+
+        // Case where listing is not found
+        if (listings.length === 0) {
+            return res.status(200).json({
+                message: "No listings available in the category", 
+                listings: []
+            });
+        }
+
+        // Return the listing
+        res.status(200).json(listings);
+    } catch (err) {
+        // Logging the error
+        console.error(err);
+        res.status(500).json({message: err.message});
+    }
+};
+
+export const getListingByPrice = async (req, res) => {
+    try {
+
+        // Filtering based on min and max price ranges
+        const {min, max} = req.query;
+
+        // Query the database for the price range
+        const listings = await Listing.findByPriceRange(min, max);
+
+        // Case where listing is not found
+        if (listings.length === 0) {
+            return res.status(200).json({
+                message: "No listings available in the price range",
+                listings: []
+            });
+        }
+
+        // Return the listing
+        res.status(200).json(listings);
+    } catch (err) {
+        // Logging the error
+        console.error(err);
+        res.status(500).json({message: err.message});
+    }
+};
