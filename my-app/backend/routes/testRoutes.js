@@ -14,8 +14,5 @@ router.delete('/delete', deleteUsersandListings) // either delete all or delete 
 router.put('/updateUser/:id', updateUser)
 router.put('/updateListing/:id', updateListing)
 
-router.get('/category/:category', getListingByCategory)
-router.get('/price', getListingByPrice)
-
 export default router;
 
