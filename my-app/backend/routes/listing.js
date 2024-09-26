@@ -1,5 +1,5 @@
 import express from 'express'
-import { addListing, getListingById, getListingsByCondition, getActiveListings} from '../controllers/listingController.js'
+import { addListing, getListingById, getListingsByCondition, getActiveListings, getListingByCategory, getListingByPrice} from '../controllers/listingController.js'
 
 const router = express.Router();
 
@@ -12,8 +12,11 @@ router.post('/:id', addListing) //id specifies the user id
 // get a specific listing based on its id
 router.get('/:id', getListingById)
 
-// // get a specific listing based on its category // example route for ticket #7 (not implemented right now)
-// router.get('/category/:category')
+// Get a specific listing based on its category
+router.get('/category/:category', getListingByCategory)
+
+// Get a specific listing based on its price range (expecting a min and max)
+router.get('/price', getListingByPrice);
 
 
 // get listings based on condition
