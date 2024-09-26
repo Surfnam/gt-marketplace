@@ -35,3 +35,25 @@ export const getListingById = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getListingsByCondition = async (req, res) => {
+    try {
+        const {condition} = req.params;
+        const listings = await Listing.find({ condition }).select('title price');
+        
+        res.status(200).json(listings);
+    } catch (err) {
+        res.status(500).json( {error: err.message} );
+    }
+
+}
+
+export const getActiveListings = async (req, res) => {
+    try {
+        const listings = await Listing.find({ status : 'available'}).select('title');
+        
+        res.status(200).json(listings);
+    } catch (err) {
+        res.status(500).json( {error: err.message});
+    }
+}
