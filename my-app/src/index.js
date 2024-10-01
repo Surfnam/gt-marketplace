@@ -5,7 +5,7 @@ import App from './App';
 import Login from './Login';
 import Register from './Register';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { createRoot } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Home from './Home';
 
 // ReactDOM.render( 
