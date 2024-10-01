@@ -1,52 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body, html, #root, .App {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f4f4;
-}
-
-
-.content {
-  padding: 20px;
-  margin-top: 60px; 
-}
-
-
-h1, h2, h3 {
-  color: #1e1e1e;
-}
-
-
-.home {
+.App {
   text-align: center;
-  padding: 40px 20px;
 }
 
-.home h1 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
 }
 
-.home p {
-  font-size: 1.2rem;
-  color: #555;
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
 }
 
-.feedback, .contact {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
-  color: #333;
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
 }
 
-.feedback h1, .contact h1 {
-  text-align: center;
-  margin-bottom: 20px;
+.App-link {
+  color: #61dafb;
 }
 
-.feedback p, .contact p {
-  text-align: center;
-  color: #555;
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
