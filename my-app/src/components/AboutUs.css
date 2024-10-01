@@ -1,0 +1,176 @@
+.about-us-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  text-align: left;
+  color: #333;
+}
+
+.about-us-container h1 {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #1e1e1e;
+}
+
+.about-app, .how-it-works, .contributors {
+  margin-bottom: 40px;
+}
+
+.about-app h2, .how-it-works h2, .contributors h2 {
+  color: #1e1e1e;
+  margin-bottom: 20px;
+}
+
+.how-it-works ol {
+  padding-left: 20px;
+}
+
+.contributors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.contributor {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  width: calc(25% - 20px);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contributor:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.contributor img {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.contributor h3 {
+  margin-top: 15px;
+  margin-bottom: 5px;
+  color: #1e1e1e;
+}
+
+.contributor p {
+  margin: 0;
+  color: #777;
+}
+
+/* Team Section Styles */
+.team-section {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.team-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.team-member {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  width: 180px; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  cursor: pointer; 
+}
+
+.team-member:hover {
+  transform: scale(1.05);
+}
+
+.team-member img {
+  width: 100%;
+  border-radius: 50%;
+  height: auto; 
+}
+
+.team-member h3 {
+  margin: 10px 0 5px;
+}
+
+.team-member p {
+  margin: 0;
+  color: #777;
+}
+
+/* Overlay Styles */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; 
+}
+
+/* Selected Member Description Styles */
+.selected-member {
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: zoom-in 0.3s ease;
+}
+
+
+@keyframes zoom-in {
+  from {
+      transform: scale(0.9);
+      opacity: 0;
+  }
+  to {
+      transform: scale(1);
+      opacity: 1;
+  }
+}
+
+.selected-member h2 {
+  margin-bottom: 10px;
+}
+
+.selected-member p {
+  color: #333;
+}
+
+.selected-member button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #61dafb;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.selected-member button:hover {
+  background-color: #5bc0eb;
+}
+
+
+.selected-member-image {
+  width: 50%;
+  border-radius: 50%;
+  height: auto; 
+}

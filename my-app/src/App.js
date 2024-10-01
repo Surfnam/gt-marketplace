@@ -1,6 +1,11 @@
 import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import AboutUs from './components/AboutUs';
+import Home from './components/Home';
+import Contact from './components/Contact'; 
+import Feedback from './components/Feedback';
 import logo from './logo.svg';
-import './App.css';
 import { useNavigate } from 'react-router-dom';
 
 function App() {
@@ -15,6 +20,20 @@ function App() {
   };
 
   return (
+    <Router>
+      <div className="App">
+        <Navbar />
+        <div className="content">
+          <Routes>  
+            <Route path="/" element={<Home />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
+
     <div className="App">
       <header className="App-header">
         <div style={{ position: 'absolute', top: 10, right: 10 }}>
