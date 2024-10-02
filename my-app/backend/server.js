@@ -3,6 +3,7 @@ import mongoSetup from './db/mongo.js';
 import dotenv from 'dotenv';
 import testRoutes from './routes/testroutes.js';
 import listingRoutes from './routes/listing.js';
+import authRoutes from './routes/authRoutes.js';
 import session from 'express-session';
 //import crypto from 'crypto';
 //const secret = crypto.randomBytes(32).toString('hex'); 
@@ -31,7 +32,7 @@ app.get('/', (req, res) => {
 
 app.use('/testAPI', testRoutes);
 app.use('/listing', listingRoutes);
-//app.use('/auth', authRoutes);
+app.use('/auth', authRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

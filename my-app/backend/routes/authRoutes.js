@@ -1,13 +1,15 @@
 import express from 'express';
-import {createUser, signIn, firebaseSignOut} from '../src/firebase.js';
+import {createFirebaseUser, signIn, firebaseSignOut} from '../controllers/authController.js';
+import {getMe} from '../controllers/userController.js';
 import {authenticate} from '../middleware/authenticateUser.js';
 
 const router = express.Router()
 
-/*router.get('/me', authenticate, (req, res) => {
-    console.log("gets user information");
-})*/
-router.post('/createUser', createUser);
+router.get('/me', authenticate, getMe);
+
+router.post('/createUser', createFirebaseUser);
 router.post('/signIn', signIn);
 router.post('/signOut', firebaseSignOut);
+
+export default router;
 
