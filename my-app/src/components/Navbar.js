@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import './Navbar.css'; 
 
-function Navbar() {
+function Navbar({ navigateToLogin, navigateToRegister }) {
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -30,7 +30,26 @@ function Navbar() {
               Contact
             </NavLink>
           </li>
+          <li className="navbar-item">
+            <NavLink to="/Chat" activeClassName="active" className="navbar-link">
+              Chat
+            </NavLink>
+          </li>
         </ul>
+        <div className="navbar-buttons">
+          <button
+            onClick={navigateToLogin}
+            className="navbar-button"
+          >
+            Login
+          </button>
+          <button
+            onClick={navigateToRegister}
+            className="navbar-button"
+          >
+            Register
+          </button>
+        </div>
       </div>
     </nav>
   );
