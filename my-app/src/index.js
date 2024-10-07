@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
 import App from './App';
 import Login from './Login';
@@ -11,12 +11,14 @@ import { createRoot } from 'react-dom/client';
 import Chat from './Chat';
 import Home from './Home';
 import Navbar from './components/Navbar';
+import { auth } from './firebase'; // Import Firebase auth
 
 const container = document.getElementById('root');
 const root = createRoot(container);
 
 function Main() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
   const navigateToLogin = () => {
     navigate("/login");
@@ -26,9 +28,25 @@ function Main() {
     navigate("/register");
   };
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <>
-      <Navbar navigateToLogin={navigateToLogin} navigateToRegister={navigateToRegister} />
+      <Navbar 
+        navigateToLogin={navigateToLogin} 
+        navigateToRegister={navigateToRegister} 
+        user={user} 
+      />
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />

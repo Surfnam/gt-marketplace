@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import './Auth.css';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
+import axios from 'axios';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -25,9 +26,24 @@ function Register() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log('User registered successfully:', userCredential.user);
       setSuccess('Registration successful! You can now log in.');
+
+      // Send user data to MongoDB
+      await sendUserDataToMongoDB(userCredential.user);
     } catch (error) {
       console.error('Error registering user:', error);
       setError(error.message);
+    }
+  };
+
+  const sendUserDataToMongoDB = async (user) => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/users/register', {
+        uid: user.uid,
+        email: user.email,
+      });
+      console.log('User data sent to MongoDB:', response.data);
+    } catch (error) {
+      console.error('Error sending user data to MongoDB:', error);
     }
   };
 

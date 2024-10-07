@@ -1,29 +1,27 @@
-// src/Login.js
 import React, { useState } from 'react';
 import './Auth.css';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(''); // Clear previous errors
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password); // Authentication now needed for signing in.
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('Login successful:', userCredential.user);
-      // Handle successful login (e.g., navigate to a different page or show a success message)
+      navigate('/'); // Navigate to home page after successful login
     } catch (error) {
       console.error('Error logging in:', error);
       setError(error.message);
     }
   };
-
-// THIS handleLogin FUNCTION WILL BE TRIGGERED WHEN THE LOGIN BUTTON IS CLICKED, AND CAN BE USED TO CONNECT TO THE BACKEND TO AUTHENTICATE THE USER
-// THE LOGIN INFO WILL BE UPDATED IN THE BROWSER'S CONSOLE, WHICH CAN BE SEEN WHEN YOU ARE AT THE WEBPAGE AND PRESS F12, GOTO THE "CONSOLE" TAB
 
   return (
     <div className="auth-container">
