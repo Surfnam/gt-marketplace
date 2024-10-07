@@ -1,14 +1,20 @@
 {
   "files": {
-    "main.css": "/static/css/main.8a7b24c4.css",
-    "main.js": "/static/js/main.884fcb0a.js",
-    "static/media/logo.svg": "/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "main.css": "/static/css/main.45c7d7d2.css",
+    "main.js": "/static/js/main.6bb575bb.js",
+    "static/media/aryan.jpg": "/static/media/aryan.6a2acd8cba187ebfb86a.jpg",
+    "static/media/adwaith.jpg": "/static/media/adwaith.6e78167366b023f4120f.jpg",
+    "static/media/kevin_ma.jpg": "/static/media/kevin_ma.f5aa0783763228749491.jpg",
+    "static/media/glenda.jpg": "/static/media/glenda.167168557de579234eff.jpg",
+    "static/media/viraj.jpg": "/static/media/viraj.62c77d8bd32abf40c0a0.jpg",
+    "static/media/fevin.jpg": "/static/media/fevin.b08a8975faa1fbf6daeb.jpg",
+    "static/media/kevin_zhang.jpg": "/static/media/kevin_zhang.a66ca7e0daf453462bb5.jpg",
     "index.html": "/index.html",
-    "main.8a7b24c4.css.map": "/static/css/main.8a7b24c4.css.map",
-    "main.884fcb0a.js.map": "/static/js/main.884fcb0a.js.map"
+    "main.45c7d7d2.css.map": "/static/css/main.45c7d7d2.css.map",
+    "main.6bb575bb.js.map": "/static/js/main.6bb575bb.js.map"
   },
   "entrypoints": [
-    "static/css/main.8a7b24c4.css",
-    "static/js/main.884fcb0a.js"
+    "static/css/main.45c7d7d2.css",
+    "static/js/main.6bb575bb.js"
   ]
 }
