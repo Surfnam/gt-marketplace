@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import './Navbar.css'; 
 
-function Navbar({ navigateToLogin, navigateToRegister }) {
+function Navbar({ navigateToLogin, navigateToRegister, user }) {
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -31,24 +31,30 @@ function Navbar({ navigateToLogin, navigateToRegister }) {
             </NavLink>
           </li>
           <li className="navbar-item">
-            <NavLink to="/Chat" activeClassName="active" className="navbar-link">
+            <NavLink to="/chat" activeClassName="active" className="navbar-link">
               Chat
             </NavLink>
           </li>
         </ul>
         <div className="navbar-buttons">
-          <button
-            onClick={navigateToLogin}
-            className="navbar-button"
-          >
-            Login
-          </button>
-          <button
-            onClick={navigateToRegister}
-            className="navbar-button"
-          >
-            Register
-          </button>
+          {user ? (
+            <span className="navbar-welcome" style={{ color: 'white' }}>Welcome, {user.email}!</span>
+          ) : (
+            <>
+              <button
+                onClick={navigateToLogin}
+                className="navbar-button"
+              >
+                Login
+              </button>
+              <button
+                onClick={navigateToRegister}
+                className="navbar-button"
+              >
+                Register
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>
