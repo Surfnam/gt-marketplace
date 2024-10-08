@@ -5,12 +5,12 @@ import "./App.css";
 const getAllListings = async () => {
   //example placeholders
   return [
-    { id: "1", title: "chair", price: 50 },
-    { id: "2", title: "lamp", price: 30 },
-    { id: "3", title: "sofa", price: 100 },
-    { id: "4", title: "clock", price: 200 },
-    { id: "5", title: "table", price: 150 },
-    { id: "6", title: "Bookshelf", price: 80 },
+    { id: "1", title: "chair", price: 50, category: "Furniture" },
+    { id: "2", title: "laptop", price: 400, category: "Electronics" },
+    { id: "3", title: "sofa", price: 100, category: "Furniture" },
+    { id: "4", title: "white t-shirt", price: 20, category: "Clothing" },
+    { id: "5", title: "flatscreen tv", price: 150, category: "Electronics" },
+    { id: "6", title: "pants", price: 30, category: "Clothing" },
   ];
 };
 
@@ -64,7 +64,7 @@ function Home() {
               {["All", "Furniture", "Electronics", "Clothing"].map(
                 (category) => (
                   <li key={category}>
-                    <button className="w-full text-left hover:bg-gray-200 py-1 px-2 rounded">
+                    <button className="w-full text-left hover:bg-gray-200 py-1 px-2 rounded" onClick={() => handleCategorySelect(category)}> 
                       {category}
                     </button>
                   </li>
