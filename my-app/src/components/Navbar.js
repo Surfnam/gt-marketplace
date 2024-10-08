@@ -1,8 +1,20 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import './Navbar.css'; 
+import { auth } from '../firebase'; // Import Firebase auth
+import './Navbar.css';
 
-function Navbar() {
+function Navbar({ navigateToLogin, navigateToRegister, user }) {
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      console.log('User logged out successfully');
+      // Optionally, you can navigate to the home page or login page after logout
+      navigateToLogin();
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -30,7 +42,40 @@ function Navbar() {
               Contact
             </NavLink>
           </li>
+          <li className="navbar-item">
+            <NavLink to="/chat" activeClassName="active" className="navbar-link">
+              Chat
+            </NavLink>
+          </li>
         </ul>
+        <div className="navbar-buttons">
+          {user ? (
+            <>
+              <span className="navbar-welcome" style={{ color: 'white' }}>Welcome, {user.email}!</span>
+              <button
+                onClick={handleLogout}
+                className="navbar-button"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={navigateToLogin}
+                className="navbar-button"
+              >
+                Login
+              </button>
+              <button
+                onClick={navigateToRegister}
+                className="navbar-button"
+              >
+                Register
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );

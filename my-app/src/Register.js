@@ -3,11 +3,14 @@ import React, { useState } from 'react';
 import './Auth.css';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
+import axios from 'axios';
+function Register () {
 
-function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setusername] = useState('');
+  const [fullName, setfullName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -22,10 +25,29 @@ function Register() {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('User registered successfully:', userCredential.user);
+      console.log(email, password);
+      const response = await fetch('http://localhost:5000/auth/createUser', {
+        method: 'POST', 
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded', 
+      },
+      body: new URLSearchParams({
+        email, password, fullName , username
+      }), 
+      credentials: 'include',
+      }) 
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'smt is wrong');
+      }
+      
+      const message = await response.json();
+      console.log(message);
+      //console.log('User registered successfully:', userCredential.user);
       setSuccess('Registration successful! You can now log in.');
     } catch (error) {
+      //console.log(userCredential);
       console.error('Error registering user:', error);
       setError(error.message);
     }
@@ -62,6 +84,26 @@ function Register() {
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div className="input-group">
+          <label htmlFor="username">Username:</label>
+          <input
+            type="username"
+            id="username"
+            value={username}
+            onChange={(e) => setusername(e.target.value)}
+            required
+          />
+        </div>
+        <div className="input-group">
+          <label htmlFor="fullName">Full Name:</label>
+          <input
+            type="fullName"
+            id="fullName"
+            value={fullName}
+            onChange={(e) => setfullName(e.target.value)}
             required
           />
         </div>

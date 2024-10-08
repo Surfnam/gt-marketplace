@@ -23,11 +23,21 @@ export const firebaseConfig = {
 export const createFirebaseUser = async (req, res) => {
     const {email, password, fullName, username} = req.body;
     try {
+        console.log(email, password, fullName, username);
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
         //add uesr to mongoDB
-        const mongoUser = await createUser({username, password, fullName, email});
+        //const mongoUser = await createUser({username, password, fullName, email});
+
+        const newUser = new User({
+            username,
+            password,
+            fullName,
+            email
+        });
+
+        const mongoUser = await newUser.save();
 
         res.status(201).json({firebaseUser: user, mongo: mongoUser});
 
@@ -44,7 +54,8 @@ export const signIn = async (req, res) => {
   const {email, password, fullName, username} = req.body;
   try {
     if (req.session.authenticated) {
-        return res.status(401).json({message: "already signed in"});
+        console.log("already signed in");
+        return res.status(401).json({error: "already signed in"});
     }
 
     const userCredential = await signInWithEmailAndPassword(auth, email, password)
@@ -55,7 +66,7 @@ export const signIn = async (req, res) => {
     req.session.authenticated = true;
     //query mongodb for user
     const mongoUser = await User.findOne({email: email});
-
+    console.log(mongoUser, user);
     if (!mongoUser) {
         return res.status(404).json({message: "User not found"});
     }

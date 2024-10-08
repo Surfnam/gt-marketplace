@@ -2,8 +2,8 @@
 import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics";
 import { getAuth } from 'firebase/auth';
-import User from "../backend/models/User";
-import {createUser} from "../backend/controllers/userControllers.js";
+//import User from "../backend/models/User";
+//import {createUser} from "../backend/controllers/userControllers.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
