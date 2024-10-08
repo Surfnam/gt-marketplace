@@ -3,6 +3,8 @@ import mongoSetup from './db/mongo.js';
 import dotenv from 'dotenv';
 import testRoutes from './routes/testroutes.js';
 import listingRoutes from './routes/listing.js';
+import cors from 'cors';
+import http from 'http';
 
 const app = express();
 dotenv.config();
@@ -18,6 +20,11 @@ app.get('/', (req, res) => {
 
 app.use('/testAPI', testRoutes);
 app.use('/listing', listingRoutes);
+app.use(cors); // Library for socket.io
+
+// Creating the server (http) const
+const server = http.createServer(app);
+initializeSocket(server);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
