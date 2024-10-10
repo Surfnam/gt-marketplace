@@ -19,7 +19,7 @@ const corsOptions = {
 app.use(cors(corsOptions)); // Use cors middleware
 app.use(express.json()); //parse req body
 app.use(express.urlencoded({extended: true})); //parse form data
-app.use(cookieParser());
+//app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,

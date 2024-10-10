@@ -1,6 +1,7 @@
 // src/Register.js
 import React, { useState } from 'react';
 import './Auth.css';
+import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
 import axios from 'axios';
@@ -13,6 +14,7 @@ function Register () {
   const [fullName, setfullName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -46,6 +48,7 @@ function Register () {
       console.log(message);
       //console.log('User registered successfully:', userCredential.user);
       setSuccess('Registration successful! You can now log in.');
+      navigate('/');
     } catch (error) {
       //console.log(userCredential);
       console.error('Error registering user:', error);
