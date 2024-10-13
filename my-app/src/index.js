@@ -54,7 +54,7 @@ function Main() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/chat" element={<Chat />} />
+        <Route path="/chat" element={<Chat user={user} />} />
       </Routes>
     </>
   );

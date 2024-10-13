@@ -19,7 +19,8 @@ function initializeSocket(server) {
         });
         // Listening for event with name "send_message", with data passed
         socket.on("send_message", (data) => {
-            socket.to(data.room).emit("receive_message", data);
+            console.log(data);
+            socket.to(data.room).emit("receive_message", data); //send message back to client
         });
         // Listening for event with name 'disconnect'
         socket.on("disconnect", () => {
