@@ -53,10 +53,27 @@
   }
   
   .chat-messages {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     padding: 20px;
     overflow-y: auto;
     background-color: #ecf0f1;
+  }
+
+  .message {
+    color: white;
+    max-width: 40%;
+    word-wrap: break-word;
+    margin-bottom: 10px;
+  }
+  .message.you{
+    align-self: flex-start;
+    background-color: green;
+  }
+  .message.other{
+    align-self: flex-end;
+    background-color: blue;
   }
   
   .chat-input {

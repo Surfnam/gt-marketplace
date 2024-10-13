@@ -70,6 +70,7 @@ const Chat = ({user}) => {
         socket.emit("send_message", messageData);
         setMessageList(prev => [...prev, messageData]);
         console.log(messageList);
+        setCurMessage("");
     }
 
     return (
@@ -88,13 +89,13 @@ const Chat = ({user}) => {
                 <h2>{curOtherUser}</h2>
                 <div className="chat-messages">
                     {messageList.map((message, idx) => (
-                        <div className="message">
-                            <div className="message-content">
-                                <p>{message.content}</p>
-                            </div>
+                        <div className={`message ${username === message.author ? 'you' : 'other'}`}>
                             <div className="message-meta">
                                 <p>{message.time}</p>
                                 <p>{message.author}</p>
+                            </div>
+                            <div className="message-content">
+                                <p>{message.content}</p>
                             </div>
                         </div>
                     ))}
@@ -105,6 +106,7 @@ const Chat = ({user}) => {
                         placeholder="Type a message..." 
                         onChange={e => setCurMessage(e.target.value)}
                         value={curMessage}
+                        onKeyDown={e => e.key === "Enter" && sendMessage()}
                     />
                     <button onClick={sendMessage}>Send</button>
                 </div>
