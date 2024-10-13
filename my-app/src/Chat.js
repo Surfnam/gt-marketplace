@@ -5,17 +5,21 @@ import io from "socket.io-client";
 //const backendPort = '5000';
 const socket = io.connect(`http://localhost:5000/`);
 const Chat = ({user}) => {
+    const username = user ? user.email : null;
+
     const [users, setUsers] = useState([]);
     const [curOtherUser, setCurOtherUser] = useState(users[0]);
-    const [curMessage, setCurMessage] = useState("");
-    const [messageList, setMessageList] = useState([]);
     const [roomId, setRoomId] = useState("");
+    const [curMessage, setCurMessage] = useState("");
+    const [chatHistory, setChatHistory] = useState({}); 
 
-    const username = user ? user.email : null;
 
     useEffect(() => {
         socket.on("receive_message", (data) => {
-            setMessageList(prev => [...prev, data]);
+            setChatHistory(prev => ({
+                ...prev, 
+                [data.room]: [...(prev[data.room] || []), data]
+            }));
         });
     }, [socket]);
 
@@ -28,9 +32,12 @@ const Chat = ({user}) => {
             usersData = usersData.map(u => u.email);
             console.log(usersData);
             setUsers(usersData);
-            /*if (usersData.length > 0) {
-              joinRoom(usersData[0]);
-            }*/
+
+            if (usersData.length > 0) {
+              for (let otherUser of usersData) {
+                joinRoom(otherUser);
+              }
+            }
           } catch (error) {
             console.error('Error fetching users:', error);
           }
@@ -68,8 +75,12 @@ const Chat = ({user}) => {
         };
         
         socket.emit("send_message", messageData);
-        setMessageList(prev => [...prev, messageData]);
-        console.log(messageList);
+        
+        setChatHistory(prev => ({
+            ...prev, 
+            [roomId]: [...(prev[roomId] || []), messageData]
+        }));
+
         setCurMessage("");
     }
 
@@ -88,7 +99,7 @@ const Chat = ({user}) => {
             <div className="chat-main">
                 <h2>{curOtherUser}</h2>
                 <div className="chat-messages">
-                    {messageList.map((message, idx) => (
+                    {(chatHistory[roomId] || []).map(message => (
                         <div className={`message ${username === message.author ? 'you' : 'other'}`}>
                             <div className="message-meta">
                                 <p>{message.time}</p>
