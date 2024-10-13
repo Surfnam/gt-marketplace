@@ -1,6 +1,8 @@
 import React from 'react';
 import './Chat.css';
-
+import io from "socket.io-client";
+const backendPort = '5000';
+const socket = io.connect(`http://localhost:5000/`);
 const Chat = () => {
     return (
         <div className="chat-container">
