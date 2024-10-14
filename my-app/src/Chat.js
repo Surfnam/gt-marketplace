@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Chat.css';
 import axios from 'axios';
 import io from "socket.io-client";
+import ScrollToBottom from 'react-scroll-to-bottom';
 //const backendPort = '5000';
 const socket = io.connect(`http://localhost:5000/`);
 const Chat = ({user}) => {
@@ -71,7 +72,7 @@ const Chat = ({user}) => {
             room: roomId,
             author: username,
             content: curMessage,
-            time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
+            time: new Date(Date.now()).getHours() + ":" + String(new Date(Date.now()).getMinutes()).padStart(2, '0'),
         };
         
         socket.emit("send_message", messageData);
@@ -90,17 +91,17 @@ const Chat = ({user}) => {
                 <h2>Chats</h2>
                 <ul>
                     {users.map((user, idx) => (
-                    <li key={idx} onClick={() => joinRoom(user)}>
-                        {user}
-                    </li>
+                        <li key={idx} onClick={() => joinRoom(user)}>
+                            {user}
+                        </li>
                     ))}
                 </ul>
             </div>
             <div className="chat-main">
                 <h2>{curOtherUser}</h2>
-                <div className="chat-messages">
-                    {(chatHistory[roomId] || []).map(message => (
-                        <div className={`message ${username === message.author ? 'you' : 'other'}`}>
+                <ScrollToBottom className="messages-container">
+                    {(chatHistory[roomId] || []).map((message, idx) => (
+                        <div key={idx} className={`message ${username === message.author ? 'you' : 'other'}`}>
                             <div className="message-meta">
                                 <p>{message.time}</p>
                                 <p>{message.author}</p>
@@ -110,7 +111,7 @@ const Chat = ({user}) => {
                             </div>
                         </div>
                     ))}
-                </div>
+                </ScrollToBottom>
                 <div className="chat-input">
                     <input 
                         type="text" 

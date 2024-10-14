@@ -52,18 +52,29 @@
     font-size: 1.5rem;
   }
   
-  .chat-messages {
-    display: flex;
-    flex-direction: column;
+  .messages-container {
     flex: 1;
     padding: 20px;
-    overflow-y: auto;
     background-color: #ecf0f1;
+    overflow-y: scroll;
+  }
+
+  /*IMPORTANT: .messages-container is a ScrollToBottom component which has another div as a child*/
+  .messages-container > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .messages {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: scroll;
   }
 
   .message {
     color: white;
-    max-width: 40%;
+    max-width: 400px;
     word-wrap: break-word;
     margin-bottom: 10px;
   }
