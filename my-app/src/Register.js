@@ -1,9 +1,10 @@
-// src/Register.js
+// Register.js
 import React, { useState } from 'react';
 import './Auth.css';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './firebase';
+import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from './firebase';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -29,8 +31,31 @@ function Register() {
 
       // Send user data to MongoDB
       await sendUserDataToMongoDB(userCredential.user);
+
+      // Navigate to home page
+      navigate('/home');
     } catch (error) {
       console.error('Error registering user:', error);
+      setError(error.message);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(''); // Clear previous errors
+    setSuccess(''); // Clear any success messages
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log('Google Sign-In successful:', result.user);
+
+      // Send user data to MongoDB
+      await sendUserDataToMongoDB(result.user);
+      setSuccess('Registration successful via Google! You can now log in.');
+
+      // Navigate to home page
+      navigate('/home');
+    } catch (error) {
+      console.error('Error with Google sign-in:', error);
       setError(error.message);
     }
   };
@@ -85,6 +110,12 @@ function Register() {
         {success && <p style={{ color: 'green' }}>{success}</p>}
         <button type="submit" className="auth-button">Register</button>
       </form>
+
+      <div className="google-signin">
+        <button onClick={handleGoogleSignIn} className="auth-button google-button">
+          Register with Google
+        </button>
+      </div>
     </div>
   );
 }

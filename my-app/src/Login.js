@@ -1,7 +1,8 @@
+// Login.js
 import React, { useState } from 'react';
 import './Auth.css';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './firebase';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from './firebase';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -19,6 +20,18 @@ function Login() {
       navigate('/'); // Navigate to home page after successful login
     } catch (error) {
       console.error('Error logging in:', error);
+      setError(error.message);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(''); // Clear previous errors
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log('Google Sign-In successful:', result.user);
+      navigate('/'); // Navigate to home page after successful login
+    } catch (error) {
+      console.error('Error with Google sign-in:', error);
       setError(error.message);
     }
   };
@@ -50,6 +63,12 @@ function Login() {
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <button type="submit" className="auth-button">Login</button>
       </form>
+
+      <div className="google-signin">
+        <button onClick={handleGoogleSignIn} className="auth-button google-button">
+          Sign in with Google
+        </button>
+      </div>
     </div>
   );
 }
