@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors'; // Import cors
 import testRoutes from './routes/testroutes.js';
 import listingRoutes from './routes/listing.js';
-import userRoutes from './routes/user.js'; // Correct import statement
+import userRoutes from './routes/user.js';
 
 const app = express();
 dotenv.config();

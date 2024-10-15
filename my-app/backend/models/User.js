@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    profilePicture: {
+        type:String,
+        default:'../public/images/defaultPFP.jpg',
+    },
     listings: [{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Listing',

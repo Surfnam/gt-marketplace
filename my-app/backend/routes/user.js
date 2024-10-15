@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
+import { updateProfilePicture } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -20,5 +21,8 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// update profile picture
+router.patch('/:id/profilePicture', updateProfilePicture) //id specifies the user id 
 
 export default router;
