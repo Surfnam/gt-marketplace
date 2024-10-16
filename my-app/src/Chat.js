@@ -6,7 +6,6 @@ import ScrollToBottom from 'react-scroll-to-bottom';
 //const backendPort = '5000';
 const socket = io.connect(`http://localhost:5000/`);
 const Chat = ({user}) => {
-    const username = user ? user.email : null;
 
     const [users, setUsers] = useState([]);
     const [curOtherUser, setCurOtherUser] = useState(users[0]);
@@ -30,8 +29,6 @@ const Chat = ({user}) => {
             const res = await axios.get('http://localhost:5000/api/users');
             let usersData = res.data;
             usersData = usersData.filter(u => u.email !== user.email);
-            usersData = usersData.map(u => u.email);
-            console.log(usersData);
             setUsers(usersData);
 
             if (usersData.length > 0) {
@@ -45,20 +42,20 @@ const Chat = ({user}) => {
         };
     
         fetchAllUsers();
-      }, [username]);
+      }, [user]);
 
     if (!user) {
         return <h1>Please login</h1>
     }
 
     const getRoomId = (user1, user2) => {
-        const sortedUsers = [user1, user2].sort();
+        const sortedUsers = [user1.email, user2.email].sort();
         return sortedUsers.join('_');
     }
 
     const joinRoom = (otherUser) => {
        setCurOtherUser(otherUser);
-       const newRoomId = getRoomId(username, otherUser);
+       const newRoomId = getRoomId(user, otherUser);
        setRoomId(newRoomId);
        socket.emit("join_room", newRoomId);
     }
@@ -70,7 +67,7 @@ const Chat = ({user}) => {
 
         const messageData = {
             room: roomId,
-            author: username,
+            author: user,
             content: curMessage,
             time: new Date(Date.now()).getHours() + ":" + String(new Date(Date.now()).getMinutes()).padStart(2, '0'),
         };
@@ -92,19 +89,19 @@ const Chat = ({user}) => {
                 <ul>
                     {users.map((user, idx) => (
                         <li key={idx} onClick={() => joinRoom(user)}>
-                            {user}
+                            {user.email /*Decide whether to use email or name*/} 
                         </li>
                     ))}
                 </ul>
             </div>
             <div className="chat-main">
-                <h2>{curOtherUser}</h2>
+                <h2>{curOtherUser ? curOtherUser.email : ''}</h2>
                 <ScrollToBottom className="messages-container">
                     {(chatHistory[roomId] || []).map((message, idx) => (
-                        <div key={idx} className={`message ${username === message.author ? 'you' : 'other'}`}>
+                        <div key={idx} className={`message ${user.email === message.author.email ? 'you' : 'other'}`}>
                             <div className="message-meta">
                                 <p>{message.time}</p>
-                                <p>{message.author}</p>
+                                <p>{message.author.email}</p>
                             </div>
                             <div className="message-content">
                                 <p>{message.content}</p>
