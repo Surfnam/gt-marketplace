@@ -32,7 +32,7 @@ function Login() {
         const error = await response.json();
         throw new Error(error.error || 'smt is wrong');
       }
-      console.log(await response.json());
+      //console.log(await response.json());
       navigate('/'); // Navigate to home page after successful login
     } catch (error) {
       console.error('Error logging in:', error);
@@ -70,7 +70,7 @@ function Login() {
         throw new Error(error.error || 'smt is wrong');
       }
       console.log('Google Sign-In successful:', result.user);
-      console.log(await response.json());
+      //console.log(await response.json());
       navigate('/'); // Navigate to home page after successful login
     } catch (error) {
       console.error('Error with Google sign-in:', error);

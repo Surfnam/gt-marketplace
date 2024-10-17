@@ -28,7 +28,7 @@ function Register () {
     }
 
     try {
-      console.log(email, password);
+      //console.log(email, password);
       const response = await fetch('http://localhost:5000/auth/createUser', {
         method: 'POST', 
       headers: {
