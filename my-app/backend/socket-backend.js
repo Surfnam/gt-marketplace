@@ -12,23 +12,19 @@ function initializeSocket(server) {
     // Listening for event with name 'connection'
     io.on("connection", (socket) => {
         console.log(`User Connected: ${socket.id}`);
+
         // Listening for event with name "join_room", with room name passed
         socket.on("join_room", (data) => {
             socket.join(data);
             console.log(`User with ID: ${socket.id} joined room: ${data}`)
         });
+
         // Listening for event with name "send_message", with data passed
-        socket.on("send_message", async (data) => {
+        socket.on("send_message", (data) => {
+            io.to(data.roomId).emit('receive_message', data);
             console.log(data);
-            
-            // Saving Messages
-            try {
-                await axios.post('http://localhost:5000/api/message', data);
-                socket.to(data.room).emit("receive_message", data);
-            } catch (error) {
-                console.error("Something went wrong while saving messages", error);
-            }
         });
+
         // Listening for event with name 'disconnect'
         socket.on("disconnect", () => {
             console.log(`User Disconnected: ${socket.id}`);

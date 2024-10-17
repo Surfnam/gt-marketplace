@@ -6,41 +6,64 @@ import ScrollToBottom from 'react-scroll-to-bottom';
 //const backendPort = '5000';
 const socket = io.connect(`http://localhost:5000/`);
 const Chat = ({user}) => {
-
-    const [users, setUsers] = useState([]);
-    const [curOtherUser, setCurOtherUser] = useState(users[0]);
+    console.log("rerender");
+    user = user ? user.email : null;
+    const [otherUsers, setOtherUsers] = useState([]);
+    const [curOtherUser, setCurOtherUser] = useState(otherUsers[0]);
     const [roomId, setRoomId] = useState("");
     const [curMessage, setCurMessage] = useState("");
     const [chatHistory, setChatHistory] = useState({}); 
 
+    const fetchAllUsers = async () => {
+        try {
+            const res = await axios.get('http://localhost:5000/api/users');
+            let usersData = res.data;
+            usersData = usersData.filter(u => u.email !== user).map(u => u.email);
+            setOtherUsers(usersData);
 
+            /*if (usersData.length > 0) {
+                for (let otherUser of usersData) {
+                    joinRoom(otherUser);
+                }
+            }*/
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    }
+
+    const fetchMessages = async (room) => {
+        try {
+            const res = await axios.get(`http://localhost:5000/api/message/${room}`);
+            const messageData = res.data;
+            return messageData.map(message => ({
+                ...message,
+                date: new Date(message.date)
+            }));
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+    }
+
+    const sendMessageToServer = async (messageData) => {
+        try {
+            const res = await axios.post('http://localhost:5000/api/message', messageData);
+            return res.data;
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    }
     useEffect(() => {
         socket.on("receive_message", (data) => {
-            setChatHistory(prev => ({
-                ...prev, 
-                [data.room]: [...(prev[data.room] || []), data]
-            }));
+            const formattedData = {...data, date: new Date(data.date)}
+            
+            setChatHistory(prevChatHistory => {
+                const updatedRoomMessages = [...(prevChatHistory[data.roomId] || []), formattedData];
+                return { ...prevChatHistory, [data.roomId]: updatedRoomMessages };
+            });
         });
     }, [socket]);
 
     useEffect(() => {
-        const fetchAllUsers = async () => {
-          try {
-            const res = await axios.get('http://localhost:5000/api/users');
-            let usersData = res.data;
-            usersData = usersData.filter(u => u.email !== user.email);
-            setUsers(usersData);
-
-            if (usersData.length > 0) {
-              for (let otherUser of usersData) {
-                joinRoom(otherUser);
-              }
-            }
-          } catch (error) {
-            console.error('Error fetching users:', error);
-          }
-        };
-    
         fetchAllUsers();
       }, [user]);
 
@@ -48,25 +71,34 @@ const Chat = ({user}) => {
         return <h1>Please login</h1>
     }
 
+
     const getRoomId = (user1, user2) => {
-        const sortedUsers = [user1.email, user2.email].sort();
+        const sortedUsers = [user1, user2].sort();
         return sortedUsers.join('_');
     }
 
-    const joinRoom = (otherUser) => {
-       setCurOtherUser(otherUser);
-       const newRoomId = getRoomId(user, otherUser);
-       setRoomId(newRoomId);
-       socket.emit("join_room", newRoomId);
+    const joinRoom = async (otherUser) => {
+        console.log("joined");
+        setCurOtherUser(otherUser);
+        const newRoomId = getRoomId(user, otherUser);
+        setRoomId(newRoomId);
+
+        const messages = await fetchMessages(newRoomId);
+        setChatHistory(prev => ({
+            ...prev,
+            [newRoomId]: messages,
+        }));
+
+        socket.emit("join_room", newRoomId);
     }
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         if (curMessage === "" || roomId === "") {
             return;
         }
 
         const messageData = {
-            room: roomId,
+            roomId: roomId,
             author: user,
             content: curMessage,
             date: new Date(),
@@ -74,43 +106,47 @@ const Chat = ({user}) => {
         
         socket.emit("send_message", messageData);
         
-        setChatHistory(prev => ({
+        /*setChatHistory(prev => ({
             ...prev, 
             [roomId]: [...(prev[roomId] || []), messageData]
-        }));
+        }));*/
 
         setCurMessage("");
+       
+        const savedMessage = await sendMessageToServer(messageData);
     }
 
     
     const getAMPM = (date) => {
+        //date = new Date(date);
+        console.log(date);
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const AMPM = hours >= 12 ? 'PM' : 'AM';
         const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for midnight and handle 12-hour format
         return `${adjustedHours}:${String(minutes).padStart(2, '0')} ${AMPM}`;
     }
-
+    console.log(chatHistory);
     return (
         <div className="chat-container">
             <div className="chat-sidebar">
                 <h2>Chats</h2>
                 <ul>
-                    {users.map((user, idx) => (
-                        <li key={idx} onClick={() => joinRoom(user)}>
-                            {user.email /*Decide whether to use email or name*/} 
+                    {otherUsers.map((otherUser, idx) => (
+                        <li key={idx} onClick={() => joinRoom(otherUser)}>
+                            {otherUser/*Decide whether to use email or name*/} 
                         </li>
                     ))}
                 </ul>
             </div>
             <div className="chat-main">
-                <h2>{curOtherUser ? curOtherUser.email : ''}</h2>
+                <h2>{curOtherUser ? curOtherUser : ''}</h2>
                 <ScrollToBottom className="messages-container">
                     {(chatHistory[roomId] || []).map((message, idx) => (
-                        <div key={idx} className={`message ${user.email === message.author.email ? 'you' : 'other'}`}>
+                        <div key={idx} className={`message ${user === message.author ? 'you' : 'other'}`}>
                             <div className="message-meta">
                                 <p>{getAMPM(message.date)}</p>
-                                <p>{message.author.email}</p>
+                                <p>{message.author}</p>
                             </div>
                             <div className="message-content">
                                 <p>{message.content}</p>

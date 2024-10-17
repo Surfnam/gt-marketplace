@@ -1,14 +1,13 @@
 import mongoose from 'mongoose';
 
-const MessageSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema({
     roomId: {
         type: String,
         required: true,
     },
 
     author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
         required: true,
     },
 
@@ -17,7 +16,7 @@ const MessageSchema = new mongoose.Schema({
         required: true,
     },
 
-    time: {
+    date: {
         type: Date,
         required: true,
     }

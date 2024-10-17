@@ -7,7 +7,7 @@ import testRoutes from './routes/testroutes.js';
 import listingRoutes from './routes/listing.js';
 import userRoutes from './routes/user.js'; // Correct import statement
 import initializeSocket  from './socket-backend.js';
-import messageRouter from './routes/message.js';
+import messageRoutes from './routes/message.js';
 
 const app = express();
 dotenv.config();
@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 app.use('/testAPI', testRoutes);
 app.use('/listing', listingRoutes);
 app.use('/api/users', userRoutes); // Use the new user routes
-app.use('/api/message', messageRouter); // Use the new message routes
+app.use('/api/message', messageRoutes); // Use the new message routes
 
 
 // Creating the server (http) const
