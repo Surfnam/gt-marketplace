@@ -61,7 +61,7 @@ const Chat = ({user}) => {
     }
 
     const sendMessage = () => {
-        if (curMessage === "" || roomId == "") {
+        if (curMessage === "" || roomId === "") {
             return;
         }
 
@@ -69,7 +69,7 @@ const Chat = ({user}) => {
             room: roomId,
             author: user,
             content: curMessage,
-            time: new Date(Date.now()).getHours() + ":" + String(new Date(Date.now()).getMinutes()).padStart(2, '0'),
+            date: new Date(),
         };
         
         socket.emit("send_message", messageData);
@@ -80,6 +80,15 @@ const Chat = ({user}) => {
         }));
 
         setCurMessage("");
+    }
+
+    
+    const getAMPM = (date) => {
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const AMPM = hours >= 12 ? 'PM' : 'AM';
+        const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for midnight and handle 12-hour format
+        return `${adjustedHours}:${String(minutes).padStart(2, '0')} ${AMPM}`;
     }
 
     return (
@@ -100,7 +109,7 @@ const Chat = ({user}) => {
                     {(chatHistory[roomId] || []).map((message, idx) => (
                         <div key={idx} className={`message ${user.email === message.author.email ? 'you' : 'other'}`}>
                             <div className="message-meta">
-                                <p>{message.time}</p>
+                                <p>{getAMPM(message.date)}</p>
                                 <p>{message.author.email}</p>
                             </div>
                             <div className="message-content">
