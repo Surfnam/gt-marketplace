@@ -5,6 +5,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 import User from "../models/User.js";
 //import {auth} from "../../src/firebase.js";
 import {createUser} from "./userController.js";
+import bcrypt from 'bcrypt';
 
 export const firebaseConfig = {
     apiKey: 'AIzaSyANsfiNvE3nONEvXQig-_sEjUYUAq6QOXY',
@@ -25,6 +26,9 @@ export const firebaseConfig = {
 export const createFirebaseUser = async (req, res) => {
     const {email, password, fullName, username} = req.body;
     try {
+        
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
         console.log(email, password, fullName, username);
 
         if (!validatePassword(auth, password)) {
@@ -37,7 +41,7 @@ export const createFirebaseUser = async (req, res) => {
         //add uesr to mongoDB
         const newUser = new User({
             username,
-            password,
+            password: hashedPassword,
             fullName,
             email
         });
@@ -53,7 +57,6 @@ export const createFirebaseUser = async (req, res) => {
         res.status(500).json({error: err.message});
     }
     
-
 }
 
 
@@ -78,7 +81,7 @@ export const signIn = async (req, res) => {
         return res.status(404).json({error: "User not found"});
     }
     req.session.authenticated = true;
-    req.session.user = mongoUser;
+    //req.session.user = mongoUser;
     req.session.userId = mongoUser._id;
 
     console.log(mongoUser);
@@ -92,8 +95,8 @@ export const signIn = async (req, res) => {
 
 export const firebaseSignOut = async (req, res) => {
     //await signOut(auth);
-    console.log(req.session);
-    console.log(req.session.id);
+    console.log(req.session || 'no session');
+    console.log(req.session.id || 'no session id');
     if (!req.session || !req.session.authenticated) {
         return res.status(401).json({message: "not signed in"});
     }
@@ -101,7 +104,7 @@ export const firebaseSignOut = async (req, res) => {
     signOut(auth).then(() => {
     // Sign-out successful.
     req.session.authenticated = false;
-    req.session.user = null;
+    //req.session.user = null;
     req.session.userId = null;
     res.clearCookie('connect.sid', { path: '/' });
     req.session.destroy((err) => {
@@ -130,4 +133,27 @@ export const checkAuth = async (req, res) => {
     console.log(req.session.id);
     res.json(null);
 }
+
+export const setAuth = async (req, res) => {
+    try {
+        const {email} = req.body
+        // console.log(user ||'user undefined');
+        // if (!user) {
+        //     res.status(500).json({error: "no user provided"});
+        // }
+        console.log(email || 'email undefined');
+        const mongoUser = await User.findOne({email: email}).select('-password');
+        req.session.authenticated = true;
+        req.session.userId = mongoUser._id;
+
+        console.log(req.session)
+
+        res.status(200).json({message: "session set", sesh: req.session});
+    } catch(err) {
+        res.status(500).json({error: err.message});
+    }
+    
+}
+
+
 
