@@ -13,6 +13,7 @@ const Chat = ({user}) => {
     const [roomId, setRoomId] = useState("");
     const [curMessage, setCurMessage] = useState("");
     const [chatHistory, setChatHistory] = useState({}); 
+    const [lastMessages, setLastMessages] = useState({});
 
     const fetchAllUsers = async () => {
         try {
@@ -20,12 +21,18 @@ const Chat = ({user}) => {
             let usersData = res.data;
             usersData = usersData.filter(u => u.email !== user).map(u => u.email);
             setOtherUsers(usersData);
-
-            /*if (usersData.length > 0) {
-                for (let otherUser of usersData) {
-                    joinRoom(otherUser);
+            
+            //
+            await Promise.all(usersData.map(async (otherUser) => {
+                const room = getRoomId(user, otherUser);
+                const messages = await fetchMessages(room);
+                if (messages.length > 0) {
+                    const latestMessage = messages[messages.length - 1];
+                    updateLatestMessages(latestMessage);
                 }
-            }*/
+            }));
+
+            console.log(lastMessages);
         } catch (error) {
             console.error('Error fetching users:', error);
         }
@@ -52,6 +59,15 @@ const Chat = ({user}) => {
             console.error('Error sending message:', error);
         }
     }
+
+    const updateLatestMessages = (messageData) => {
+        const [user1, user2] = messageData.roomId.split('_');
+        setLastMessages(prev => ({
+            ...prev,
+            [user1]: messageData.date,
+            [user2]: messageData.date,
+        }));
+    }
     useEffect(() => {
         socket.on("receive_message", (data) => {
             const formattedData = {...data, date: new Date(data.date)}
@@ -60,12 +76,24 @@ const Chat = ({user}) => {
                 const updatedRoomMessages = [...(prevChatHistory[data.roomId] || []), formattedData];
                 return { ...prevChatHistory, [data.roomId]: updatedRoomMessages };
             });
+
+            updateLatestMessages(data);
         });
     }, [socket]);
 
     useEffect(() => {
         fetchAllUsers();
-      }, [user]);
+    }, [user]);
+
+    useEffect(() => {
+        const sortedUsers = [...otherUsers].sort((a, b) => {
+            const timeA = lastMessages[a] ? new Date(lastMessages[a]).getTime() : 0;
+            const timeB = lastMessages[b] ? new Date(lastMessages[b]).getTime() : 0;
+            return timeB - timeA; // Sort in descending order
+        });
+        setOtherUsers(sortedUsers);
+        console.log(sortedUsers);
+    }, [lastMessages]); 
 
     if (!user) {
         return <h1>Please login</h1>
@@ -106,6 +134,7 @@ const Chat = ({user}) => {
         
         socket.emit("send_message", messageData);
         
+        updateLatestMessages(messageData);
         /*setChatHistory(prev => ({
             ...prev, 
             [roomId]: [...(prev[roomId] || []), messageData]
@@ -119,14 +148,13 @@ const Chat = ({user}) => {
     
     const getAMPM = (date) => {
         //date = new Date(date);
-        console.log(date);
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const AMPM = hours >= 12 ? 'PM' : 'AM';
         const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for midnight and handle 12-hour format
         return `${adjustedHours}:${String(minutes).padStart(2, '0')} ${AMPM}`;
     }
-    console.log(chatHistory);
+
     return (
         <div className="chat-container">
             <div className="chat-sidebar">
