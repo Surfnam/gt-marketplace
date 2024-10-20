@@ -19,6 +19,7 @@ const corsOptions = {
 app.use(cors(corsOptions)); // Use cors middleware
 app.use(express.json()); //parse req body
 app.use(express.urlencoded({extended: true})); //parse form data
+
 //app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -31,7 +32,7 @@ app.use(session({
     },
     //store: new MongoStore({mongooseConnection: mongoose.connection})
 }))
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.get('/', (req, res) => {
     res.send('hello world');
