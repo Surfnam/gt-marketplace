@@ -1,5 +1,5 @@
 import express from 'express'
-import { addListing, getListingById, getListingsByCondition, getActiveListings, getListingByCategory, getListingByPrice} from '../controllers/listingController.js'
+import { addListing, getListingById, getListingsByCondition, getActiveListings, getListingByCategory, getListingByPrice, getListingsBySeller} from '../controllers/listingController.js'
 
 const router = express.Router();
 
@@ -11,6 +11,9 @@ router.post('/:id', addListing) //id specifies the user id
 
 // get a specific listing based on its id
 router.get('/:id', getListingById)
+
+// get all listings by seller id
+router.get('/seller/:id', getListingsBySeller)
 
 // Get a specific listing based on its category
 // http://localhost:3000/listing/category/categoryName

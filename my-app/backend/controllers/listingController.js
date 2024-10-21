@@ -36,6 +36,21 @@ export const getListingById = async (req, res) => {
     }
 };
 
+export const getListingsBySeller = async (req, res) => {
+    try {
+        const {id} = req.params; 
+        const listings = await Listing.find({seller: id});  // Query the database for the listings
+
+        if (!listings || listings.length === 0) {
+            return res.status(404).json({ message: "No listings found for the specified seller" });  // Handle case where seller has no listings
+        }
+
+        res.status(200).json(listings);  // Return the found listings
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 
 export const getListingsByCondition = async (req, res) => {
     try {
