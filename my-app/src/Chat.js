@@ -31,6 +31,7 @@ const Chat = ({user}) => {
                     updateLatestMessages(latestMessage);
                 }
             }));
+            
 
             console.log(lastMessages);
         } catch (error) {
@@ -68,6 +69,16 @@ const Chat = ({user}) => {
             [user2]: messageData.date,
         }));
     }
+
+    const sortUsersByRecency = () => {
+        const sortedUsers = [...otherUsers].sort((a, b) => {
+            const timeA = lastMessages[a] ? new Date(lastMessages[a]).getTime() : 0;
+            const timeB = lastMessages[b] ? new Date(lastMessages[b]).getTime() : 0;
+            return timeB - timeA; // Sort in descending order
+        });
+        setOtherUsers(sortedUsers);
+        console.log(sortedUsers);
+    }
     useEffect(() => {
         socket.on("receive_message", (data) => {
             const formattedData = {...data, date: new Date(data.date)}
@@ -86,13 +97,7 @@ const Chat = ({user}) => {
     }, [user]);
 
     useEffect(() => {
-        const sortedUsers = [...otherUsers].sort((a, b) => {
-            const timeA = lastMessages[a] ? new Date(lastMessages[a]).getTime() : 0;
-            const timeB = lastMessages[b] ? new Date(lastMessages[b]).getTime() : 0;
-            return timeB - timeA; // Sort in descending order
-        });
-        setOtherUsers(sortedUsers);
-        console.log(sortedUsers);
+        sortUsersByRecency();
     }, [lastMessages]); 
 
     if (!user) {
@@ -174,7 +179,6 @@ const Chat = ({user}) => {
                         <div key={idx} className={`message ${user === message.author ? 'you' : 'other'}`}>
                             <div className="message-meta">
                                 <p>{getAMPM(message.date)}</p>
-                                <p>{message.author}</p>
                             </div>
                             <div className="message-content">
                                 <p>{message.content}</p>
