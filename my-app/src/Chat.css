@@ -81,11 +81,11 @@
     margin-bottom: 10px;
   }
   .message.you{
-    align-self: flex-start;
+    align-self: flex-end;
     background-color: green;
   }
   .message.other{
-    align-self: flex-end;
+    align-self: flex-start;
     background-color: blue;
   }
   
