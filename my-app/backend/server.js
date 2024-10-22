@@ -5,7 +5,6 @@ import cors from 'cors'; // Import cors
 import http from 'http';
 import testRoutes from './routes/testroutes.js';
 import listingRoutes from './routes/listing.js';
-import userRoutes from './routes/user.js';
 import userRoutes from './routes/user.js'; // Correct import statement
 import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/message.js';
