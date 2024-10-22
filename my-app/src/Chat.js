@@ -3,8 +3,8 @@ import './Chat.css';
 import axios from 'axios';
 import io from "socket.io-client";
 import ScrollToBottom from 'react-scroll-to-bottom';
-//const backendPort = '5000';
-const socket = io.connect(`http://localhost:5000/`);
+
+const socket = io.connect(`http://localhost:3001/`);
 const Chat = ({user}) => {
     console.log("rerender");
     user = user ? user.email : null;
@@ -17,7 +17,7 @@ const Chat = ({user}) => {
 
     const fetchAllUsers = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/users');
+            const res = await axios.get('http://localhost:3001/api/users');
             let usersData = res.data;
             usersData = usersData.filter(u => u.email !== user).map(u => u.email);
             setOtherUsers(usersData);
@@ -41,7 +41,7 @@ const Chat = ({user}) => {
 
     const fetchMessages = async (room) => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/message/${room}`);
+            const res = await axios.get(`http://localhost:3001/api/message/${room}`);
             const messageData = res.data;
             return messageData.map(message => ({
                 ...message,
@@ -54,7 +54,7 @@ const Chat = ({user}) => {
 
     const sendMessageToServer = async (messageData) => {
         try {
-            const res = await axios.post('http://localhost:5000/api/message', messageData);
+            const res = await axios.post('http://localhost:3001/api/message', messageData);
             return res.data;
         } catch (error) {
             console.error('Error sending message:', error);

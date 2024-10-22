@@ -16,7 +16,7 @@ app.use(cors()); // Use cors middleware
 app.use(express.json()); //parse req body
 app.use(express.urlencoded({extended: true})); //parse form data
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3001;
 
 app.get('/', (req, res) => {
     res.send('hello world');
