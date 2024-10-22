@@ -1,6 +1,6 @@
 .chat-container {
     display: flex;
-    height: 100vh;
+    height: 90vh;
     background-color: #f0f0f0;
   }
   
@@ -52,11 +52,41 @@
     font-size: 1.5rem;
   }
   
-  .chat-messages {
+  .messages-container {
     flex: 1;
     padding: 20px;
-    overflow-y: auto;
     background-color: #ecf0f1;
+    overflow-y: scroll;
+  }
+
+  /*IMPORTANT: .messages-container is a ScrollToBottom component which has another div as a child*/
+  .messages-container > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .messages {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: scroll;
+  }
+
+  .message {
+    color: white;
+    max-width: 400px;
+    min-width: 80px;
+    padding: 0px 7px 0px 5px;
+    word-wrap: break-word;
+    margin-bottom: 10px;
+  }
+  .message.you{
+    align-self: flex-end;
+    background-color: green;
+  }
+  .message.other{
+    align-self: flex-start;
+    background-color: blue;
   }
   
   .chat-input {
