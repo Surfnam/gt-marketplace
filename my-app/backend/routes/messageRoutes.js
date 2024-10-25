@@ -6,7 +6,7 @@ const router = express.Router();
 // POST endpoint that saves message
 router.post('/', async (req, res) => {
     const { roomId, author, content, date } = req.body;
-    console.log({ roomId, author, content, date })
+
     const newMessage = new Message({
         roomId,
         author,
@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
         date,
         read: false
     });
-    console.log('newMessage: ' + newMessage);
+
     try {
         await newMessage.save();
         res.status(201).json(newMessage);
@@ -46,8 +46,15 @@ router.post('/read', async (req, res) => {
 // GET endpoint to retrieve all messages for a room
 router.get('/:roomId', async (req, res) => {
     const { roomId } = req.params;
+    const limit = parseInt(req.query.limit) || 1000;
+    const skip = parseInt(req.query.skip) || 0;
+
     try {
-        const messages = await Message.find({ roomId }).sort({ time: 1 });
+        const messages = await Message.find({ roomId })
+        .sort({ time: 1 })
+        .skip(skip)
+        .limit(limit);
+
         res.status(200).json(messages);
     } catch (error) {
         console.error(error);
@@ -62,7 +69,7 @@ router.delete('/:roomId', async (req, res) => {
         const result = await Message.deleteMany({ roomId });
         res.status(200).json({ message: "All messages deleted successfully", deletedCount: result.deletedCount });
     } catch (error) {
-        console.error('Error deleting messages:', error);
+        console.error(error);
         res.status(500).json({ error: "A problem occurred while deleting messages" });
     }
 });

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Chat.css';
 import axios from 'axios';
 import io from "socket.io-client";
-import ScrollToBottom from 'react-scroll-to-bottom';
 
 const socket = io.connect(`http://localhost:3001/`);
 const Chat = ({user}) => {
@@ -14,7 +13,14 @@ const Chat = ({user}) => {
     const [chatHistory, setChatHistory] = useState({}); 
     const [lastMessages, setLastMessages] = useState({});
     const [notifications, setNotifications] = useState({});
-    const [unreadMessages, setUnreadMessages] = useState([]);
+    const [firstUnreadMessage, setFirstUnreadMessage] = useState(null);
+    const [clearUnread, setClearUnread] = useState(null);
+    
+    // chunk render set-up (TODO)
+    const [messageLimit, setMessageLimit] = useState(20);
+    const [messageSkip, setMessageSkip] = useState(0);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    
     const messagesEndRef = useRef(null);
 
     const fetchAllUsers = async () => {
@@ -46,11 +52,11 @@ const Chat = ({user}) => {
         }
     }
 
-    const fetchMessages = async (room) => {
+    const fetchMessages = async (room, limit, skip) => {
         try {
-            const res = await axios.get(`http://localhost:3001/api/message/${room}`);
-            const messageData = res.data;
-            return messageData.map(message => ({
+            const res = await axios.get(`http://localhost:3001/api/message/${room}?limit=${limit}&skip=${skip}`);
+
+            return res.data.map(message => ({
                 ...message,
                 date: new Date(message.date),
                 read: message.read
@@ -85,8 +91,13 @@ const Chat = ({user}) => {
             return timeB - timeA; // Sort in descending order
         });
         setOtherUsers(sortedUsers);
-        console.log(sortedUsers);
     }
+
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+        }
+    }, [curOtherUser, chatHistory]);
 
     useEffect(() => {
         socket.on("receive_message", (data) => {
@@ -124,13 +135,6 @@ const Chat = ({user}) => {
         sortUsersByRecency();
     }, [lastMessages]); 
 
-    useEffect(() => {
-        // Scroll to bottom immediately when joining a new room
-        if (roomId) {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [roomId]);
-
     if (!user) {
         return <h1>Please login</h1>
     };
@@ -146,14 +150,17 @@ const Chat = ({user}) => {
         setRoomId(newRoomId);
 
         const messages = await fetchMessages(newRoomId);
-        
-        messages.forEach(msg => {
-            console.log(`Message from ${msg.author}: "${msg.content}" is ${msg.read ? 'read' : 'unread'}`);
-        });
 
         // Identify unread messages
         const unreadMessages = messages.filter(msg => !msg.read && msg.author !== user);
-        setUnreadMessages(unreadMessages);
+
+        if (unreadMessages.length > 0) {
+            const firstUnreadMessage = unreadMessages[0];
+            setFirstUnreadMessage(firstUnreadMessage);
+            setClearUnread(false);
+        } else {
+            setClearUnread(true);
+        }
 
         // Marks all messages to read when joining a room
         await markMessagesAsRead(newRoomId, otherUser);
@@ -233,6 +240,11 @@ const Chat = ({user}) => {
         }
     };
 
+    const formatDate = (date) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    };
+
     return (
         <div className="chat-container">
             <div className="chat-sidebar">
@@ -256,16 +268,42 @@ const Chat = ({user}) => {
                 </ul>
             </div>
             <div className="chat-main">
-                <h2>{curOtherUser ? curOtherUser : ''}</h2>
-                <ScrollToBottom className="messages-container">
+                <h2>{curOtherUser ? curOtherUser : 'No User Selected'}</h2>
+                <div className="messages-container">
                     {(chatHistory[roomId] || []).map((message, idx) => {
                         /* Displaying metadata for first message */
                         const isFirstMessage = idx === 0;
                         const lastAuthor = isFirstMessage ? null : chatHistory[roomId][idx - 1].author;
 
+                        /* Displaying new day line */
+                        const currentMessageDate = new Date(message.date);
+                        const formattedMessageDate = formatDate(currentMessageDate);
+                        const previousMessageDate = idx > 0 ? new Date(chatHistory[roomId][idx - 1].date) : null;
+
+                        const timeDifference = currentMessageDate - previousMessageDate;
+
+                        const isNewDay = previousMessageDate && 
+                            (currentMessageDate.getDate() !== previousMessageDate.getDate() ||
+                            currentMessageDate.getMonth() !== previousMessageDate.getMonth() ||
+                            currentMessageDate.getFullYear() !== previousMessageDate.getFullYear());
+
+                            const isFirstUnreadMessage = firstUnreadMessage && message._id === firstUnreadMessage._id;
+                            
+
                         return (
+                            <React.Fragment key={idx}>
+                                {isNewDay && (
+                                    <div className="new-day-line">
+                                        <span className="line-date">{formattedMessageDate}</span>
+                                    </div>
+                                )}
+                                {isFirstUnreadMessage && !clearUnread && (
+                                    <div className="unread-messages-line">
+                                        <span className="line-unread">Unread</span>
+                                    </div>
+                                )}
                             <div key={idx} className={`message ${user === message.author ? 'you' : 'other'}`}>
-                                {(isFirstMessage || lastAuthor !== message.author) && (
+                                {(isFirstMessage || lastAuthor !== message.author || timeDifference > 10 * 60 * 1000) && (
                                     <div className="message-meta">
                                         <p className="author">{message.author}</p>
                                         <p className="date">{getFullDate(message.date)}</p>
@@ -275,20 +313,23 @@ const Chat = ({user}) => {
                                     <p>{message.content}</p>
                                 </div>
                             </div>
+                            </React.Fragment>
                         );
                     })}
-                    <div ref={messagesEndRef} /> {/* Anchor for scrolling */}
-                </ScrollToBottom>
-                <div className="chat-input">
-                    <input 
-                        type="text" 
-                        placeholder="Type a message..." 
-                        onChange={e => setCurMessage(e.target.value)}
-                        value={curMessage}
-                        onKeyDown={e => e.key === "Enter" && sendMessage()}
-                    />
-                    <button onClick={sendMessage}>Send</button>
+                    <div ref={messagesEndRef} />
                 </div>
+                {(curOtherUser && (
+                    <div className="chat-input">
+                        <input 
+                            type="text" 
+                            placeholder="Type a message..." 
+                            onChange={e => setCurMessage(e.target.value)}
+                            value={curMessage}
+                            onKeyDown={e => e.key === "Enter" && sendMessage()}
+                        />
+                        <button onClick={sendMessage}>Send</button>
+                    </div>
+                ))}
             </div>
         </div>
     );

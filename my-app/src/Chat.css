@@ -71,6 +71,7 @@
   
   .chat-main h2 {
     background-color: rgb(155, 131, 70);
+    height: 11%;
     color: white;
     padding: 20px;
     margin: 0;
@@ -84,7 +85,7 @@
   }
 
   /*IMPORTANT: .messages-container is a ScrollToBottom component which has another div as a child*/
-  .messages-container > div {
+  .messages-container {
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -93,26 +94,63 @@
     overflow-y: auto;
   }
 
-  /* Hides default scroll-to-bottom button */
-  .react-scroll-to-bottom--css-qeuue-1tj0vk3 {
-    display: none;
-  }
-
-  .messages-container > div::-webkit-scrollbar {
+  .messages-container::-webkit-scrollbar {
     width: 12px;
   }
 
-  .messages-container > div::-webkit-scrollbar-track {
+  .messages-container::-webkit-scrollbar-track {
     background: #f1f1f1;
   }
 
-  .messages-container > div::-webkit-scrollbar-thumb {
+  .messages-container::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 6px;
   }
 
-  .messages-container > div::-webkit-scrollbar-thumb:hover {
+  .messages-container::-webkit-scrollbar-thumb:hover {
     background: #555;
+  }
+
+  .new-day-line {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 10px 0;
+  }
+
+  .new-day-line:before, .new-day-line:after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #646464;
+      margin: 0 10px;
+  }
+
+  .line-date {
+    padding: 0 5px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #212121;
+  }
+
+  .unread-messages-line {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 10px 0;
+  }
+
+  .unread-messages-line:before, .unread-messages-line:after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #c82b2b;
+      margin: 0 10px;
+  }
+
+  .line-unread {
+    padding: 0 5px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #c82b2b;
   }
 
   .messages {
