@@ -169,9 +169,17 @@
   }
 
   .message-content {
+    max-width: 100%;
     border-radius: 15px;
     padding: 8px 16px;
     word-wrap: break-word;
+  }
+
+  .message.you .message-content {
+    align-self: flex-end;
+  }
+  .message.other .message-content {
+    align-self: flex-start;
   }
 
   .message.you {
