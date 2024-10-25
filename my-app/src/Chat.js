@@ -268,7 +268,7 @@ const Chat = ({user}) => {
                 </ul>
             </div>
             <div className="chat-main">
-                <h2>{curOtherUser ? curOtherUser : 'No User Selected'}</h2>
+                <h2>{curOtherUser ? curOtherUser : `Welcome, ${user}`}</h2>
                 <div className="messages-container">
                     {(chatHistory[roomId] || []).map((message, idx) => {
                         /* Displaying metadata for first message */
