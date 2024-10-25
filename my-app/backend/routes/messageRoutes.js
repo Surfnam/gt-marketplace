@@ -11,7 +11,8 @@ router.post('/', async (req, res) => {
         roomId,
         author,
         content,
-        date
+        date,
+        read: false
     });
     console.log('newMessage: ' + newMessage);
     try {
@@ -19,7 +20,26 @@ router.post('/', async (req, res) => {
         res.status(201).json(newMessage);
     } catch (error) {
         console.error(error);
-        res.status(500).json({error: "A problem occurred while saving this message"});
+        res.status(500).json({error: 'A problem occurred while saving this message'});
+    }
+});
+
+// POST endpoint that marks messages as read
+router.post('/read', async (req, res) => {
+    const { roomId } = req.body;
+
+    try {
+        const messages = await Message.find({ roomId });
+
+        const updatedMessages = await Promise.all(messages.map(async (message) => {
+            message.read = true;
+            return message.save();
+        }));
+
+        res.status(200).send({ message: 'Messages updated successfully', count: updatedMessages.length });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'A problem occurred while marking messages as read' });
     }
 });
 

@@ -19,8 +19,12 @@ const messageSchema = new mongoose.Schema({
     date: {
         type: Date,
         required: true,
-    }
+    },
 
+    read: {
+        type: Boolean,
+        required: true,
+    }
 });
 
 const Message = mongoose.model("Message", messageSchema);
