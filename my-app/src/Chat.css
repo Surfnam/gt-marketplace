@@ -136,6 +136,13 @@
     word-wrap: break-word;
   }
 
+  .message.you .message-content {
+    align-self: flex-end;
+  }
+  .message.other .message-content {
+    align-self: flex-start;
+  }
+
   .message.you {
     align-self: flex-end;
     margin-right: 10px;
