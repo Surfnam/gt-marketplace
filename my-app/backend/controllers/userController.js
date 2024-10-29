@@ -1,5 +1,4 @@
 import User from "../models/User.js";
-import express from 'express';
 
 export const updateProfilePicture = async (req, res) => {
     const id = req.params.id;
@@ -22,28 +21,21 @@ export const updateProfilePicture = async (req, res) => {
     }
 }
 
+export const getUserById = async (req, res) => {
+    const { id } = req.params;
 
-
-export const getMe = async (req, res) => {
-    const id = req.session.userId;
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(id)
+            .populate('listings savedListings interestedListings') // Populate references
+            .select('-password'); // Exclude the password field for security
+
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         res.status(200).json(user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving user', error: error.message });
     }
-}
-
-export const createUser = async ({ username, password, fullName, email }) => {
-    const newUser = new User({
-        username,
-        password,
-        fullName,
-        email
-    });
-    return await newUser.save();
 };
+

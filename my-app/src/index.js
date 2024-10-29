@@ -28,27 +28,17 @@ function Main() {
     navigate("/register");
   };
 
-  useEffect( () => { 
-    async function isAuth() {
-      const response = await fetch('http://localhost:5000/auth/checkAuth', {
-        method: 'GET',
-        credentials: 'include',
-      });
-      const data = await response.json();
-      setUser(data);
-    }
-    isAuth();
-    
-    // const unsubscribe = auth.onAuthStateChanged((user) => {
-    //   if (user) {
-    //     setUser(user);
-    //   } else {
-    //     setUser(null);
-    //   }
-    // });
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
 
-    // return () => unsubscribe();
-  }, [navigate]);
+    return () => unsubscribe();
+  }, []);
 
   return (
     <>
@@ -64,7 +54,7 @@ function Main() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/chat" element={<Chat />} />
+        <Route path="/chat" element={<Chat user={user} />} />
       </Routes>
     </>
   );
