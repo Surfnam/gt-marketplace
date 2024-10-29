@@ -12,6 +12,7 @@ import Chat from './Chat';
 import Home from './Home';
 import Navbar from './components/Navbar';
 import { auth } from './firebase'; // Import Firebase auth
+import UserProfile from './UserProfile';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -30,7 +31,7 @@ function Main() {
 
   useEffect( () => { 
     async function isAuth() {
-      const response = await fetch('http://localhost:5000/auth/checkAuth', {
+      const response = await fetch('http://localhost:3001/auth/checkAuth', {
         method: 'GET',
         credentials: 'include',
       });
@@ -65,6 +66,7 @@ function Main() {
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/profile" element={<UserProfile />} />
       </Routes>
     </>
   );
