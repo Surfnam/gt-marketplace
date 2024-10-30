@@ -8,8 +8,7 @@ import Contact from "./components/Contact";
 import Feedback from "./components/Feedback";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
-import Chat from './Chat';
-import Home from './Home';
+import Chat from './Chat/Chat';
 import Navbar from './components/Navbar';
 import { auth } from './firebase'; // Import Firebase auth
 

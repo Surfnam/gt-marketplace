@@ -248,11 +248,23 @@
   }
 
   .notification-bar {
-    background-color: #f0f8ff; /* Light blue background */
+    background-color: #f0f8ff;
     padding: 10px;
     text-align: center;
     font-weight: bold;
-    border-bottom: 1px solid #ccc; /* Optional: a subtle border */
+    border-bottom: 1px solid #ccc;
+  }
+
+  .hover-box {
+    position: relative; /* Position it absolutely */
+    bottom: 100%; /* Position it above the message */
+    left: 0; /* Align it to the left */
+    background-color: rgb(0, 0, 0); /* Background color */
+    border: 1px solid #ccc; /* Border for visibility */
+    padding: 5px; /* Some padding */
+    z-index: 1; /* Ensure it appears above other elements */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for depth */
+    display: flex; /* Optional, if you plan to add buttons */
 }
   
   .chat-input {

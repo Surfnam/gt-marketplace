@@ -1,7 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './Chat.css';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import io from "socket.io-client";
+
+// Chat Component Files
+import ChatInput from './ChatInput';
+import ChatSidebar from './ChatSidebar';
+import MessageList from './MessageList';
+import './Chat.css';
 
 const socket = io.connect(`http://localhost:3001/`);
 const Chat = ({user}) => {
@@ -20,8 +25,6 @@ const Chat = ({user}) => {
     const [messageLimit, setMessageLimit] = useState(20);
     const [messageSkip, setMessageSkip] = useState(0);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-    
-    const messagesEndRef = useRef(null);
 
     const fetchAllUsers = async () => {
         try {
@@ -94,12 +97,6 @@ const Chat = ({user}) => {
     }
 
     useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: "auto" });
-        }
-    }, [curOtherUser, chatHistory]);
-
-    useEffect(() => {
         socket.on("receive_message", (data) => {
             const formattedData = { ...data, date: new Date(data.date) }
             
@@ -135,10 +132,6 @@ const Chat = ({user}) => {
         sortUsersByRecency();
     }, [lastMessages]); 
 
-    if (!user) {
-        return <h1>Please login</h1>
-    };
-
     const getRoomId = (user1, user2) => {
         const sortedUsers = [user1, user2].sort();
         return sortedUsers.join('_');
@@ -165,7 +158,6 @@ const Chat = ({user}) => {
         // Marks all messages to read when joining a room
         await markMessagesAsRead(newRoomId, otherUser);
 
-
         // Resets notifications
         setChatHistory(prev => ({
             ...prev,
@@ -182,7 +174,7 @@ const Chat = ({user}) => {
 
     const markMessagesAsRead = async (roomId) => {
         try {
-            const result = await axios.post(`http://localhost:3001/api/message/read`, { roomId });
+            await axios.post(`http://localhost:3001/api/message/read`, { roomId });
         } catch (error) {
             console.error('Error marking messages as read:', error);
         }
@@ -208,128 +200,33 @@ const Chat = ({user}) => {
         await sendMessageToServer(messageData);
     };
 
-    
-    const getFullDate = (date) => {
-        const today = new Date();
-        const messageDate = new Date(date);
-
-        const isToday = messageDate.getDate() === today.getDate() &&
-                        messageDate.getMonth() === today.getMonth() &&
-                        messageDate.getFullYear() === today.getFullYear();
-
-        const isYesterday = messageDate.getDate() + 1 === today.getDate() &&
-                            messageDate.getMonth() === today.getMonth() &&
-                            messageDate.getFullYear() === today.getFullYear();
-
-        // Formats hours correctly
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const AMPM = hours >= 12 ? 'PM' : 'AM';
-        const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for midnight and handle 12-hour format
-        const timeString =  `${adjustedHours}:${String(minutes).padStart(2, '0')} ${AMPM}`;
-
-        if (isToday) {
-            return `Today at ${timeString}`;
-        } else if (isYesterday) {
-            return `Yesterday at ${timeString}`
-        } else {
-            const formattedDate = `${String(messageDate.getMonth() + 1)
-                                    .padStart(2, '0')}/${String(messageDate.getDate())
-                                    .padStart(2, '0')}/${messageDate.getFullYear()} ${timeString}`;
-            return formattedDate;
-        }
-    };
-
-    const formatDate = (date) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    };
+    if (!user) return <h1>Please login</h1>;
 
     return (
         <div className="chat-container">
-            <div className="chat-sidebar">
-                <h2>Messages</h2>
-                <ul>
-                    {otherUsers.map((otherUser, idx) => (
-                        <li key={idx} 
-                            onClick={() => joinRoom(otherUser)}
-                            className={`user ${curOtherUser === otherUser ? 'selected' : ''}`}>
-                            <span className={`user ${notifications[otherUser]?.count > 0 ? 'notif' : ''}`}>
-                                {otherUser}
-                            </span>
-                            {notifications[otherUser]?.count > 0 && 
-                                <span className="notif-circle">
-                                    {notifications[otherUser].count > 10 ? "10+" 
-                                    : notifications[otherUser].count}
-                                </span>
-                            }
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <ChatSidebar
+                joinRoom={joinRoom}
+                otherUsers={otherUsers}
+                curOtherUser={curOtherUser}
+                notifications={notifications}
+            />
             <div className="chat-main">
                 <h2>{curOtherUser ? curOtherUser : `Welcome, ${user}`}</h2>
-                <div className="messages-container">
-                    {(chatHistory[roomId] || []).map((message, idx) => {
-                        /* Displaying metadata for first message */
-                        const isFirstMessage = idx === 0;
-                        const lastAuthor = isFirstMessage ? null : chatHistory[roomId][idx - 1].author;
-
-                        /* Displaying new day line */
-                        const currentMessageDate = new Date(message.date);
-                        const formattedMessageDate = formatDate(currentMessageDate);
-                        const previousMessageDate = idx > 0 ? new Date(chatHistory[roomId][idx - 1].date) : null;
-
-                        const timeDifference = currentMessageDate - previousMessageDate;
-
-                        const isNewDay = previousMessageDate && 
-                            (currentMessageDate.getDate() !== previousMessageDate.getDate() ||
-                            currentMessageDate.getMonth() !== previousMessageDate.getMonth() ||
-                            currentMessageDate.getFullYear() !== previousMessageDate.getFullYear());
-
-                            const isFirstUnreadMessage = firstUnreadMessage && message._id === firstUnreadMessage._id;
-                            
-
-                        return (
-                            <React.Fragment key={idx}>
-                                {isNewDay && (
-                                    <div className="new-day-line">
-                                        <span className="line-date">{formattedMessageDate}</span>
-                                    </div>
-                                )}
-                                {isFirstUnreadMessage && !clearUnread && (
-                                    <div className="unread-messages-line">
-                                        <span className="line-unread">Unread</span>
-                                    </div>
-                                )}
-                            <div key={idx} className={`message ${user === message.author ? 'you' : 'other'}`}>
-                                {(isFirstMessage || lastAuthor !== message.author || timeDifference > 10 * 60 * 1000) && (
-                                    <div className="message-meta">
-                                        <p className="author">{message.author}</p>
-                                        <p className="date">{getFullDate(message.date)}</p>
-                                    </div>
-                                )}
-                                <div className="message-content">
-                                    <p>{message.content}</p>
-                                </div>
-                            </div>
-                            </React.Fragment>
-                        );
-                    })}
-                    <div ref={messagesEndRef} />
-                </div>
-                {(curOtherUser && (
-                    <div className="chat-input">
-                        <input 
-                            type="text" 
-                            placeholder="Type a message..." 
-                            onChange={e => setCurMessage(e.target.value)}
-                            value={curMessage}
-                            onKeyDown={e => e.key === "Enter" && sendMessage()}
-                        />
-                        <button onClick={sendMessage}>Send</button>
-                    </div>
-                ))}
+                <MessageList
+                    chatHistory={chatHistory}
+                    roomId={roomId}
+                    user={user}
+                    firstUnreadMessage={firstUnreadMessage}
+                    clearUnread={clearUnread}
+                    curOtherUser={curOtherUser}
+                />
+                {curOtherUser && (
+                    <ChatInput
+                        curMessage={curMessage}
+                        setCurMessage={setCurMessage}
+                        sendMessage={sendMessage}
+                    />
+                )}
             </div>
         </div>
     );
