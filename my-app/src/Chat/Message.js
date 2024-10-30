@@ -1,5 +1,5 @@
 import React from 'react';
-import './Chat.css';
+import './Message.css';
 
 const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate, previousMessageDate, onHover, onLeave }) => {
 

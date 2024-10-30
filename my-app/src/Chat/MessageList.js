@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import NewDayLine from './NewDayLine';
 import UnreadMessageLine from './UnreadMessageLine';
 import Message from './Message';
-import './Chat.css';
+import './MessageList.css';
 
 const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnread, curOtherUser }) => {
     const [hoveredMessageId, setHoveredMessageId] = useState(null);

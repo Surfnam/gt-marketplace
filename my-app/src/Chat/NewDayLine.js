@@ -1,5 +1,5 @@
 import React from 'react';
-import './Chat.css';
+import './NewDayLine.css';
 
 const NewDayLine = ({ currentMessageDate, previousMessageDate }) => {
     const isNewDay = previousMessageDate && 

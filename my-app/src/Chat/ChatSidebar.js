@@ -1,5 +1,5 @@
 import React from 'react';
-import './Chat.css';
+import './ChatSidebar.css';
 
 const ChatSidebar = ({ joinRoom, otherUsers, curOtherUser, notifications }) => {
     return (

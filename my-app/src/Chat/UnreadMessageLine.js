@@ -1,5 +1,5 @@
 import React from 'react';
-import './Chat.css';
+import './UnreadMessageLine.css';
 
 const UnreadMessageLine = ({ message, firstUnreadMessage, clearUnread }) => {
     const isFirstUnreadMessage = firstUnreadMessage && message._id === firstUnreadMessage._id;

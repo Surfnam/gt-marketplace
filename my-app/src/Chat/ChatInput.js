@@ -1,5 +1,5 @@
 import React from 'react';
-import './Chat.css';
+import './ChatInput.css';
 
 const ChatInput = ({ curMessage, setCurMessage, sendMessage }) => {
     return (
