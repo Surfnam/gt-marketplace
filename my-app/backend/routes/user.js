@@ -1,6 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
-import { updateProfilePicture } from '../controllers/userController.js';
+import { updateProfilePicture, getUserById } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -9,19 +9,12 @@ router.post('/register', async (req, res) => {
 
   try {
     const newUser = new User({
-      //username: email + 'hello',
+      username: email,
       password: uid, // Assuming you want to store the uid as password, otherwise hash the password
-      fullName: 'test', // Add fullName if available
-      email,
+      fullName: '', // Add fullName if available
     });
 
-    const mongoUser = await newUser.save();
-
-    // req.session.authenticated = true;
-    // req.session.userId = mongoUser._id;
-
-    console.log("user registered");
-
+    await newUser.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error saving user to MongoDB:', error);
@@ -30,6 +23,20 @@ router.post('/register', async (req, res) => {
 });
 
 // update profile picture
-router.patch('/:id/profilePicture', updateProfilePicture) //id specifies the user id 
+router.patch('/:id/profilePicture', updateProfilePicture) //id specifies the user id
+
+// get all user info (except password) by id
+router.get('/:id', getUserById)
+
+// GET route to retrieve all users
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error retrieving users from MongoDB:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 export default router;
