@@ -91,3 +91,8 @@
   .message.other .message-content {
     background-color: rgb(115, 115, 115);
   }
+
+  .message-file {
+    max-width: 600px;
+    max-height: 600px;
+  }

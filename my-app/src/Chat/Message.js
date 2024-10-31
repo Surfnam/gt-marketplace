@@ -54,7 +54,8 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
                 </div>
             )}
             {message.file && (
-                <img
+                <img 
+                    className="message-file"
                     src={message.file}
                     alt="Sent file"
                 />
