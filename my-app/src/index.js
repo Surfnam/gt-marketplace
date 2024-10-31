@@ -31,7 +31,7 @@ function Main() {
 
   useEffect( () => { 
     async function isAuth() {
-      const response = await fetch('http://localhost:3001/auth/checkAuth', {
+      const response = await fetch('http://localhost:3000/auth/checkAuth', {
         method: 'GET',
         credentials: 'include',
       });

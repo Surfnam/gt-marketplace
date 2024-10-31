@@ -3,13 +3,13 @@ import { useParams } from 'react-router-dom';
 
 const getUserData = async (userId) => {
   // This would typically be an API call
-  await new Promise(resolve => setTimeout(resolve, 2000)); //displays and simulates loading page
+  await new Promise(resolve => setTimeout(resolve, 1500)); //displays and simulates loading page
   return {
     id: userId,
     name: "kevin zhang",
     username: "zhang123",
     email: "kevin.zhang@example.com",
-    profilePicture: "https://via.placeholder.com/150",
+    profilePicture: "https://via.placeholder.com/200",
     bio: "i love gt marketplace!!!",
     joinDate: "January 2025",
     listings: [
