@@ -15,6 +15,7 @@ const Chat = ({user}) => {
     const [curOtherUser, setCurOtherUser] = useState(otherUsers[0]);
     const [roomId, setRoomId] = useState("");
     const [curMessage, setCurMessage] = useState("");
+    const [curFile, setCurFile] = useState(null);
     const [chatHistory, setChatHistory] = useState({}); 
     const [lastMessages, setLastMessages] = useState({});
     const [notifications, setNotifications] = useState({});
@@ -181,14 +182,28 @@ const Chat = ({user}) => {
     };
 
     const sendMessage = async () => {
-        if (curMessage === "" || roomId === "") {
+        if ((curMessage === "" && !curFile) || roomId === "") {
             return;
         }
 
+        let base64File = null;
+        if (curFile) {
+            // Convert image file to Base64
+            const reader = new FileReader();
+            reader.readAsDataURL(curFile);
+            await new Promise((resolve) => {
+                reader.onload = () => {
+                    base64File = reader.result; // Base64 string
+                    resolve();
+                };
+            });
+        }
+    
         const messageData = {
             roomId: roomId,
             author: user,
             content: curMessage,
+            file: base64File,
             date: new Date(),
             read: false
         };
@@ -224,6 +239,8 @@ const Chat = ({user}) => {
                     <ChatInput
                         curMessage={curMessage}
                         setCurMessage={setCurMessage}
+                        curFile={curFile}
+                        setCurFile={setCurFile}
                         sendMessage={sendMessage}
                     />
                 )}

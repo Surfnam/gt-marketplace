@@ -1,6 +1,6 @@
 .chat-input {
     display: flex;
-    padding: 20px;
+    padding: 20px 20px 20px 5px;
     background-color: #bdc3c7;
   }
   
@@ -24,4 +24,9 @@
   
   .chat-input button:hover {
     background-color: #2980b9;
+  }
+
+  .file-upload-label {
+    margin-right: 5px;
+    cursor: pointer;
   }

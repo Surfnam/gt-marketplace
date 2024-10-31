@@ -35,7 +35,7 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
             return formattedDate;
         }
     };
-
+    console.log(message.file);
     return (
         <div 
             className={`message ${user === message.author ? 'you' : 'other'}`} 
@@ -48,9 +48,17 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
                     <p className="date">{getFullDate(message.date)}</p>
                 </div>
             )}
-            <div className="message-content">
-                <p>{message.content}</p>
-            </div>
+            {message.content.length > 0 && (
+                <div className="message-content">
+                    <p>{message.content}</p>
+                </div>
+            )}
+            {message.file && (
+                <img
+                    src={message.file}
+                    alt="Sent file"
+                />
+            )}
         </div>
     )
 }
