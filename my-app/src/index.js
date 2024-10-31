@@ -12,6 +12,7 @@ import Chat from './Chat';
 import Home from './Home';
 import Navbar from './components/Navbar';
 import { auth } from './firebase'; // Import Firebase auth
+import UserProfile from './UserProfile';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -54,7 +55,7 @@ function Main() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/chat" element={<Chat user={user} />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </>
   );
