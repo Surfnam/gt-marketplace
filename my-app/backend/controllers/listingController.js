@@ -3,8 +3,7 @@ import Listing from '../models/Listing.js';
 export const addListing = async (req, res) => {
     try {
         const {id} = req.params
-        const {title, price, condition, category, status} = req.body;
-        console.log(title, id, price, condition, category, status);
+        const {title, price, condition, category, status, image} = req.body;
         const newListing = new Listing({
             title,
             seller: id,
@@ -12,10 +11,11 @@ export const addListing = async (req, res) => {
             condition,
             category,
             status,
+            image
         });
 
         const savedListing = await newListing.save();
-        res.status(201).json({message: "listing saved", listingId: savedListing._id});
+        res.status(201).json({message: "listing saved", newListing});
     } catch (err) {
         res.status(500).json({error: err.message});
     }
