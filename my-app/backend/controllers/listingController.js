@@ -126,3 +126,31 @@ export const getListingByPrice = async (req, res) => {
     }
 };
 
+export const updateListing = async (req, res) => {
+    try {
+        const listingId = req.params.id; 
+        const updates = req.body;     // Fields to update are sent in req.body
+
+        // Remove any fields that are undefined (not provided in the request)
+        const filteredUpdates = Object.fromEntries(
+            Object.entries(updates).filter(([_, value]) => value !== undefined)
+        );
+
+        // Use findByIdAndUpdate with $set to update only specified fields
+        const updatedListing = await Listing.findByIdAndUpdate(
+            listingId,
+            { $set: filteredUpdates },
+            { new: true }  // Option to return the updated document
+        );
+
+        if (!updatedListing) {
+            return res.status(404).json({ message: 'Listing not found' });
+        }
+
+        res.status(200).json({ listing: updatedListing });
+    } 
+    catch (error) {
+        res.status(500).json({ message: 'Failed to update listing', error });
+    }
+}
+
