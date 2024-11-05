@@ -45,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
     "concurrently": "^9.0.1",
     "tailwindcss": "^3.4.13"
   }
