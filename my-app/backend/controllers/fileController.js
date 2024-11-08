@@ -6,16 +6,17 @@ import { uploadFileToBackblaze } from '../db/backblaze.js';
  * @param {Object} res - The response object.
  */
 export const uploadFile = async (req, res) => {
+  // Check if the file exists
   if (!req.file) {
     return res.status(400).json({ message: 'No file uploaded' });
   }
 
   try {
-    // Upload file to Backblaze
-    const fileUrl = await uploadFileToBackblaze(req.file.buffer, req.file.originalname);
+    const fileBuffer = req.file.buffer;
+    const fileType = req.file.mimetype;
+    const fileURL = await uploadFileToBackblaze(fileBuffer, fileType); // Call the function that handles the upload
     
-    // Respond with the generated URL
-    res.json({ fileUrl });
+    res.json({ fileURL }); // Respond with the file URL
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

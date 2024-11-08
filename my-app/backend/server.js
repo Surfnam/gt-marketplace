@@ -38,4 +38,5 @@ initializeSocket(server);
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     mongoSetup();
+    console.log(process.env.AWS_SECRET_ACCESS_KEY)
 });

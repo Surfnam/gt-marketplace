@@ -9,6 +9,6 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 // Route for uploading a file
-router.post('/', upload.single('file'), uploadFile);
+router.put('/', upload.single('file'), uploadFile);
 
 export default router;
