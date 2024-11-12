@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import './Chat.css';
 import axios from 'axios';
 import io from "socket.io-client";
 import ScrollToBottom from 'react-scroll-to-bottom';
 
 const socket = io.connect(`http://localhost:3001/`);
-
-const Chat = ({ user }) => {
-    const { sellerEmail } = useParams(); // Get seller email from URL parameter
+const Chat = ({user}) => {
+    console.log("rerender");
     user = user ? user.email : null;
-    
     const [otherUsers, setOtherUsers] = useState([]);
-    const [curOtherUser, setCurOtherUser] = useState(sellerEmail || otherUsers[0]);
+    const [curOtherUser, setCurOtherUser] = useState(otherUsers[0]);
     const [roomId, setRoomId] = useState("");
     const [curMessage, setCurMessage] = useState("");
-    const [chatHistory, setChatHistory] = useState({});
+    const [chatHistory, setChatHistory] = useState({}); 
     const [lastMessages, setLastMessages] = useState({});
 
     const fetchAllUsers = async () => {
@@ -25,6 +22,7 @@ const Chat = ({ user }) => {
             usersData = usersData.filter(u => u.email !== user).map(u => u.email);
             setOtherUsers(usersData);
             
+            //
             await Promise.all(usersData.map(async (otherUser) => {
                 const room = getRoomId(user, otherUser);
                 const messages = await fetchMessages(room);
@@ -33,10 +31,13 @@ const Chat = ({ user }) => {
                     updateLatestMessages(latestMessage);
                 }
             }));
+            
+
+            console.log(lastMessages);
         } catch (error) {
             console.error('Error fetching users:', error);
         }
-    };
+    }
 
     const fetchMessages = async (room) => {
         try {
@@ -49,7 +50,7 @@ const Chat = ({ user }) => {
         } catch (error) {
             console.error('Error fetching messages:', error);
         }
-    };
+    }
 
     const sendMessageToServer = async (messageData) => {
         try {
@@ -58,7 +59,7 @@ const Chat = ({ user }) => {
         } catch (error) {
             console.error('Error sending message:', error);
         }
-    };
+    }
 
     const updateLatestMessages = (messageData) => {
         const [user1, user2] = messageData.roomId.split('_');
@@ -67,7 +68,7 @@ const Chat = ({ user }) => {
             [user1]: messageData.date,
             [user2]: messageData.date,
         }));
-    };
+    }
 
     const sortUsersByRecency = () => {
         const sortedUsers = [...otherUsers].sort((a, b) => {
@@ -76,11 +77,11 @@ const Chat = ({ user }) => {
             return timeB - timeA; // Sort in descending order
         });
         setOtherUsers(sortedUsers);
-    };
-
+        console.log(sortedUsers);
+    }
     useEffect(() => {
         socket.on("receive_message", (data) => {
-            const formattedData = { ...data, date: new Date(data.date) };
+            const formattedData = {...data, date: new Date(data.date)}
             
             setChatHistory(prevChatHistory => {
                 const updatedRoomMessages = [...(prevChatHistory[data.roomId] || []), formattedData];
@@ -97,24 +98,20 @@ const Chat = ({ user }) => {
 
     useEffect(() => {
         sortUsersByRecency();
-    }, [lastMessages]);
-
-    useEffect(() => {
-        if (sellerEmail) {
-            joinRoom(sellerEmail);
-        }
-    }, [sellerEmail]);
+    }, [lastMessages]); 
 
     if (!user) {
-        return <h1>Please login</h1>;
+        return <h1>Please login</h1>
     }
+
 
     const getRoomId = (user1, user2) => {
         const sortedUsers = [user1, user2].sort();
         return sortedUsers.join('_');
-    };
+    }
 
     const joinRoom = async (otherUser) => {
+        console.log("joined");
         setCurOtherUser(otherUser);
         const newRoomId = getRoomId(user, otherUser);
         setRoomId(newRoomId);
@@ -126,10 +123,12 @@ const Chat = ({ user }) => {
         }));
 
         socket.emit("join_room", newRoomId);
-    };
+    }
 
     const sendMessage = async () => {
-        if (curMessage === "" || roomId === "") return;
+        if (curMessage === "" || roomId === "") {
+            return;
+        }
 
         const messageData = {
             roomId: roomId,
@@ -139,18 +138,27 @@ const Chat = ({ user }) => {
         };
         
         socket.emit("send_message", messageData);
+        
         updateLatestMessages(messageData);
-        setCurMessage("");
-        await sendMessageToServer(messageData);
-    };
+        /*setChatHistory(prev => ({
+            ...prev, 
+            [roomId]: [...(prev[roomId] || []), messageData]
+        }));*/
 
+        setCurMessage("");
+       
+        const savedMessage = await sendMessageToServer(messageData);
+    }
+
+    
     const getAMPM = (date) => {
+        //date = new Date(date);
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const AMPM = hours >= 12 ? 'PM' : 'AM';
-        const adjustedHours = hours % 12 || 12;
+        const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for midnight and handle 12-hour format
         return `${adjustedHours}:${String(minutes).padStart(2, '0')} ${AMPM}`;
-    };
+    }
 
     return (
         <div className="chat-container">
@@ -159,7 +167,7 @@ const Chat = ({ user }) => {
                 <ul>
                     {otherUsers.map((otherUser, idx) => (
                         <li key={idx} onClick={() => joinRoom(otherUser)}>
-                            {otherUser}
+                            {otherUser/*Decide whether to use email or name*/} 
                         </li>
                     ))}
                 </ul>
