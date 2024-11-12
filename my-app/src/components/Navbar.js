@@ -8,7 +8,6 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
     try {
       await auth.signOut();
       console.log('User logged out successfully');
-      // Optionally, you can navigate to the home page or login page after logout
       navigateToLogin();
     } catch (error) {
       console.error('Error logging out:', error);
@@ -45,6 +44,11 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
           <li className="navbar-item">
             <NavLink to="/chat" activeClassName="active" className="navbar-link">
               Chat
+            </NavLink>
+          </li>
+          <li className="navbar-item">
+            <NavLink to="/payment" activeClassName="active" className="navbar-link">
+              Make Payment
             </NavLink>
           </li>
         </ul>
