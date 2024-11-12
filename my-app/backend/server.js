@@ -8,6 +8,7 @@ import listingRoutes from './routes/listing.js';
 import userRoutes from './routes/user.js'; // Correct import statement
 import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/messageRoutes.js';
+import bodyParser from 'body-parser';
 
 const app = express();
 dotenv.config();
@@ -15,6 +16,8 @@ dotenv.config();
 app.use(cors()); // Use cors middleware
 app.use(express.json()); //parse req body
 app.use(express.urlencoded({extended: true})); //parse form data
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); 
 
 const port = process.env.PORT || 3001;
 

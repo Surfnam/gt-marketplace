@@ -5,16 +5,7 @@ const router = express.Router();
 
 // POST endpoint that saves message
 router.post('/', async (req, res) => {
-    const { roomId, author, content, date } = req.body;
-
-    const newMessage = new Message({
-        roomId,
-        author,
-        content,
-        date,
-        read: false
-    });
-
+    const newMessage = new Message(req.body);
     try {
         await newMessage.save();
         res.status(201).json(newMessage);

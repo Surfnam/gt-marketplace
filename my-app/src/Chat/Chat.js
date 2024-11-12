@@ -212,6 +212,7 @@ const Chat = ({user}) => {
         
         updateLatestMessages(messageData);
         setCurMessage("");
+        setCurFile(null);
         await sendMessageToServer(messageData);
     };
 

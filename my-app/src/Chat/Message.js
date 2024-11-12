@@ -35,7 +35,7 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
             return formattedDate;
         }
     };
-    console.log(message.file);
+
     return (
         <div 
             className={`message ${user === message.author ? 'you' : 'other'}`} 
