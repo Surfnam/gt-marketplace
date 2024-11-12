@@ -2,15 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
 
-const getAllListings = async () => {
-  //example placeholders
+export const getAllListings = async () => {
   return [
-    { id: "1", title: "chair", price: 50, category: "Furniture" },
-    { id: "2", title: "laptop", price: 400, category: "Electronics" },
-    { id: "3", title: "sofa", price: 100, category: "Furniture" },
-    { id: "4", title: "white t-shirt", price: 20, category: "Clothing" },
-    { id: "5", title: "flatscreen tv", price: 150, category: "Electronics" },
-    { id: "6", title: "pants", price: 30, category: "Clothing" },
+    { id: "1", title: "chair", price: 50, category: "Furniture", description: "A comfortable chair.", sellerInfo: "Seller A", image: "/images/chair.jpg" },
+    { id: "2", title: "laptop", price: 400, category: "Electronics", description: "A powerful laptop.", sellerInfo: "Seller B", image: "laptop.jpg" },
+    { id: "3", title: "sofa", price: 100, category: "Furniture", description: "A cozy sofa.", sellerInfo: "Seller C", image: "sofa.jpg" },
+    { id: "4", title: "white t-shirt", price: 20, category: "Clothing", description: "A classic white t-shirt.", sellerInfo: "Seller D", image: "tshirt.jpg" },
+    { id: "5", title: "flatscreen tv", price: 150, category: "Electronics", description: "A 4K flatscreen TV.", sellerInfo: "Seller E", image: "tv.jpg" },
+    { id: "6", title: "pants", price: 30, category: "Clothing", description: "Comfortable pants.", sellerInfo: "Seller F", image: "pants.jpg" },
   ];
 };
 
@@ -33,7 +32,7 @@ function Home() {
       listing.title.toLowerCase().includes(searchTerm.toLowerCase()) && (selectedCategory === "All" || listing.category === selectedCategory)
     );
     setFilteredListings(filtered);
-  }, [searchTerm, selectedCategory, listings])
+  }, [searchTerm, selectedCategory, listings]);
 
   const navigateToListingDetails = (id) => {
     navigate(`/listing/${id}`);
@@ -45,7 +44,11 @@ function Home() {
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
-  }
+  };
+
+  const navigateToChat = (sellerInfo) => {
+    navigate(`/chat/${sellerInfo}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -64,7 +67,10 @@ function Home() {
               {["All", "Furniture", "Electronics", "Clothing"].map(
                 (category) => (
                   <li key={category}>
-                    <button className="w-full text-left hover:bg-gray-200 py-1 px-2 rounded" onClick={() => handleCategorySelect(category)}> 
+                    <button
+                      className="w-full text-left hover:bg-gray-200 py-1 px-2 rounded"
+                      onClick={() => handleCategorySelect(category)}
+                    >
                       {category}
                     </button>
                   </li>
@@ -93,9 +99,15 @@ function Home() {
                   <p className="text-gray-600 mb-4">${listing.price}</p>
                   <button
                     onClick={() => navigateToListingDetails(listing.id)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full"
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full mb-2"
                   >
                     View Details
+                  </button>
+                  <button
+                    onClick={() => navigateToChat(listing.sellerInfo)}
+                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded w-full"
+                  >
+                    Message Seller
                   </button>
                 </div>
               </div>

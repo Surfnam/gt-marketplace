@@ -11,8 +11,9 @@ import { createRoot } from 'react-dom/client';
 import Chat from './Chat';
 import Home from './Home';
 import Navbar from './components/Navbar';
-import { auth } from './firebase'; // Import Firebase auth
+import { auth } from './firebase';
 import UserProfile from './UserProfile';
+import ListingDetails from "./ListingDetails";
 
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -56,6 +57,8 @@ function Main() {
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/home" element={<Home />} /> {/* Add route for Home if it's not default */}
+        <Route path="/listing/:id" element={<ListingDetails />} /> {/* New ListingDetails route */}
       </Routes>
     </>
   );
