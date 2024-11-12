@@ -1,5 +1,5 @@
 import express from 'express'
-import { addListing, getListingById, getListingsByCondition, getActiveListings, getListingByCategory, getListingByPrice, getListingsBySeller} from '../controllers/listingController.js'
+import { addListing, updateListing, getListingById, getListingsByCondition, getActiveListings, getListingByCategory, getListingByPrice, getListingsBySeller} from '../controllers/listingController.js'
 
 const router = express.Router();
 
@@ -8,6 +8,9 @@ router.get('/active', getActiveListings);
 
 // add new Listing
 router.post('/:id', addListing) //id specifies the user id 
+
+// update a listing
+router.patch('/:id', updateListing)
 
 // get a specific listing based on its id
 router.get('/:id', getListingById)

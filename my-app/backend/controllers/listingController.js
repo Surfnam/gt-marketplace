@@ -3,8 +3,7 @@ import Listing from '../models/Listing.js';
 export const addListing = async (req, res) => {
     try {
         const {id} = req.params
-        const {title, price, condition, category, status} = req.body;
-        console.log(title, id, price, condition, category, status);
+        const {title, price, condition, category, status, image} = req.body;
         const newListing = new Listing({
             title,
             seller: id,
@@ -12,10 +11,11 @@ export const addListing = async (req, res) => {
             condition,
             category,
             status,
+            image
         });
 
         const savedListing = await newListing.save();
-        res.status(201).json({message: "listing saved", listingId: savedListing._id});
+        res.status(201).json({message: "listing saved", newListing});
     } catch (err) {
         res.status(500).json({error: err.message});
     }
@@ -125,4 +125,32 @@ export const getListingByPrice = async (req, res) => {
         res.status(500).json({message: err.message});
     }
 };
+
+export const updateListing = async (req, res) => {
+    try {
+        const listingId = req.params.id; 
+        const updates = req.body;     // Fields to update are sent in req.body
+
+        // Remove any fields that are undefined (not provided in the request)
+        const filteredUpdates = Object.fromEntries(
+            Object.entries(updates).filter(([_, value]) => value !== undefined)
+        );
+
+        // Use findByIdAndUpdate with $set to update only specified fields
+        const updatedListing = await Listing.findByIdAndUpdate(
+            listingId,
+            { $set: filteredUpdates },
+            { new: true }  // Option to return the updated document
+        );
+
+        if (!updatedListing) {
+            return res.status(404).json({ message: 'Listing not found' });
+        }
+
+        res.status(200).json({ listing: updatedListing });
+    } 
+    catch (error) {
+        res.status(500).json({ message: 'Failed to update listing', error });
+    }
+}
 
