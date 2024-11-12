@@ -1,34 +1,38 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+const user = "64b82d8f2b2a5b33f8a45a22";
 function CreateListing() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    title: '',
-    price: '',
-    category: '',
-    description: '',
-    image: null,
+    title: "",
+    seller: user,
+    price: "",
+    condition: "sss",
+    category: "",
+    description: "",
+    status: "available",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleImageChange = (e) => {
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      image: e.target.files[0]
+      image: e.target.files[0],
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Create a FormData object to send the image file
     console.log("test");
     const data = new FormData();
@@ -37,21 +41,30 @@ function CreateListing() {
     }
 
     try {
-      const userId = "input_user_id"
-      const response = await fetch(`/api/listings/${userId}`, { //idk where fetch api
-        method: 'POST',
-        body: data,
+      console.log(formData);
+      const response = await fetch(`http://localhost:3001/listing/${user}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          uid: user.uid,
+          email: user.email,
+          data: formData,
+          title: formData.title,
+          seller: formData.id,
+          price: formData.price,
+          condition: "something", //formData.condition,
+          category: formData.category,
+          status: formData.status,
+        }),
+        credentials: "include",
       });
+      console.log("User data sent to MongoDB:", response.listingId);
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Listing created:', result);
-        navigate('/'); // Redirect to home page after successful creation
-      } else {
-        console.error('Failed to create listing');
-      }
+      navigate("/");
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error sending user data to MongoDB:", error);
     }
   };
 
@@ -59,9 +72,14 @@ function CreateListing() {
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6">Create New Listing</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Title
+            </label>
             <input
               type="text"
               id="title"
@@ -73,7 +91,12 @@ function CreateListing() {
             />
           </div>
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Price
+            </label>
             <input
               type="number"
               id="price"
@@ -85,7 +108,12 @@ function CreateListing() {
             />
           </div>
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Category
+            </label>
             <select
               id="category"
               name="category"
@@ -101,7 +129,12 @@ function CreateListing() {
             </select>
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Description
+            </label>
             <textarea
               id="description"
               name="description"
@@ -112,7 +145,12 @@ function CreateListing() {
             ></textarea>
           </div>
           <div>
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image</label>
+            <label
+              htmlFor="image"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Image
+            </label>
             <input
               type="file"
               id="image"

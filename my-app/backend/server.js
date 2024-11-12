@@ -12,7 +12,12 @@ import messageRoutes from './routes/message.js';
 const app = express();
 dotenv.config();
 
-app.use(cors()); // Use cors middleware
+const corsOptions = {
+    origin: 'http://localhost:3000', // Allow your frontend origin
+    credentials: true, // Allow cookies to be sent with the request
+  };
+
+app.use(cors(corsOptions)); // Use cors middleware
 app.use(express.json()); //parse req body
 app.use(express.urlencoded({extended: true})); //parse form data
 
