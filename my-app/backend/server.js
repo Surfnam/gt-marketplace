@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config({ override: true });
-
 import express from 'express';
 import mongoSetup from './db/mongo.js';
 import cors from 'cors'; // Import cors
@@ -11,10 +8,18 @@ import userRoutes from './routes/user.js'; // Correct import statement
 import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/message.js';
 import fileUploadRoutes from './routes/fileUpload.js'
+import dotenv from 'dotenv';
+dotenv.config({ override: true });
+
 
 const app = express();
 
-app.use(cors()); // Use cors middleware
+const corsOptions = {
+    origin: 'http://localhost:3000', // Allow your frontend origin
+    credentials: true, // Allow cookies to be sent with the request
+  };
+
+app.use(cors(corsOptions)); // Use cors middleware
 app.use(express.json()); //parse req body
 app.use(express.urlencoded({extended: true})); //parse form data
 

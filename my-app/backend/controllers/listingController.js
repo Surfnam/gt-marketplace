@@ -66,9 +66,9 @@ export const getListingsByCondition = async (req, res) => {
 
 export const getActiveListings = async (req, res) => {
     try {
-        const listings = await Listing.find({ status : 'available'}).select('title');
-        
-        res.status(200).json(listings);
+        const listings = await Listing.find({ status : 'available'}).select('title price category');
+        console.log(listings)
+        res.status(200).json({data: listings});
     } catch (err) {
         res.status(500).json( {error: err.message});
     }
