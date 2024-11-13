@@ -1,23 +1,46 @@
 import User from "../models/User.js";
 
-export const updateProfilePicture = async (req, res) => {
-    const id = req.params.id;
-    const { profilePicture } = req.body; // Get the profile picture URL from the request body
-
-    if (!profilePicture) {
-        return res.status(400).json({ message: 'Profile picture URL is required' });
+export const updateUser = async (req, res) => {
+    try {
+      const userId = req.params.id; 
+      const updates = req.body;     // Fields to update are sent in req.body
+  
+      // Remove any fields that are undefined (not provided in the request)
+      const filteredUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, value]) => value !== undefined)
+      );
+  
+      // Use findByIdAndUpdate with $set to update only specified fields
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $set: filteredUpdates },
+        { new: true }  // Option to return the updated document
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json({ user: updatedUser });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update user profile', error });
     }
+  };
+  
+export const getUserById = async (req, res) => {
+    const { id } = req.params;
 
     try {
-        // Update the user's profile picture in the database
-        const user = await User.findByIdAndUpdate(id, { profilePicture }, { new: true });
+        const user = await User.findById(id)
+            .populate('listings savedListings interestedListings') // Populate references
+            .select('-password'); // Exclude the password field for security
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json({ message: 'Profile picture updated', user });
+        res.status(200).json(user);
     } catch (error) {
-        res.status(500).json({ message: 'Error updating profile picture', error: error.message });
+        res.status(500).json({ message: 'Error retrieving user', error: error.message });
     }
-}
-
+};

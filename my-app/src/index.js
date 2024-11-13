@@ -11,6 +11,7 @@ import { createRoot } from 'react-dom/client';
 import Chat from './Chat/Chat';
 import Navbar from './components/Navbar';
 import { auth } from './firebase'; // Import Firebase auth
+import UserProfile from './UserProfile';
 
 const container = document.getElementById('root');
 const root = createRoot(container);

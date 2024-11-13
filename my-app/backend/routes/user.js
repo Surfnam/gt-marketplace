@@ -1,6 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
-import { updateProfilePicture } from '../controllers/userController.js';
+import {updateUser, getUserById } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -22,8 +22,22 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// update profile picture
-router.patch('/:id/profilePicture', updateProfilePicture) //id specifies the user id 
+// update user related details
+router.patch('/:id', updateUser)
+
+// get all user info (except password) by id
+router.get('/:id', getUserById)
+
+// GET route to retrieve all users
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error retrieving users from MongoDB:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // GET route to retrieve all users
 router.get('/', async (req, res) => {
