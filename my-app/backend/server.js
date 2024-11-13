@@ -5,7 +5,6 @@ import express from 'express';
 import mongoSetup from './db/mongo.js';
 import cors from 'cors'; // Import cors
 import http from 'http';
-import http from 'http';
 import testRoutes from './routes/testroutes.js';
 import listingRoutes from './routes/listing.js';
 import userRoutes from './routes/user.js'; // Correct import statement
