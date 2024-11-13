@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config({ override: true });
-
 import express from 'express';
 import mongoSetup from './db/mongo.js';
 import cors from 'cors'; // Import cors
@@ -11,6 +8,9 @@ import userRoutes from './routes/user.js'; // Correct import statement
 import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/message.js';
 import fileUploadRoutes from './routes/fileUpload.js'
+import dotenv from 'dotenv';
+dotenv.config({ override: true });
+
 
 const app = express();
 
