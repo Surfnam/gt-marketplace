@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "firebase": "^10.13.2"
+    "firebase": "^10.13.2",
+    "sweetalert2": "^11.14.5"
   }
 }
