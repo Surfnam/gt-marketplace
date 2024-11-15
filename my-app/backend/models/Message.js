@@ -16,7 +16,14 @@ const messageSchema = new mongoose.Schema({
     },
     
     file: {
-        type: String
+        name: {
+            type : String,
+            required: true
+        },
+        url: {
+            type : String,
+            required: true     
+        }
     },
 
     date: {

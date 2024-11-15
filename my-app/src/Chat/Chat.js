@@ -8,6 +8,11 @@ import ChatSidebar from './ChatSidebar';
 import MessageList from './MessageList';
 import './Chat.css';
 
+// Services
+import {uploadFile} from '../services/fileUpload';
+import {postMessage} from '../services/message';
+
+
 const socket = io.connect(`http://localhost:3001/`);
 const Chat = ({user}) => {
     user = user ? user.email : null;
@@ -66,16 +71,7 @@ const Chat = ({user}) => {
                 read: message.read
             }));
         } catch (error) {
-            console.error('Error fetching messages:', error);
-        }
-    }
-
-    const sendMessageToServer = async (messageData) => {
-        try {
-            const res = await axios.post('http://localhost:3001/api/message', messageData);
-            return res.data;
-        } catch (error) {
-            console.error('Error sending message:', error);
+            console.error('Error fetcing messages:', error);
         }
     }
 
@@ -185,35 +181,29 @@ const Chat = ({user}) => {
         if ((curMessage === "" && !curFile) || roomId === "") {
             return;
         }
-
-        let base64File = null;
-        if (curFile) {
-            // Convert image file to Base64
-            const reader = new FileReader();
-            reader.readAsDataURL(curFile);
-            await new Promise((resolve) => {
-                reader.onload = () => {
-                    base64File = reader.result; // Base64 string
-                    resolve();
-                };
-            });
-        }
     
         const messageData = {
             roomId: roomId,
             author: user,
             content: curMessage,
-            file: base64File,
             date: new Date(),
             read: false
         };
+
+        if (curFile) {
+            messageData.file = {
+                name: curFile.name,
+                url: await uploadFile(curFile)
+            }
+            console.log(JSON.stringify(messageData.file));
+        }
         
         socket.emit("send_message", messageData);
         
         updateLatestMessages(messageData);
         setCurMessage("");
         setCurFile(null);
-        await sendMessageToServer(messageData);
+        await postMessage(messageData);
     };
 
     if (!user) return <h1>Please login</h1>;

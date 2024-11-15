@@ -36,6 +36,41 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
         }
     };
 
+    const renderMessageFile = (file) => {
+        console.log(file);
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+            // Render image
+            return (
+                <img 
+                    className="message-file"
+                    src={file.url}
+                    alt="Sent file"
+                />
+            );
+        } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
+            // Render video
+            return (
+                <video controls className="message-file">
+                    <source src={file.url} type={`video/${fileExtension}`} />
+                    Your browser does not support the video tag.
+                </video>
+            );
+        } else {
+            // Render link for other file types
+            return (
+                <a 
+                    className="message-file" 
+                    href={file.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                >
+                    {file.name}
+                </a>
+            );
+        }
+    };
+
     return (
         <div 
             className={`message ${user === message.author ? 'you' : 'other'}`} 
@@ -53,13 +88,7 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
                     <p>{message.content}</p>
                 </div>
             )}
-            {message.file && (
-                <img 
-                    className="message-file"
-                    src={message.file}
-                    alt="Sent file"
-                />
-            )}
+            {message.file && renderMessageFile(message.file)}
         </div>
     )
 }
