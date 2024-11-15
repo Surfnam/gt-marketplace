@@ -43,7 +43,7 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
             // Render image
             return (
                 <img 
-                    className="message-file"
+                    className="message-media"
                     src={file.url}
                     alt="Sent file"
                 />
@@ -51,7 +51,7 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
         } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
             // Render video
             return (
-                <video controls className="message-file">
+                <video controls className="message-media">
                     <source src={file.url} type={`video/${fileExtension}`} />
                     Your browser does not support the video tag.
                 </video>
@@ -59,14 +59,15 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
         } else {
             // Render link for other file types
             return (
-                <a 
-                    className="message-file" 
-                    href={file.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                >
-                    {file.name}
-                </a>
+                <div className="file-box">
+                    <a 
+                        href={file.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                    >
+                        <span className="file-name"> {file.name} </span>
+                    </a>
+                </div>
             );
         }
     };
@@ -74,8 +75,8 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
     return (
         <div 
             className={`message ${user === message.author ? 'you' : 'other'}`} 
-            onMouseEnter={onHover}
-            onMouseLeave={onLeave}
+            /*onMouseEnter={onHover}
+            onMouseLeave={onLeave}*/
         >
             {(isFirstMessage || lastAuthor !== message.author || timeDifference > 10 * 60 * 1000) && (
                 <div className="message-meta">
