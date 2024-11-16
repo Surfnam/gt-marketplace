@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     },
     profilePicture: {
         type:String,
-        default:'../public/images/defaultPFP.jpg',
+        default:'https://GTMarketplace.s3.us-east-005.backblazeb2.com/defaultPFP.jpg',
     },
     listings: [{
         type:mongoose.Schema.Types.ObjectId,
