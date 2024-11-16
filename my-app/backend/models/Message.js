@@ -13,14 +13,26 @@ const messageSchema = new mongoose.Schema({
 
     content: {
         type: String,
-        required: true,
+    },
+    
+    file: {
+        name: {
+            type : String,
+        },
+        url: {
+            type : String,
+        }
     },
 
     date: {
         type: Date,
         required: true,
-    }
+    },
 
+    read: {
+        type: Boolean,
+        required: true,
+    }
 });
 
 const Message = mongoose.model("Message", messageSchema);

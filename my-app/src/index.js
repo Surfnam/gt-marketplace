@@ -8,8 +8,7 @@ import Contact from "./components/Contact";
 import Feedback from "./components/Feedback";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
-import Chat from './Chat';
-import Home from './Home';
+import Chat from './Chat/Chat';
 import Navbar from './components/Navbar';
 import { auth } from './firebase'; // Import Firebase auth
 import UserProfile from './UserProfile';
@@ -56,7 +55,7 @@ function Main() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/chat" element={<Chat />} />
+        <Route path="/chat" element={<Chat user={user} />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/createlisting" element={<CreateListing />} />
       </Routes>

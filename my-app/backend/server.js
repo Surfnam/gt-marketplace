@@ -11,6 +11,7 @@ import fileUploadRoutes from './routes/fileUpload.js'
 import dotenv from 'dotenv';
 dotenv.config({ override: true });
 
+import bodyParser from 'body-parser';
 
 const app = express();
 
@@ -22,6 +23,8 @@ const corsOptions = {
 app.use(cors(corsOptions)); // Use cors middleware
 app.use(express.json()); //parse req body
 app.use(express.urlencoded({extended: true})); //parse form data
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); 
 
 const port = process.env.PORT || 3001;
 
