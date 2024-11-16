@@ -1,8 +1,7 @@
 import React from 'react';
 import './Message.css';
 
-const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate, previousMessageDate, onHover, onLeave }) => {
-
+const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate, previousMessageDate, setSelectedMedia, onHover, onLeave }) => {
     const timeDifference = currentMessageDate - previousMessageDate;
 
     const getFullDate = (date) => {
@@ -36,6 +35,23 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
         }
     };
 
+    const handleDownload = async (url, fileName) => {
+        try {
+            const response = await fetch(url, { method: 'GET', mode: 'cors' }); // Fetch the file
+            if (!response.ok) {
+                throw new Error('Failed to fetch file');
+            }
+            const blob = await response.blob(); // Convert the response to a blob
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob); // Create a blob URL
+            link.download = fileName || 'downloaded_file'; // Set the download attribute
+            document.body.appendChild(link);
+            link.click(); // Trigger the download
+            document.body.removeChild(link); // Clean up
+        } catch (error) {
+            console.error('Download failed:', error);
+        }
+    };
     const renderMessageFile = (file) => {
         console.log(file);
         const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -46,28 +62,29 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
                     className="message-media"
                     src={file.url}
                     alt="Sent file"
+                    onClick={() => setSelectedMedia(file)}
                 />
             );
         } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
             // Render video
             return (
-                <video controls className="message-media">
+                <video controls className="file-media" onClick={() => setSelectedMedia(file)} >
                     <source src={file.url} type={`video/${fileExtension}`} />
                     Your browser does not support the video tag.
                 </video>
             );
         } else {
             // Render link for other file types
+            
             return (
                 <div className="file-box">
-                    <a 
-                        href={file.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                    >
-                        <span className="file-name"> {file.name} </span>
-                    </a>
-                </div>
+                <button
+                    className="file-anchor"
+                    onClick={() => handleDownload(file.url, file.name)} // Trigger the download
+                >
+                    <span className="file-name">{file.name}</span>
+                </button>
+            </div>
             );
         }
     };

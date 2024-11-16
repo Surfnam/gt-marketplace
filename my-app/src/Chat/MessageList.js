@@ -9,6 +9,7 @@ import './MessageList.css';
 const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnread, curOtherUser }) => {
     const [hoveredMessageId, setHoveredMessageId] = useState(null);
     const messagesEndRef = useRef(null);
+    const [selectedMedia, setSelectedMedia] = useState(null);
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -16,6 +17,7 @@ const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnrea
         }
     }, [curOtherUser, chatHistory]);
 
+    const fileExtension = selectedMedia?.name.split('.').pop().toLowerCase();
     return (
         <div className="messages-container">
             {(chatHistory[roomId] || []).map((message, idx) => {
@@ -43,6 +45,7 @@ const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnrea
                             message={message}
                             currentMessageDate={currentMessageDate}
                             previousMessageDate={previousMessageDate}
+                            setSelectedMedia={setSelectedMedia}
                             onHover={() => setHoveredMessageId(message._id)}
                             onLeave={() => setHoveredMessageId(null)}
                         />
@@ -56,6 +59,30 @@ const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnrea
                 );
             })}
             <div ref={messagesEndRef} />
+            
+            {selectedMedia && (
+                <>
+                    <div className="modal-overlay" onClick={() => setSelectedMedia(null)}></div>
+
+                    <div className="modal">
+                        <div className="modal-content" >
+                            {
+                                ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension) ? (
+                                    <img src={selectedMedia.url} alt="Preview" className="modal-media" />
+                                ) : (
+                                    <video controls className="modal-media">
+                                        <source src={selectedMedia.url} type={`video/${fileExtension}`} />
+                                        Your browser does not support the video tag.
+                                    </video>
+                            )}
+                        </div>
+                        <a className="selectedMedia-link" href={selectedMedia.url} target="_blank">
+                            
+                            Open in Browser
+                        </a>
+                    </div>
+                </>
+            )}
         </div>
     )
 }
