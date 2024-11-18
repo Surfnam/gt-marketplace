@@ -70,25 +70,19 @@ const Chat = ({user}) => {
         if (!roomId || !containerRef.current) return;
     
         const container = containerRef.current;
-    
-        // Save the current scroll height and scrollTop
         const previousScrollHeight = container.scrollHeight;
         const previousScrollTop = container.scrollTop;
     
         try {
-            // Fetch messages with skip and limit
             const moreMessages = await fetchMessages(roomId, 25, skip);
     
-            // Prepend new messages to the chat history
             setChatHistory((prev) => ({
                 ...prev,
                 [roomId]: [...moreMessages, ...(prev[roomId] || [])],
             }));
     
-            // Update skip value to reflect the new number of messages
             setSkip((prevSkip) => prevSkip + moreMessages.length);
     
-            // Adjust scrollTop after the new messages are rendered
             setTimeout(() => {
                 const newScrollHeight = container.scrollHeight;
                 container.scrollTop = newScrollHeight - previousScrollHeight + previousScrollTop;

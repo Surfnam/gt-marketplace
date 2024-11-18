@@ -21,7 +21,7 @@ const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnrea
             setLoading(true);
             fetchMoreMessages()
                 .then(() => {
-                    setSkip((prevSkip) => prevSkip + 25); // Increment skip
+                    setSkip((prevSkip) => prevSkip + 25);
                     setLoading(false);
                 })
                 .catch(() => setLoading(false));
