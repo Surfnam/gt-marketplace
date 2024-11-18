@@ -6,8 +6,18 @@ import './Navbar.css';
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const handleLogout = async () => {
     try {
-      await auth.signOut();
-      console.log('User logged out successfully');
+      const response = await fetch('http://localhost:5000/auth/signOut', {
+        method: 'POST',
+        credentials: 'include',
+      })
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'error signing out');
+      }
+      user = null;
+      // await auth.signOut();
+       console.log('User logged out successfully');
       // Optionally, you can navigate to the home page or login page after logout
       navigateToLogin();
     } catch (error) {

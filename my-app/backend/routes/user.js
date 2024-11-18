@@ -9,12 +9,19 @@ router.post('/register', async (req, res) => {
 
   try {
     const newUser = new User({
-      username: email,
+      //username: email + 'hello',
       password: uid, // Assuming you want to store the uid as password, otherwise hash the password
-      fullName: '', // Add fullName if available
+      fullName: 'test', // Add fullName if available
+      email,
     });
 
-    await newUser.save();
+    const mongoUser = await newUser.save();
+
+    // req.session.authenticated = true;
+    // req.session.userId = mongoUser._id;
+
+    console.log("user registered");
+
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error saving user to MongoDB:', error);

@@ -27,17 +27,27 @@ function Main() {
     navigate("/register");
   };
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
-    });
+  useEffect( () => { 
+    async function isAuth() {
+      const response = await fetch('http://localhost:5000/auth/checkAuth', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      const data = await response.json();
+      setUser(data);
+    }
+    isAuth();
+    
+    // const unsubscribe = auth.onAuthStateChanged((user) => {
+    //   if (user) {
+    //     setUser(user);
+    //   } else {
+    //     setUser(null);
+    //   }
+    // });
 
-    return () => unsubscribe();
-  }, []);
+    // return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <>
