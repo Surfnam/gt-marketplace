@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "./assets/Google logo.png";
 import GTLogo from "./assets/GT Marketplace Logo.jpeg"
+import ShoppingBag from "./assets/1f6cd.png"
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -47,7 +48,7 @@ function Login() {
   return (
     <div className="min-h-screen bg-customBlue flex items-center justify-center">
       <div className="hidden md:flex flex-1 items-center justify-center">
-        <img className="w-64 h-64" src={GTLogo} alt="" />
+        <img className="w-72 h-72" src={ShoppingBag} alt="" />
         
       </div>
       
