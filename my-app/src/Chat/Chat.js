@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import io from "socket.io-client";
 
@@ -20,11 +20,8 @@ const Chat = ({user}) => {
     const [notifications, setNotifications] = useState({});
     const [firstUnreadMessage, setFirstUnreadMessage] = useState(null);
     const [clearUnread, setClearUnread] = useState(null);
-    
-    // chunk render set-up (TODO)
-    const [messageLimit, setMessageLimit] = useState(20);
-    const [messageSkip, setMessageSkip] = useState(0);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [skip, setSkip] = useState(0);
+    const containerRef = useRef(null);
 
     const fetchAllUsers = async () => {
         try {
@@ -55,7 +52,7 @@ const Chat = ({user}) => {
         }
     }
 
-    const fetchMessages = async (room, limit, skip) => {
+    const fetchMessages = async (room, limit = 20, skip) => {
         try {
             const res = await axios.get(`http://localhost:3001/api/message/${room}?limit=${limit}&skip=${skip}`);
 
@@ -68,6 +65,38 @@ const Chat = ({user}) => {
             console.error('Error fetching messages:', error);
         }
     }
+
+    const fetchMoreMessages = async () => {
+        if (!roomId || !containerRef.current) return;
+    
+        const container = containerRef.current;
+    
+        // Save the current scroll height and scrollTop
+        const previousScrollHeight = container.scrollHeight;
+        const previousScrollTop = container.scrollTop;
+    
+        try {
+            // Fetch messages with skip and limit
+            const moreMessages = await fetchMessages(roomId, 25, skip);
+    
+            // Prepend new messages to the chat history
+            setChatHistory((prev) => ({
+                ...prev,
+                [roomId]: [...moreMessages, ...(prev[roomId] || [])],
+            }));
+    
+            // Update skip value to reflect the new number of messages
+            setSkip((prevSkip) => prevSkip + moreMessages.length);
+    
+            // Adjust scrollTop after the new messages are rendered
+            setTimeout(() => {
+                const newScrollHeight = container.scrollHeight;
+                container.scrollTop = newScrollHeight - previousScrollHeight + previousScrollTop;
+            }, 0);
+        } catch (error) {
+            console.error('Error loading more messages:', error);
+        }
+    };
 
     const sendMessageToServer = async (messageData) => {
         try {
@@ -175,6 +204,7 @@ const Chat = ({user}) => {
     const markMessagesAsRead = async (roomId) => {
         try {
             await axios.post(`http://localhost:3001/api/message/read`, { roomId });
+            setClearUnread(true);
         } catch (error) {
             console.error('Error marking messages as read:', error);
         }
@@ -219,6 +249,10 @@ const Chat = ({user}) => {
                     firstUnreadMessage={firstUnreadMessage}
                     clearUnread={clearUnread}
                     curOtherUser={curOtherUser}
+                    fetchMoreMessages={fetchMoreMessages}
+                    containerRef={containerRef}
+                    skip={skip}
+                    setSkip={setSkip}
                 />
                 {curOtherUser && (
                     <ChatInput

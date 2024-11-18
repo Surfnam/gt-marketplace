@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // Chat Component Files
 import NewDayLine from './NewDayLine';
@@ -6,8 +6,8 @@ import UnreadMessageLine from './UnreadMessageLine';
 import Message from './Message';
 import './MessageList.css';
 
-const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnread, curOtherUser }) => {
-    const [hoveredMessageId, setHoveredMessageId] = useState(null);
+const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnread, curOtherUser, fetchMoreMessages, containerRef, skip, setSkip }) => {
+    const [loading, setLoading] = useState(null);
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -16,8 +16,28 @@ const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnrea
         }
     }, [curOtherUser, chatHistory]);
 
+    const handleScroll = useCallback(() => {
+        if (containerRef.current && containerRef.current.scrollTop === 0 && !loading) {
+            setLoading(true);
+            fetchMoreMessages()
+                .then(() => {
+                    setSkip((prevSkip) => prevSkip + 25); // Increment skip
+                    setLoading(false);
+                })
+                .catch(() => setLoading(false));
+        }
+    }, [loading, fetchMoreMessages, setSkip]);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (container) {
+        container.addEventListener('scroll', handleScroll);
+        return () => container.removeEventListener('scroll', handleScroll);
+        }
+    }, [handleScroll]);
+
     return (
-        <div className="messages-container">
+        <div className="messages-container" ref={containerRef}>
             {(chatHistory[roomId] || []).map((message, idx) => {
                 const isFirstMessage = idx === 0;
                 const lastAuthor = isFirstMessage ? null : chatHistory[roomId][idx - 1].author;
@@ -43,15 +63,7 @@ const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnrea
                             message={message}
                             currentMessageDate={currentMessageDate}
                             previousMessageDate={previousMessageDate}
-                            onHover={() => setHoveredMessageId(message._id)}
-                            onLeave={() => setHoveredMessageId(null)}
                         />
-                        {hoveredMessageId === message._id && (
-                            <div className="hover-box">
-                                {/* This box will eventually contain buttons */}
-                                <p>Action</p>
-                            </div>
-                        )}
                     </React.Fragment>
                 );
             })}

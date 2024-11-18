@@ -46,12 +46,12 @@ router.post('/read', async (req, res) => {
 // GET endpoint to retrieve all messages for a room
 router.get('/:roomId', async (req, res) => {
     const { roomId } = req.params;
-    const limit = parseInt(req.query.limit) || 1000;
+    const limit = parseInt(req.query.limit) || 25;
     const skip = parseInt(req.query.skip) || 0;
 
     try {
         const messages = await Message.find({ roomId })
-        .sort({ time: 1 })
+        .sort({ time: -1 })
         .skip(skip)
         .limit(limit);
 
