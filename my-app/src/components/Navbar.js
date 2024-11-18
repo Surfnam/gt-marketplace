@@ -32,8 +32,8 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
             </NavLink>
           </li>
           <li className="navbar-item">
-            <NavLink to="/feedback" activeClassName="active" className="navbar-link">
-              Feedback
+            <NavLink to="/profile" activeClassName="active" className="navbar-link">
+              My Profile
             </NavLink>
           </li>
           <li className="navbar-item">
