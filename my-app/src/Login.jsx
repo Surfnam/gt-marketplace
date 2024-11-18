@@ -5,8 +5,8 @@ import { auth, googleProvider } from "./firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "./assets/Google logo.png";
-import GTLogo from "./assets/GT Marketplace Logo.jpeg"
-import ShoppingBag from "./assets/1f6cd.png"
+import GTLogo from "./assets/GT Marketplace Logo.jpeg";
+import ShoppingBag from "./assets/1f6cd.png";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -49,21 +49,20 @@ function Login() {
     <div className="min-h-screen bg-customBlue flex items-center justify-center">
       <div className="hidden md:flex flex-1 items-center justify-center">
         <img className="w-72 h-72" src={ShoppingBag} alt="" />
-        
       </div>
-      
+
       <div className="w-full max-w-lg bg-white p-16 mx-36 rounded-3xl shadow-lg">
-      <div className="space-y-6 mb-8">
-        <h1 className="text-2xl font-semibold text-customBlue">
-          GT Marketplace
-        </h1>
-        <h2 className="text-2xl font-bold">Log In</h2>
-      </div>
+        <div className="space-y-6 mb-8">
+          <h1 className="text-2xl font-semibold text-customBlue">
+            GT Marketplace
+          </h1>
+          <h2 className="text-2xl font-bold">Log In</h2>
+        </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium">
-              User
+              Email
             </label>
             <input
               id="email"
@@ -71,7 +70,7 @@ function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600"
-              placeholder="Email or phone number"
+              placeholder="johndoe@gmail.com"
               required
             />
           </div>
