@@ -14,7 +14,7 @@
   }
 
   .messages-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #f0f0f0;
   }
 
   .messages-container::-webkit-scrollbar-thumb {

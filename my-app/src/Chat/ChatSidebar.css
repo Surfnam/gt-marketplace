@@ -4,6 +4,7 @@
     color: white;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    border-right: 3px solid #BDC3C7
   }
   
   .chat-sidebar h2 {
@@ -35,7 +36,7 @@
   }
 
   .user.selected {
-    background-color: #1abc9c;
+    background-color: #1b91e0;
   }
 
   .user.notif {
