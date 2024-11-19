@@ -1,24 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import './index.css';
-import App from './App';
-import Login from './Login';
-import Register from './Register';
+import React, { useState, useEffect } from "react";
+import "./index.css";
+import App from "./App";
+import Login from "./Login";
+import Register from "./Register";
 import AboutUs from "./components/AboutUs";
 import Contact from "./components/Contact";
 import Feedback from "./components/Feedback";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
-import { createRoot } from 'react-dom/client';
-import Chat from './Chat/Chat';
-import Navbar from './components/Navbar';
-import { auth } from './firebase'; // Import Firebase auth
-import UserProfile from './UserProfile';
-import CreateListing from './CreateListing';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import { createRoot } from "react-dom/client";
+import Chat from "./Chat/Chat";
+import Navbar from "./components/Navbar";
+import { auth } from "./firebase"; // Import Firebase auth
+import UserProfile from "./UserProfile";
+import CreateListing from "./CreateListing";
+import PaymentPage from './PaymentPage';
 
-const container = document.getElementById('root');
+const container = document.getElementById("root");
 const root = createRoot(container);
 
 function Main() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
 
   const navigateToLogin = () => {
@@ -43,11 +51,13 @@ function Main() {
 
   return (
     <>
-      <Navbar 
-        navigateToLogin={navigateToLogin} 
-        navigateToRegister={navigateToRegister} 
-        user={user} 
-      />
+      {location.pathname !== "/login" && location.pathname !== "/register" && (
+        <Navbar
+          navigateToLogin={navigateToLogin}
+          navigateToRegister={navigateToRegister}
+          user={user}
+        />
+      )}
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
@@ -58,6 +68,7 @@ function Main() {
         <Route path="/chat" element={<Chat user={user} />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/createlisting" element={<CreateListing />} />
+        <Route path="/payment" element={<PaymentPage />} />
       </Routes>
     </>
   );
