@@ -6,9 +6,9 @@ const router = express.Router();
 // POST endpoint that saves message
 router.post('/', async (req, res) => {
     const newMessage = new Message(req.body);
-    console.log('newMessage: ' + newMessage);
     try {
         await newMessage.save();
+        console.log('newMessage: ' + newMessage);
         res.status(201).json(newMessage);
     } catch (error) {
         console.error(error);
@@ -36,7 +36,7 @@ router.post('/read', async (req, res) => {
 router.get('/:roomId', async (req, res) => {
     const { roomId } = req.params;
     try {
-        const messages = await Message.find({ roomId }).sort({ time: 1 });
+        const messages = await Message.find({ roomId }).sort({ date: 1 });
         res.status(200).json(messages);
     } catch (error) {
         console.error(error);
