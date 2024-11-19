@@ -19,6 +19,7 @@ import Navbar from "./components/Navbar";
 import { auth } from "./firebase"; // Import Firebase auth
 import UserProfile from "./UserProfile";
 import CreateListing from "./CreateListing";
+import PaymentPage from './PaymentPage';
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -67,6 +68,7 @@ function Main() {
         <Route path="/chat" element={<Chat user={user} />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/createlisting" element={<CreateListing />} />
+        <Route path="/payment" element={<PaymentPage />} />
       </Routes>
     </>
   );
