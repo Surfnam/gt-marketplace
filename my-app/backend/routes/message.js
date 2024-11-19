@@ -6,9 +6,9 @@ const router = express.Router();
 // POST endpoint that saves message
 router.post('/', async (req, res) => {
     const newMessage = new Message(req.body);
-    console.log('newMessage: ' + newMessage);
     try {
         await newMessage.save();
+        console.log('newMessage: ' + newMessage);
         res.status(201).json(newMessage);
     } catch (error) {
         console.error(error);
@@ -16,11 +16,27 @@ router.post('/', async (req, res) => {
     }
 });
 
+// POST endpoint that marks messages as read
+router.post('/read', async (req, res) => {
+    const { roomId } = req.body;
+    try {
+        const messages = await Message.find({ roomId });
+        const updatedMessages = await Promise.all(messages.map(async (message) => {
+            message.read = true;
+            return message.save();
+        }));
+        res.status(200).send({ message: 'Messages updated successfully', count: updatedMessages.length });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'A problem occurred while marking messages as read' });
+    }
+});
+
 // GET endpoint to retrieve all messages for a room
 router.get('/:roomId', async (req, res) => {
     const { roomId } = req.params;
     try {
-        const messages = await Message.find({ roomId }).sort({ time: 1 });
+        const messages = await Message.find({ roomId }).sort({ date: 1 });
         res.status(200).json(messages);
     } catch (error) {
         console.error(error);
