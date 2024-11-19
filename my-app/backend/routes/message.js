@@ -16,6 +16,22 @@ router.post('/', async (req, res) => {
     }
 });
 
+// POST endpoint that marks messages as read
+router.post('/read', async (req, res) => {
+    const { roomId } = req.body;
+    try {
+        const messages = await Message.find({ roomId });
+        const updatedMessages = await Promise.all(messages.map(async (message) => {
+            message.read = true;
+            return message.save();
+        }));
+        res.status(200).send({ message: 'Messages updated successfully', count: updatedMessages.length });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'A problem occurred while marking messages as read' });
+    }
+});
+
 // GET endpoint to retrieve all messages for a room
 router.get('/:roomId', async (req, res) => {
     const { roomId } = req.params;

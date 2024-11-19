@@ -187,7 +187,7 @@ const Chat = ({user}) => {
             author: user,
             content: curMessage,
             date: new Date(),
-            read: false
+            read: true
         };
 
         if (curFile) {
