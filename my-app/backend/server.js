@@ -5,10 +5,10 @@ import http from 'http';
 import testRoutes from './routes/testroutes.js';
 import listingRoutes from './routes/listing.js';
 import userRoutes from './routes/user.js'; // Correct import statement
-import initializeSocket from './socket-backend.js';
+import bodyParser from 'body-parser';
+import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/message.js';
 import dotenv from 'dotenv';
-import bodyParser from 'body-parser';
 import stripePackage from 'stripe';
 
 dotenv.config({ override: true });
