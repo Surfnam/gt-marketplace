@@ -39,7 +39,7 @@ app.use('/api/users', userRoutes); // Use the new user routes
 app.use('/api/message', messageRoutes); // Use the new message routes
 
 const server = http.createServer(app); // Creating the server (http)
-
+initializeSocket(server);
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     mongoSetup();
