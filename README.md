@@ -23,4 +23,4 @@ Hi guys for the backend setup, I installed some key dependencies and created a b
   - in the terminal, type node run dev and confirm the server is running.
 
 3. gitignore update
-    - make sure to add .env and node modules to the gitignore file
+    - make sure to add .env and node modules to the gitignore file (important)
