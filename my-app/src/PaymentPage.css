@@ -34,7 +34,7 @@
     background-color: #fff;
 }
 
-button {
+.payment-submit-button {
     width: 100%;
     padding: 10px;
     background-color: #007bff;
@@ -44,7 +44,7 @@ button {
     cursor: pointer;
 }
 
-button:disabled {
+.payment-submit-button:disabled {
     background-color: #ccc;
 }
 

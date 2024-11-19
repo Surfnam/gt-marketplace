@@ -94,7 +94,7 @@ const CheckoutForm = () => {
                 <label htmlFor="cardElement">Card Details:</label>
                 <CardElement id="cardElement" />
             </div>
-            <button type="submit" disabled={!stripe}>
+            <button className="payment-submit-button" type="submit" disabled={!stripe}>
                 Pay
             </button>
             {error && <div className="error-message">{error}</div>}
