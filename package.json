@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "firebase": "^10.13.2",
+    "lucide-react": "^0.460.0",
     "sweetalert2": "^11.14.5"
   }
 }
