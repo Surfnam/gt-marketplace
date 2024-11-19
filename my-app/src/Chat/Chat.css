@@ -13,10 +13,11 @@
   }
   
   .chat-main h2 {
-    background-color: rgb(155, 131, 70);
+    /*background-color: rgb(155, 131, 70);*/
     height: 11%;
-    color: white;
+    background-color: #e8eeef;
     padding: 20px;
     margin: 0;
     font-size: 1.5rem;
+    border-bottom: 2px solid rgba(44, 62, 80, 0.2);
   }

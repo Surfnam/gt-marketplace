@@ -10,7 +10,7 @@ import './Chat.css';
 
 // Services
 import {uploadFile} from '../services/fileUpload';
-import {postMessage} from '../services/message';
+import {postMessage, fetchMessages, markMessagesAsRead, fetchAllUsers} from '../services/message';
 
 
 const socket = io.connect(`http://localhost:3001/`);
@@ -32,48 +32,30 @@ const Chat = ({user}) => {
     const [messageSkip, setMessageSkip] = useState(0);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-    const fetchAllUsers = async () => {
-        try {
-            const res = await axios.get('http://localhost:3001/api/users');
-            let usersData = res.data;
-            usersData = usersData.filter(u => u.email !== user).map(u => u.email);
-            setOtherUsers(usersData);
-            
-            const newNotifications = {};
+    const getUsers = async () => {
+        let usersData = await fetchAllUsers();
+        usersData = usersData.filter(u => u.email !== user).map(u => u.email);
+        setOtherUsers(usersData);
+        
+        const newNotifications = {};
 
-            await Promise.all(usersData.map(async (otherUser) => {
-                const room = getRoomId(user, otherUser);
-                const messages = await fetchMessages(room);
+        await Promise.all(usersData.map(async (otherUser) => {
+            const room = getRoomId(user, otherUser);
+            const messages = await fetchMessages(room);
 
-                // Calculating unread messages
-                const unreadCount = messages.filter(message => !message.read).length;
-                newNotifications[otherUser] = { count: unreadCount };
+            // Calculating unread messages
+            const unreadCount = messages.filter(message => !message.read).length;
+            newNotifications[otherUser] = { count: unreadCount };
 
-                if (messages.length > 0) {
-                    const latestMessage = messages[messages.length - 1];
-                    updateLatestMessages(latestMessage);
-                }
-            }));
+            if (messages.length > 0) {
+                const latestMessage = messages[messages.length - 1];
+                updateLatestMessages(latestMessage);
+            }
+        }));
 
-            setNotifications(newNotifications);
-        } catch (error) {
-            console.error('Error fetching users:', error);
-        }
+        setNotifications(newNotifications);
     }
 
-    const fetchMessages = async (room, limit, skip) => {
-        try {
-            const res = await axios.get(`http://localhost:3001/api/message/${room}?limit=${limit}&skip=${skip}`);
-
-            return res.data.map(message => ({
-                ...message,
-                date: new Date(message.date),
-                read: message.read
-            }));
-        } catch (error) {
-            console.error('Error fetcing messages:', error);
-        }
-    }
 
     const updateLatestMessages = (messageData) => {
         const [user1, user2] = messageData.roomId.split('_');
@@ -122,7 +104,7 @@ const Chat = ({user}) => {
     }, [curOtherUser]);
 
     useEffect(() => {
-        fetchAllUsers();
+        getUsers();
     }, [user]);
 
     useEffect(() => {
@@ -169,13 +151,6 @@ const Chat = ({user}) => {
         socket.emit("join_room", newRoomId);
     };
 
-    const markMessagesAsRead = async (roomId) => {
-        try {
-            await axios.post(`http://localhost:3001/api/message/read`, { roomId });
-        } catch (error) {
-            console.error('Error marking messages as read:', error);
-        }
-    };
 
     const sendMessage = async () => {
         if ((curMessage === "" && !curFile) || roomId === "") {
