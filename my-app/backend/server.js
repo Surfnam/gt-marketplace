@@ -5,6 +5,7 @@ import http from 'http';
 import testRoutes from './routes/testroutes.js';
 import listingRoutes from './routes/listing.js';
 import userRoutes from './routes/user.js'; // Correct import statement
+import fileUpload from './routes/fileUpload.js'; 
 import bodyParser from 'body-parser';
 import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/message.js';
@@ -37,6 +38,7 @@ app.use('/testAPI', testRoutes);
 app.use('/listing', listingRoutes);
 app.use('/api/users', userRoutes); // Use the new user routes
 app.use('/api/message', messageRoutes); // Use the new message routes
+app.use('/api/fileUpload', fileUpload);
 
 const server = http.createServer(app); // Creating the server (http)
 initializeSocket(server);
