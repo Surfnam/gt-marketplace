@@ -1,6 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
-import {updateUser, getUserById, addInterestedListing, removeInterestedListing } from '../controllers/userController.js';
+import {updateUser, getUserById, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -55,5 +55,11 @@ router.post('/interestedListings', addInterestedListing)
 
 // Remove an interested listing from a user's interestedListings. Pass in "userId" and "listingId" in post body.
 router.delete('/interestedListings', removeInterestedListing)
+
+// Get all active listings of a user
+router.get('/:id/listings', getUserListings);
+
+// Get all interested listings of a user
+router.get('/:id/interestedListings', getUserInterestedListings);
 
 export default router;

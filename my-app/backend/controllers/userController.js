@@ -93,3 +93,39 @@ export const removeInterestedListing = async (req, res) => {
       res.status(500).json({ message: "Failed to remove interested listing", error });
   }
 };
+
+export const getUserListings = async (req, res) => {
+  try {
+      const { id } = req.params;
+
+      // Find the user and return only the listings array, populating the listing details
+      const user = await User.findById(id).populate('listings', '-__v'); // Exclude __v (version) field
+
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json({ listings: user.listings });
+  } catch (error) {
+      res.status(500).json({ message: "Failed to retrieve user listings", error });
+  }
+};
+
+export const getUserInterestedListings = async (req, res) => {
+  try {
+      const { id } = req.params;
+
+      // Find the user and return only the interestedListings array, populating listing details
+      const user = await User.findById(id).populate('interestedListings', '-__v');
+
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json({ interestedListings: user.interestedListings });
+  } catch (error) {
+      res.status(500).json({ message: "Failed to retrieve user's interested listings", error });
+  }
+};
+
+
