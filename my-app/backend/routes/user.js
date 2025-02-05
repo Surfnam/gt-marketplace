@@ -1,6 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
-import {updateUser, getUserById } from '../controllers/userController.js';
+import {updateUser, getUserById, addInterestedListing, removeInterestedListing } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -49,5 +49,11 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// Add an interested listing to a user's interestedListings. Pass in "userId" and "listingId" in post body.
+router.post('/interestedListings', addInterestedListing)
+
+// Remove an interested listing from a user's interestedListings. Pass in "userId" and "listingId" in post body.
+router.delete('/interestedListings', removeInterestedListing)
 
 export default router;

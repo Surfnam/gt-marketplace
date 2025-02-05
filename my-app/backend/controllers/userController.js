@@ -44,3 +44,52 @@ export const getUserById = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving user', error: error.message });
     }
 };
+
+export const addInterestedListing = async (req, res) => {
+  try {
+      const { userId, listingId } = req.body; // Expect userId and listingId in request body
+
+      if (!userId || !listingId) {
+          return res.status(400).json({ message: "User ID and Listing ID are required." });
+      }
+
+      // Update the user's interestedListings array
+      const updatedUser = await User.findByIdAndUpdate(
+          userId,
+          { $addToSet: { interestedListings: listingId } }, // $addToSet prevents duplicates
+          { new: true } // Return updated document
+      );
+
+      if (!updatedUser) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json({ message: "Listing added to interestedListings" });
+  } catch (error) {
+      res.status(500).json({ message: "Failed to add interested listing", error });
+  }
+};
+
+export const removeInterestedListing = async (req, res) => {
+  try {
+      const { userId, listingId } = req.body;
+
+      if (!userId || !listingId) {
+          return res.status(400).json({ message: "User ID and Listing ID are required." });
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(
+          userId,
+          { $pull: { interestedListings: listingId } }, // $pull removes matching value
+          { new: true }
+      );
+
+      if (!updatedUser) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json({ message: "Listing removed from interestedListings" });
+  } catch (error) {
+      res.status(500).json({ message: "Failed to remove interested listing", error });
+  }
+};
