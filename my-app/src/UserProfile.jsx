@@ -237,15 +237,15 @@ return (
             value={name} 
             onChange={(e) => setName(e.target.value)} 
             placeholder="Enter name" 
-            className="text-xl font-bold text-gray-900 sm:text-2xl bg-transparent border-blue-500 outline-none"
+            className="text-xl font-bold text-gray-900  sm:text-2xl bg-transparent border-2 border-blue-300 outline-none"
           />) : (<p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p>)}
                 {/* <p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p> */}
                 {editMode? (<input 
             type="text" 
             value={displayName} 
             onChange={(e) => setdisplayName(e.target.value)} 
-            placeholder="Enter display name" 
-            className="text-xl font-bold text-gray-900 sm:text-2xl bg-transparent border-blue-500 outline-none"
+            placeholder="Enter username" 
+            className="text-sm font-bold text-gray-900  bg-transparent border-2 border-blue-300 outline-none"
           />) : (<p className="text-sm font-medium text-gray-600">@{displayName || "defaultuser"}</p>)}
                 
               </div>
@@ -275,7 +275,7 @@ return (
             value={bio} 
             onChange={(e) => setBio(e.target.value)} 
             placeholder="Enter bio" 
-            className="text-xl font-bold text-gray-900 sm:text-2xl bg-transparent border-blue-500 outline-none"
+            className="text-sm font-bold text-gray-900 bg-transparent border-2 border-blue-300  outline-none"
           />) : (<dd className="mt-1 text-sm text-gray-900">{bio || "This is a default bio."}</dd>)}
             </div>
           </dl>

@@ -1,17 +1,18 @@
 import express from 'express';
 import User from '../models/User.js';
+import bcrypt from 'bcrypt'
 import {updateUser, getUserById, getUserByEmail } from '../controllers/userController.js';
 
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
   const { uid, email } = req.body;
-  console.log('uid', uid)
-  console.log('uid', email)
+  
   try {
+    const pw = await bcrypt.hash(uid, 10)
     const newUser = new User({
-      username: 'uniqqqqq',
-      password: uid,
+      username: uid,
+      password: pw,
       email: email, // Assuming you want to store the uid as password, otherwise hash the password
       fullName: '', // Add fullName if available
     });

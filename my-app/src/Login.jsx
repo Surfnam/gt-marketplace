@@ -18,22 +18,12 @@ function Login() {
   const navigate = useNavigate();
   const sendUserDataToMongoDB = async (user) => {
     try {
-      // const cred = {
-      //   uid: user.uid,
-      //   email: user.email,
-      // }
-      // console.log('cred', cred)
+      
       const response = await fetch(
         `http://localhost:3001/api/users/profile/${user.email}`
-        // {
-        //   method: "POST",
-        //   headers: {
-        //       "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(cred)} 
-        
+       
       );
-      console.log("User data sent to MongoDB:", response.data);
+      console.log("successfully fetched user data from mongo", response.data);
       return response;
     } catch (error) {
       console.error("Error sending user data to MongoDB:", error);
@@ -42,7 +32,6 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(""); // Clear previous errors
-    console.log("could it be this endpoint")
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -51,11 +40,9 @@ function Login() {
       );
       const res = await sendUserDataToMongoDB(userCredential.user);
       const data = await res.json()
-      console.log(data)
-      // const data = res.data.userId;
-      console.log('RES DATA FROM MONGO', data);
-      localStorage.setItem("userId", data[0]._id);
+      console.log('user data from mongo', data)
       console.log("Login successful:", userCredential.user);
+      localStorage.setItem("userId", data[0]._id);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error logging in:", error);
@@ -71,8 +58,6 @@ function Login() {
       console.log("Google Sign-In successful:", result.user);
       const res = await sendUserDataToMongoDB(result.user);
       const data = await res.json()
-      console.log(data)
-      // const data = res.data.userId;
       console.log('RES DATA FROM MONGO', data);
       localStorage.setItem("userId", data[0]._id);
       navigate("/"); // Navigate to home page after successful login

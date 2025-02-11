@@ -39,9 +39,9 @@ function Register() {
 
       // Send user data to MongoDB
       const res = await sendUserDataToMongoDB(userCredential.user);
-      const data = res.data.userId;
+      const data = await res.json()
       console.log('RES DATA FROM MONGO', data);
-      localStorage.setItem("userId", data);
+      localStorage.setItem("userId", data.userId);
       // Navigate to home page
       navigate("/");
     } catch (error) {
@@ -60,7 +60,10 @@ function Register() {
       console.log("Google Sign-In successful:", result.user);
 
       // Send user data to MongoDB
-      await sendUserDataToMongoDB(result.user);
+      const res = await sendUserDataToMongoDB(result.user);
+      const data = await res.json()
+      console.log('RES DATA FROM MONGO', data);
+      localStorage.setItem("userId", data.userId);
       setSuccess("Registration successful via Google! You can now log in.");
 
       // Navigate to home page
@@ -73,13 +76,7 @@ function Register() {
 
   const sendUserDataToMongoDB = async (user) => {
     try {
-      // const response = await axios.post(
-      //   "http://localhost:3001/api/users/register",
-      //   {
-      //     uid: user.uid,
-      //     email: user.email,
-      //   }
-      // );
+      
       const cred = {
         uid: user.uid,
         email: user.email,
@@ -94,7 +91,7 @@ function Register() {
           body: JSON.stringify(cred)} 
         
       );
-      console.log("User data sent to MongoDB:", response.data);
+      console.log("User data sent to MongoDB:", response);
       return response;
     } catch (error) {
       console.error("Error sending user data to MongoDB:", error);

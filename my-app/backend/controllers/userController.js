@@ -3,11 +3,7 @@ import User from "../models/User.js";
 export const updateUser = async (req, res) => {
     try {
       const userId = req.params.id; 
-      console.log(userId)
-      console.log('uid')
       const updates = req.body; 
-      console.log('updates')    // Fields to update are sent in req.body
-      console.log(updates)
       
       // Remove any fields that are undefined (not provided in the request)
       const filteredUpdates = Object.fromEntries(
