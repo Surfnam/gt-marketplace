@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import axios from 'axios';
 import GoogleLogo from "./assets/Google logo.png";
 import GTLogo from "./assets/GT Marketplace Logo.jpeg";
 import ShoppingBag from "./assets/1f6cd.png";
@@ -15,16 +16,45 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
+  const sendUserDataToMongoDB = async (user) => {
+    try {
+      // const cred = {
+      //   uid: user.uid,
+      //   email: user.email,
+      // }
+      // console.log('cred', cred)
+      const response = await fetch(
+        `http://localhost:3001/api/users/profile/${user.email}`
+        // {
+        //   method: "POST",
+        //   headers: {
+        //       "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify(cred)} 
+        
+      );
+      console.log("User data sent to MongoDB:", response.data);
+      return response;
+    } catch (error) {
+      console.error("Error sending user data to MongoDB:", error);
+    }
+  };
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(""); // Clear previous errors
+    console.log("could it be this endpoint")
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
+      const res = await sendUserDataToMongoDB(userCredential.user);
+      const data = await res.json()
+      console.log(data)
+      // const data = res.data.userId;
+      console.log('RES DATA FROM MONGO', data);
+      localStorage.setItem("userId", data[0]._id);
       console.log("Login successful:", userCredential.user);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
@@ -32,12 +62,19 @@ function Login() {
       setError(error.message);
     }
   };
-
+  
   const handleGoogleSignIn = async () => {
+    console.log('is it this endpoint..')
     setError(""); // Clear previous errors
     try {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google Sign-In successful:", result.user);
+      const res = await sendUserDataToMongoDB(result.user);
+      const data = await res.json()
+      console.log(data)
+      // const data = res.data.userId;
+      console.log('RES DATA FROM MONGO', data);
+      localStorage.setItem("userId", data[0]._id);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error with Google sign-in:", error);

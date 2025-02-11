@@ -1,4 +1,5 @@
 import Listing from '../models/Listing.js';
+import User from '../models/User.js';
 
 export const addListing = async (req, res) => {
     try {
@@ -13,8 +14,14 @@ export const addListing = async (req, res) => {
             status,
             image
         });
-
         const savedListing = await newListing.save();
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { $push: {listings : savedListing._id} },
+            { new: true }  // Option to return the updated document
+          );
+
+        
         res.status(201).json({message: "listing saved", newListing});
     } catch (err) {
         res.status(500).json({error: err.message});
