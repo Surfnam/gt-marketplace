@@ -7,6 +7,7 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const handleLogout = async () => {
     try {
       await auth.signOut();
+      localStorage.removeItem('userId');
       console.log('User logged out successfully');
       navigateToLogin();
     } catch (error) {

@@ -38,8 +38,10 @@ function Register() {
       setSuccess("Registration successful! You can now log in.");
 
       // Send user data to MongoDB
-      await sendUserDataToMongoDB(userCredential.user);
-
+      const res = await sendUserDataToMongoDB(userCredential.user);
+      const data = await res.json()
+      console.log('RES DATA FROM MONGO', data);
+      localStorage.setItem("userId", data.userId);
       // Navigate to home page
       navigate("/");
     } catch (error) {
@@ -53,11 +55,15 @@ function Register() {
     setSuccess(""); // Clear any success messages
 
     try {
+      console.log('why login automatic?')
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google Sign-In successful:", result.user);
 
       // Send user data to MongoDB
-      await sendUserDataToMongoDB(result.user);
+      const res = await sendUserDataToMongoDB(result.user);
+      const data = await res.json()
+      console.log('RES DATA FROM MONGO', data);
+      localStorage.setItem("userId", data.userId);
       setSuccess("Registration successful via Google! You can now log in.");
 
       // Navigate to home page
@@ -70,14 +76,23 @@ function Register() {
 
   const sendUserDataToMongoDB = async (user) => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/users/register",
+      
+      const cred = {
+        uid: user.uid,
+        email: user.email,
+      }
+      const response = await fetch(
+        "http://localhost:3001/api/users/register",
         {
-          uid: user.uid,
-          email: user.email,
-        }
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify(cred)} 
+        
       );
-      console.log("User data sent to MongoDB:", response.data);
+      console.log("User data sent to MongoDB:", response);
+      return response;
     } catch (error) {
       console.error("Error sending user data to MongoDB:", error);
     }
