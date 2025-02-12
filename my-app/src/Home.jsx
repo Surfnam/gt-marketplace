@@ -26,17 +26,12 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    
-    const filtered = listings.filter(listing => {
-      const filterByPrice = listing.price >= minPrice && listing.price <= maxPrice
-      const filterSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase())
-      const filterCategory = (selectedCategory === "All" || listing.category === selectedCategory)
-      return filterByPrice && filterSearch && filterCategory
-    }
+    const filtered = listings.filter(listing =>
+       (listing.title.toLowerCase().includes(searchTerm.toLowerCase()) && (selectedCategory === "All" || listing.category === selectedCategory))
     );
     setFilteredListings(filtered);
     console.log(filteredListings)
-  }, [searchTerm, selectedCategory, listings,minPrice,maxPrice]);
+  }, [searchTerm, selectedCategory, listings])
 
   const navigateToListingDetails = (id) => {
     navigate(`/listing/${id}`);
@@ -103,27 +98,16 @@ function Home() {
         className="w-1/2 border border-gray-300 rounded-md p-2 text-sm"
       />
     </div>
-    {/* <button
+    <button
   className="mt-4 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
   onClick={() => {handleFilter(minPrice, maxPrice)}}
 >
   Apply
-</button> */}
-{/* apply filters when button pressed or automatic filter?*/}
+</button>
   </div>
         </aside>
-        <div className="p-4">
-        <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold mb-6 ml-4">Active Listings</h1>
-            <button
-              onClick={() => navigate("/createlisting")}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold mb-6 mr-4 py-2 px-4 rounded"
-            >
-              Create Listing
-            </button>
-          </div>
         <main className="flex-1">
-          {/* <h1 className="text-2xl font-bold mb-6">Active Listings</h1> */}
+          <h1 className="text-2xl font-bold mb-6">Active Listings</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredListings.map((listing) => (
               <div
@@ -152,7 +136,6 @@ function Home() {
           </div>
         </main>
       </div>
-    </div>
     </div>
   );
 }
