@@ -1,24 +1,21 @@
 import express from 'express';
 import User from '../models/User.js';
-import bcrypt from 'bcrypt'
-import {updateUser, getUserById, getUserByEmail } from '../controllers/userController.js';
+import {updateUser, getUserById } from '../controllers/userController.js';
 
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
   const { uid, email } = req.body;
-  
+
   try {
-    const pw = await bcrypt.hash(uid, 10)
     const newUser = new User({
-      username: uid,
-      password: pw,
-      email: email, // Assuming you want to store the uid as password, otherwise hash the password
+      username: email,
+      password: uid, // Assuming you want to store the uid as password, otherwise hash the password
       fullName: '', // Add fullName if available
     });
 
-    const user = await newUser.save();
-    res.status(201).json({ message: 'User registered successfully', userId: user._id });
+    await newUser.save();
+    res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error saving user to MongoDB:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -27,7 +24,7 @@ router.post('/register', async (req, res) => {
 
 // update user related details
 router.patch('/:id', updateUser)
-router.get('/profile/:email', getUserByEmail)
+
 // get all user info (except password) by id
 router.get('/:id', getUserById)
 
