@@ -1,0 +1,16 @@
+{
+  "name": "gt-marketplace",
+  "version": "1.0.0",
+  "description": "Hi guys for the backend setup, I installed some key dependencies and created a barebone express backend.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^10.13.2",
+    "lucide-react": "^0.460.0",
+    "sweetalert2": "^11.14.5"
+  }
+}
