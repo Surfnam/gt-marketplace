@@ -9,7 +9,7 @@ router.post('/register', async (req, res) => {
 
   try {
     const newUser = new User({
-      //username: email + 'hello',
+      username: email,
       password: uid, // Assuming you want to store the uid as password, otherwise hash the password
       fullName: 'test', // Add fullName if available
       email,
