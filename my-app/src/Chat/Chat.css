@@ -1,0 +1,22 @@
+  .chat-container {
+    display: flex;
+    height: calc(100vh - 60px);
+    background-color: #f0f0f0;
+  }
+
+  .chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    overflow: hidden;
+  }
+  
+  .chat-main h2 {
+    background-color: rgb(155, 131, 70);
+    height: 11%;
+    color: white;
+    padding: 20px;
+    margin: 0;
+    font-size: 1.5rem;
+  }
