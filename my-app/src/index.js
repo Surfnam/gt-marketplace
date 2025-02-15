@@ -6,6 +6,7 @@ import Register from "./Register";
 import AboutUs from "./components/AboutUs";
 import Contact from "./components/Contact";
 import Feedback from "./components/Feedback";
+import ListingDetails from "./ListingDetails";
 import {
   BrowserRouter as Router,
   Route,
@@ -69,6 +70,7 @@ function Main() {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/createlisting" element={<CreateListing />} />
         <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/listing/:id" element={<ListingDetails />}></Route>
       </Routes>
     </>
   );
