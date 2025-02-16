@@ -51,7 +51,6 @@ const ListingDetails = () => {
         <div className="listing-image-container">
             <img className="" src={listingDetails.image} alt="Product Image"/>
         </div>
-        <div className="listing-divider"></div>
         <div className="listing-details-container">
             <div className="listing-title-container">
                 <h1 id="item-title">{listingDetails.title}</h1>
