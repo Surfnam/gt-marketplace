@@ -32,7 +32,7 @@ export const getUserById = async (req, res) => {
 
     try {
         const user = await User.findById(id)
-            .populate('listings savedListings interestedListings') // Populate references
+            .populate('listings inactiveListings interestedListings') // Populate references
             .select('-password'); // Exclude the password field for security
 
         if (!user) {

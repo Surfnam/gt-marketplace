@@ -33,9 +33,20 @@ function Home() {
     console.log(filteredListings)
   }, [searchTerm, selectedCategory, listings])
 
-  const navigateToListingDetails = (id) => {
-    navigate(`/listing/${id}`);
-  };
+  const navigateToListingDetails = async (id) => {
+    try {
+        const response = await fetch(`http://localhost:3001/listing/${id}`);
+        const data = await response.json();
+        
+        if (data) {
+            navigate(`/listing/${id}`, { state: { listing: data } }); 
+        } else {
+            console.error("Listing not found");
+        }
+    } catch (error) {
+        console.error("Error fetching listing:", error);
+    }
+};
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -125,7 +136,7 @@ function Home() {
                   </h2>
                   <p className="text-gray-600 mb-4">${listing.price}</p>
                   <button
-                    onClick={() => navigateToListingDetails(listing.id)}
+                    onClick={() => navigateToListingDetails(listing._id)}
                     className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full"
                   >
                     View Details
