@@ -59,6 +59,7 @@ const ListingDetails = () => {
             </div>
             <p id="item-price"><strong>Price: </strong> ${listingDetails.price}</p>
             <p id="item-description"><strong>Description: </strong>Lorem ipsum dolor sit amet.</p>
+            <p id="item-condition"><strong>Condition: </strong>{listingDetails.condition}</p>
             <p id="seller-name"><strong>Seller: </strong>{sellerName.fullName}</p>
             <div className="listing-message-box">
                 <button className="listing-button" onclick="redirectToChat()">Message Seller</button>
