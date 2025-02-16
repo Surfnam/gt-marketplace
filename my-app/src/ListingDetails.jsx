@@ -58,7 +58,7 @@ const ListingDetails = () => {
                 <button className="listing-heart-button" onclick="toggleHeart(this)">&#10084;</button>
             </div>
             <p id="item-price"><strong>Price: </strong> ${listingDetails.price}</p>
-            <p id="item-description"><strong>Description: </strong>Lorem ipsum dolor sit amet.</p>
+            <p id="item-description"><strong>Description: </strong>{listingDetails.description}</p>
             <p id="item-condition"><strong>Condition: </strong>{listingDetails.condition}</p>
             <p id="seller-name"><strong>Seller: </strong>{sellerName.fullName}</p>
             <div className="listing-message-box">
