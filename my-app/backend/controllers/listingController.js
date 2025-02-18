@@ -14,14 +14,14 @@ export const addListing = async (req, res) => {
             status,
             image
         });
-
         const savedListing = await newListing.save();
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { $push: {listings : savedListing._id} },
+            { new: true }  // Option to return the updated document
+          );
 
-        // Update the user's listings array
-        await User.findByIdAndUpdate(id, {
-            $push: { listings: savedListing._id }
-        });
-
+        
         res.status(201).json({message: "listing saved", newListing});
     } catch (err) {
         res.status(500).json({error: err.message});
