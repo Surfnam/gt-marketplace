@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
+import ListingDetails from "./ListingDetails";
 import {
   BrowserRouter as Router,
   Route,
@@ -67,6 +68,7 @@ function Main() {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/createlisting" element={<CreateListing />} />
         <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/listing/:id" element={<ListingDetails />}></Route>
       </Routes>
     </>
   );
