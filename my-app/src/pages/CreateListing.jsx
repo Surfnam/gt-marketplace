@@ -35,6 +35,12 @@ function CreateListing() {
 
     // Create a FormData object to send the image file
     console.log("test");
+    console.log("User ID:", user); // Debugging step
+
+    if (!user) {
+      console.error("user ID is undefineddddd");
+      return;
+    }
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);
@@ -42,7 +48,7 @@ function CreateListing() {
 
     try {
       console.log(formData);
-      const response = await fetch(`http://localhost:3000/listing/${user}`, {
+      const response = await fetch(`http://localhost:3001/listing/${user}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

@@ -13,7 +13,7 @@ import {uploadFile} from '../services/fileUpload';
 import {postMessage} from '../services/message';
 
 
-const socket = io.connect(`http://localhost:3001/`);
+const socket = io.connect(`http://localhost:3000/`);
 const Chat = ({user}) => {
     user = user ? user.email : null;
     const [otherUsers, setOtherUsers] = useState([]);
