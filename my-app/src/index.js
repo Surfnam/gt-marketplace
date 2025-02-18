@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
-import ListingDetails from "./ListingDetails";
+import ListingDetails from "./pages/ListingDetails";
 import {
   BrowserRouter as Router,
   Route,

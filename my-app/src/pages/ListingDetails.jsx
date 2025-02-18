@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./ListingDetails.css";
+import "../css/ListingDetails.css";
 import { useParams } from "react-router-dom";
 
 const getListing = async (id) => {
@@ -54,7 +54,7 @@ const ListingDetails = () => {
         <div className="listing-details-container">
             <div className="listing-title-container">
                 <h1 id="item-title">{listingDetails.title}</h1>
-                <button className="listing-heart-button" onclick="toggleHeart(this)">&#10084;</button>
+                <button className="listing-heart-button" onClick="toggleHeart(this)">&#10084;</button>
             </div>
             <p id="item-price"><strong>Price: </strong> ${listingDetails.price}</p>
             <p id="item-description"><strong>Description: </strong>{listingDetails.description}</p>

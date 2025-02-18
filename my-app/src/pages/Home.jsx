@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/App.css";
+import { Heart } from "lucide-react";
 
 const getAllListings = async () => {
   //example placeholders
@@ -17,6 +18,9 @@ function Home() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [minPrice, setMinPrice] = useState("0");
   const [maxPrice, setMaxPrice] = useState("1000");
+  const [favorites, setFavorites] = useState(() => {
+    return JSON.parse(localStorage.getItem("favorites")) || {};
+  });
 
   useEffect(() => {
     getAllListings().then((data) => {
@@ -37,18 +41,34 @@ function Home() {
 
   const navigateToListingDetails = async (id) => {
     try {
-        const response = await fetch(`http://localhost:3001/listing/${id}`);
-        const data = await response.json();
-        
-        if (data) {
-            navigate(`/listing/${id}`, { state: { listing: data } }); 
-        } else {
-            console.error("Listing not found");
-        }
+      const response = await fetch(`http://localhost:3001/listing/${id}`);
+      const data = await response.json();
+
+      if (data) {
+        navigate(`/listing/${id}`, { state: { listing: data } });
+      } else {
+        console.error("Listing not found");
+      }
     } catch (error) {
-        console.error("Error fetching listing:", error);
+      console.error("Error fetching listing:", error);
     }
-};
+  };
+
+  const handleFavorite = (listing) => {
+    if (!listing._id) return;
+    setFavorites((prev) => {
+      const newFavorites = { ...prev };
+      if (newFavorites[listing._id]) {
+        delete newFavorites[listing._id]; //remove from fav if already there
+      } else {
+        newFavorites[listing._id] = listing; //adds to fav
+      }
+  
+      localStorage.setItem("favorites", JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+    window.dispatchEvent(new Event("storage"));
+  };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -129,12 +149,12 @@ function Home() {
           </div>
         </aside>
         <main className="flex-1">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mt-4 mb-4">
             <h1 className="text-2xl font-bold">Active Listings</h1>
-            <button 
+            <button
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
               onClick={() => navigate("/createlisting")}
-              >
+            >
               Create Listing
             </button>
           </div>
@@ -150,10 +170,25 @@ function Home() {
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-4">
-                  <h2 className="text-lg font-semibold mb-2">
-                    {listing.title}
-                  </h2>
-                  <p className="text-gray-600 mb-4">${listing.price}</p>
+                  <div className="w-full flex">
+                    <div className="w-[80%]">
+                      <h2 className="text-lg font-semibold">{listing.title}</h2>
+                      <p className="text-gray-600 mb-4">${listing.price}</p>
+                    </div>
+                    <div className="w-[20%]">
+                      <button onClick={() => handleFavorite(listing)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+                        <Heart
+                          size={24}
+                          className={`transition-colors ${
+                            favorites[listing._id]
+                              ? "text-red-500"
+                              : "text-gray-400"
+                          }`}
+                          fill={favorites[listing._id] ? "red" : "none"}
+                        />
+                      </button>
+                    </div>
+                  </div>
                   <button
                     onClick={() => navigateToListingDetails(listing._id)}
                     className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full"

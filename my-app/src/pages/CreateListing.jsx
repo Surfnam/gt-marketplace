@@ -2,9 +2,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const user = localStorage.getItem("userId");
+const user = "64b82d8f2b2a5b33f8a45a22";
 function CreateListing() {
-  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
@@ -53,7 +52,7 @@ function CreateListing() {
           email: user.email,
           data: formData,
           title: formData.title,
-          seller: formData.seller,
+          seller: formData.id,
           price: formData.price,
           condition: "something", //formData.condition,
           category: formData.category,
