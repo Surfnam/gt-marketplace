@@ -20,7 +20,7 @@ function UserProfile() {
 
   const fetchFavorites = () => {
     const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || {};
-    setFavoriteListings(Object.values(storedFavorites)); // Convert object to array
+    setFavoriteListings(Object.values(storedFavorites)); //Convert object to array
   };
 
   useEffect(() => {
@@ -33,7 +33,28 @@ function UserProfile() {
   }, [userId]);
 
   useEffect(() => {
+    const fetchFavorites = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+  
+      try {
+        const response = await fetch(`http://localhost:3001/users/${userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
+  
+        setFavoriteListings(data.interestedListings || []);
+      } catch (error) {
+        console.error("Error fetching interested listings:", error);
+      }
+    };
+  
     fetchFavorites();
+  
+    //Listen for favorite updates
+    window.addEventListener("favoritesUpdated", fetchFavorites);
+    return () => window.removeEventListener("favoritesUpdated", fetchFavorites);
   }, []);
 
   if (loading) {

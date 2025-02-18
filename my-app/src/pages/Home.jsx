@@ -54,20 +54,60 @@ function Home() {
     }
   };
 
-  const handleFavorite = (listing) => {
+  const handleFavorite = async (listing) => {
     if (!listing._id) return;
-    setFavorites((prev) => {
-      const newFavorites = { ...prev };
-      if (newFavorites[listing._id]) {
-        delete newFavorites[listing._id]; //remove from fav if already there
-      } else {
-        newFavorites[listing._id] = listing; //adds to fav
-      }
-  
-      localStorage.setItem("favorites", JSON.stringify(newFavorites));
-      return newFavorites;
+
+    const userId = localStorage.getItem("userId"); //Assuming userId is stored in localStorage
+  if (!userId) {
+    console.error("User not logged in");
+    return;
+  }
+
+  const isFavorited = favorites[listing._id];
+
+  //Update local state first for instant UI response
+  setFavorites((prev) => {
+    const newFavorites = { ...prev };
+
+    if (isFavorited) {
+      delete newFavorites[listing._id]; //Unfavorite
+    } else {
+      newFavorites[listing._id] = listing; //Favorite
+    }
+
+    localStorage.setItem("favorites", JSON.stringify(newFavorites));
+    return newFavorites;
     });
-    window.dispatchEvent(new Event("storage"));
+    try {
+      //Update the listing's `interestedUsers` array
+      await fetch(`http://localhost:3001/listing/${listing._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: isFavorited ? "remove" : "add", //Remove if already favorited, otherwise add
+          userId,
+        }),
+      });
+  
+      //Update the user's `interestedListings` array
+      await fetch(`http://localhost:3001/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: isFavorited ? "remove" : "add",
+          listingId: listing._id,
+        }),
+      });
+  
+      console.log(
+        `Successfully ${isFavorited ? "removed" : "added"} listing ${listing._id}`
+      );
+    } catch (error) {
+      console.error("Error updating favorite:", error);
+    }
+  
+    //Dispatch event to notify `UserProfile` of updates
+    window.dispatchEvent(new Event("favoritesUpdated"));
   };
 
   const handleSearch = (e) => {
