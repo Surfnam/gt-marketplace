@@ -2,8 +2,9 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const user = "64b82d8f2b2a5b33f8a45a22";
+const user = localStorage.getItem("userId");
 function CreateListing() {
+  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
@@ -35,12 +36,6 @@ function CreateListing() {
 
     // Create a FormData object to send the image file
     console.log("test");
-    console.log("User ID:", user); // Debugging step
-
-    if (!user) {
-      console.error("user ID is undefineddddd");
-      return;
-    }
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);
@@ -58,7 +53,7 @@ function CreateListing() {
           email: user.email,
           data: formData,
           title: formData.title,
-          seller: formData.id,
+          seller: formData.seller,
           price: formData.price,
           condition: "something", //formData.condition,
           category: formData.category,
