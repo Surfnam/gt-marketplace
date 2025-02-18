@@ -8,6 +8,7 @@ import listingRoutes from './routes/listing.js';
 import userRoutes from './routes/user.js'; // Correct import statement
 import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/message.js';
+import fileUpload from './routes/fileUpload.js';
 
 const app = express();
 dotenv.config();
@@ -26,6 +27,7 @@ app.use('/testAPI', testRoutes);
 app.use('/listing', listingRoutes);
 app.use('/api/users', userRoutes); // Use the new user routes
 app.use('/api/message', messageRoutes); // Use the new message routes
+app.use('/api/fileUpload', fileUpload);
 
 
 // Creating the server (http) const

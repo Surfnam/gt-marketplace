@@ -4,7 +4,8 @@ import './ChatSidebar.css';
 const ChatSidebar = ({ joinRoom, otherUsers, curOtherUser, notifications }) => {
     return (
         <div className="chat-sidebar">
-            <h2>Messages</h2>
+            <h2>Chats</h2>
+            <input className="search" type="text" placeholder="&#xe8b6Search messages"></input>
             <ul>
                 {otherUsers.map((otherUser, idx) => (
                     <li key={idx} 
