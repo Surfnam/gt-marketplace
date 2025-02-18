@@ -42,7 +42,7 @@ function CreateListing() {
 
     try {
       console.log(formData);
-      const response = await fetch(`http://localhost:3001/listing/${user}`, {
+      const response = await fetch(`http://localhost:3000/listing/${user}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

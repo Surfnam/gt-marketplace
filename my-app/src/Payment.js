@@ -1,4 +1,4 @@
-const stripe = require('stripe')('your-secret-key'); // Replace 'your-secret-key' with your actual Stripe secret key
+const stripe = require('stripe')('pk_test_51Pam32EidpAFYbKdeFSGp8SLL1OEH4Is3jyIk8ZzvXh1AoZDHYqbbLzroiW9bYaErrJCTIPBgATecWemCSyk930y00bDBmts8P'); // Replace 'your-secret-key' with your actual Stripe secret key
 
 async function createPayment(price, payingAccount, receivingAccount) {
     try {
