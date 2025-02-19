@@ -5,7 +5,6 @@ import { auth, googleProvider } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "../images/Google logo.png";
-import GTLogo from "../images/GT Marketplace Logo.jpeg";
 import ShoppingBag from "../images/1f6cd.png";
 
 function Login() {
@@ -15,7 +14,19 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
+  const sendUserDataToMongoDB = async (user) => {
+    try {
+      
+      const response = await fetch(
+        `http://localhost:3001/api/users/profile/${user.email}`
+       
+      );
+      console.log("successfully fetched user data from mongo", response.data);
+      return response;
+    } catch (error) {
+      console.error("Error sending user data to MongoDB:", error);
+    }
+  };
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(""); // Clear previous errors
@@ -25,19 +36,28 @@ function Login() {
         email,
         password
       );
+      const res = await sendUserDataToMongoDB(userCredential.user);
+      const data = await res.json()
+      console.log('user data from mongo', data)
       console.log("Login successful:", userCredential.user);
+      localStorage.setItem("userId", data[0]._id);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error logging in:", error);
       setError(error.message);
     }
   };
-
+  
   const handleGoogleSignIn = async () => {
+    console.log('is it this endpoint..')
     setError(""); // Clear previous errors
     try {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google Sign-In successful:", result.user);
+      const res = await sendUserDataToMongoDB(result.user);
+      const data = await res.json()
+      console.log('RES DATA FROM MONGO', data);
+      localStorage.setItem("userId", data[0]._id);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error with Google sign-in:", error);

@@ -41,8 +41,13 @@ function Main() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
+        // const mongoId = await getUserByEmail(email)[0]._id;
+        // console.log(mongoId)
+        const id = localStorage.getItem("userId");
+        console.log('id at main', id);
       } else {
         setUser(null);
+        localStorage.removeItem("userId");
       }
     });
 
@@ -65,7 +70,7 @@ function Main() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/chat" element={<Chat user={user} />} />
-        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/profile" element={<UserProfile userProp = {user}/>} />
         <Route path="/createlisting" element={<CreateListing />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/listing/:id" element={<ListingDetails />}></Route>
