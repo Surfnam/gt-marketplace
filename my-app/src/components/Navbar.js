@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { auth } from '../firebase'; // Import Firebase auth
-import './Navbar.css';
+import '../css/Navbar.css';
 
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const handleLogout = async () => {

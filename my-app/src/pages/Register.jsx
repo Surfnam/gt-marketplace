@@ -1,13 +1,13 @@
 // Register.js
 import React, { useState } from "react";
-import "./Auth.css";
+import "../css/Auth.css";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "./firebase";
+import { auth, googleProvider } from "../firebase";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import ShoppingBag from "./assets/1f6cd.png";
+import ShoppingBag from "../images/1f6cd.png";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import GoogleLogo from "./assets/Google logo.png";
+import GoogleLogo from "../images/Google logo.png";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -76,20 +76,12 @@ function Register() {
 
   const sendUserDataToMongoDB = async (user) => {
     try {
-      
-      const cred = {
-        uid: user.uid,
-        email: user.email,
-      }
-      const response = await fetch(
+      const response = await axios.post(
         "http://localhost:3001/api/users/register",
         {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify(cred)} 
-        
+          uid: user.uid,
+          email: user.email,
+        }
       );
       console.log("User data sent to MongoDB:", response);
       return response;

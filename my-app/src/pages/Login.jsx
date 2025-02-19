@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import "./Auth.css";
+import "../css/Auth.css";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "./firebase";
+import { auth, googleProvider } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import axios from 'axios';
-import GoogleLogo from "./assets/Google logo.png";
-import GTLogo from "./assets/GT Marketplace Logo.jpeg";
-import ShoppingBag from "./assets/1f6cd.png";
+import GoogleLogo from "../images/Google logo.png";
+import ShoppingBag from "../images/1f6cd.png";
 
 function Login() {
   const [email, setEmail] = useState("");
