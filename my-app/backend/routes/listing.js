@@ -1,5 +1,5 @@
 import express from 'express'
-import { addListing, updateListing, getListingById, getListingsByCondition, getActiveListings, getListingByCategory, getListingByPrice, getListingsBySeller} from '../controllers/listingController.js'
+import { addListing, updateListing, getListingById, getListingsByCondition, getActiveListings, getListingByCategory, getListingByPrice, getListingsBySeller, deleteListing} from '../controllers/listingController.js'
 
 const router = express.Router();
 
@@ -29,6 +29,9 @@ router.get('/', getListingByPrice);
 
 // get listings based on condition
 router.get('/condition/:condition', getListingsByCondition);
+
+// delete listing by id
+router.delete('/:id', deleteListing);
 
 
 export default router;

@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
     res.send('hello world');
 })
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
     cookie: {maxAge: 1000 * 60 * 30,

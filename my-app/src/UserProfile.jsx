@@ -2,10 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { set } from 'mongoose';
+import { FaTrash } from 'react-icons/fa';
 // import { set } from 'mongoose';
 
 
 function UserProfile({userProp}) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [listingIdToDelete, setListingIdToDelete] = useState(null);
+  const [listingToDelete, setListingToDelete] = useState(null);
+
+  const confirmDelete = (listingId) => {
+    setListingIdToDelete(listingId);
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (listingIdToDelete) {
+      await handleDeleteListing(listingIdToDelete);
+      setShowConfirm(false);
+      setListingIdToDelete(null);
+    }
+  };
+  
   console.log(userProp)
   // setEmail(userProp.email)
   const editHandler = async () => {
@@ -41,7 +59,16 @@ function UserProfile({userProp}) {
   const [displayName, setdisplayName] = useState('default User');;
   const [email, setEmail] = useState(null)
   const [bio, setBio] = useState(null)
-  const [name, setName] = useState(null)
+  const [name, setName] = useState(null);
+
+  useEffect(() => {
+    if (listingIdToDelete) {
+      getListingById(listingIdToDelete).then((data) => {
+        setListingToDelete(data); 
+      });
+    }
+  }, [listingIdToDelete]); 
+
   useEffect(() => {
     const getUserData = async () => {
       try {
@@ -92,6 +119,28 @@ function UserProfile({userProp}) {
     })
     
   }, []);
+
+  const handleDeleteListing = async (listingId) => {
+    try {
+      await axios.delete(`http://localhost:3001/listing/${listingId}`);
+      setUser((prevUser) => ({
+        ...prevUser, 
+        listings: prevUser.listings.filter((listing) => listing._id !== listingId),
+      }));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getListingById = async (listingId) => {
+    try {
+      const res = await axios.get(`http://localhost:3001/listing/${listingId}`);
+      return res.data;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
 
   if (loading) {
     return <div className="text-center mt-8">Loading...</div>;
@@ -285,7 +334,7 @@ return (
           <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {user.listings && user.listings.length > 0 ? (
               user.listings.map((listing) => (
-                <div key={listing.id} className="bg-white overflow-hidden shadow rounded-lg">
+                <div key={listing._id} className="bg-white overflow-hidden shadow rounded-lg">
                   <div className="p-5">
                     <div className="flex items-center">
                       <div className="ml-5 w-0 flex-1">
@@ -298,12 +347,18 @@ return (
                       </div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 px-5 py-3">
+                  <div className="bg-gray-50 px-5 py-3 flex justify-between items-center">
                     <div className="text-sm">
-                      <a href={`/listing/${listing.id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
+                      <a href={`/listing/${listing._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
                         View details
                       </a>
                     </div>
+                    <button 
+                      onClick={() => confirmDelete(listing._id)}
+                      className="text-gray-600 hover:text-gray-800 ml-auto"
+                    >
+                      <FaTrash className="h-5 w-5" />
+                    </button>
                   </div>
                 </div>
               ))
@@ -314,6 +369,28 @@ return (
         </div>
       </div>
     </div>
+    {/* Confirmation Modal */}
+    {showConfirm && listingToDelete && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <p className="text-lg font-semibold">Are you sure you want to delete listing <span className="font-bold italic">{listingToDelete.title}</span>?</p>
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md mr-2 hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   </div>
 );
 }
