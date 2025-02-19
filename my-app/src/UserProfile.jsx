@@ -7,6 +7,22 @@ import { FaTrash } from 'react-icons/fa';
 
 
 function UserProfile({userProp}) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [listingToDelete, setListingToDelete] = useState(null);
+
+  const confirmDelete = (listingId) => {
+    setListingToDelete(listingId);
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (listingToDelete) {
+      await handleDeleteListing(listingToDelete);
+      setShowConfirm(false);
+      setListingToDelete(null);
+    }
+  };
+  
   console.log(userProp)
   // setEmail(userProp.email)
   const editHandler = async () => {
@@ -311,18 +327,19 @@ return (
                       </div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 px-5 py-3">
+                  <div className="bg-gray-50 px-5 py-3 flex justify-between items-center">
                     <div className="text-sm">
                       <a href={`/listing/${listing._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
                         View details
                       </a>
                     </div>
-                  </div>
-                  <button 
-                      onClick={() => handleDeleteListing(listing.id)}
+                    <button 
+                      onClick={() => confirmDelete(listing._id)}
+                      className="text-gray-600 hover:text-gray-800 ml-auto"
                     >
                       <FaTrash className="h-5 w-5" />
-                  </button>
+                    </button>
+                  </div>
                 </div>
               ))
             ) : (
@@ -332,6 +349,28 @@ return (
         </div>
       </div>
     </div>
+    {/* Confirmation Modal */}
+    {showConfirm && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <p className="text-lg font-semibold">Are you sure you want to delete this listing?</p>
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md mr-2 hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   </div>
 );
 }
