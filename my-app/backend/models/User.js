@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
         ref:'Listing',
         default:[]
     }], 
-    savedListings: [{
+    inActiveListings: [{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Listing',
         default:[]
