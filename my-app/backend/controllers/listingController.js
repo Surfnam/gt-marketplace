@@ -73,7 +73,7 @@ export const getListingsByCondition = async (req, res) => {
 
 export const getActiveListings = async (req, res) => {
     try {
-        const listings = await Listing.find({ status : 'available'}).select('title price category condition');
+        const listings = await Listing.find({ status : 'available'}).select('title image price category condition');
         console.log(listings)
         res.status(200).json({data: listings});
     } catch (err) {
