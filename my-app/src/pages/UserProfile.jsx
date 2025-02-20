@@ -20,8 +20,8 @@ function UserProfile({ userProp }) {
   const [loading, setLoading] = useState(true);
   const { userId: paramUserId } = useParams();
   const [favoriteListings, setFavoriteListings] = useState([]);
-  const [userId, setuserId] = useState(null);
-  const [displayName, setdisplayName] = useState("default User");
+  const [userId, setUserId] = useState(null);
+  const [displayName, setDisplayName] = useState("default User");
   const [email, setEmail] = useState(null);
   const [bio, setBio] = useState(null);
   const [name, setName] = useState(null);
@@ -57,7 +57,7 @@ function UserProfile({ userProp }) {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const id = localStorage.getItem("userId");
+        const id = localStorage.getItem("userId") || paramUserId;
         if (!id) {
           console.log("id nonexistent");
         }
@@ -76,10 +76,10 @@ function UserProfile({ userProp }) {
         // console.log(res)
         // console.log(res._id)
         setUser(data || "temp user");
-        setuserId(data._id || "defaultId");
-        setdisplayName(data.username || "defaultusername");
+        setUserId(data._id || "defaultId");
+        setDisplayName(data.username || "defaultusername");
         setName(data.fullName || "Default User");
-        setdisplayName(data.username || "defaultusername");
+        setDisplayName(data.username || "defaultusername");
         setBio(data.bio || "This is a default bio.");
         console.log(user);
         console.log(userId);
@@ -226,7 +226,7 @@ function UserProfile({ userProp }) {
                   {editMode? (<input 
               type="text" 
               value={displayName} 
-              onChange={(e) => setdisplayName(e.target.value)} 
+              onChange={(e) => setDisplayName(e.target.value)} 
               placeholder="Enter username" 
               className="text-sm font-bold text-gray-900  bg-transparent border-2 border-blue-300 outline-none"
             />) : (<p className="text-sm font-medium text-gray-600">@{displayName || "defaultuser"}</p>)}
@@ -235,7 +235,7 @@ function UserProfile({ userProp }) {
               </div>
               <div className="mt-5 sm:mt-0">
                 <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick = {editHandler}>
-                  {editMode? "Confirm" : "Edit Profile"}
+                  {editMode ? "Confirm" : "Edit Profile"}
                 </button>
               </div>
             </div>
