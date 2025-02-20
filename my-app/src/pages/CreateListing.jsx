@@ -49,7 +49,7 @@ function CreateListing() {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          uid: user.uid,
+          uid: user._uid,
           email: user.email,
           data: formData,
           title: formData.title,
