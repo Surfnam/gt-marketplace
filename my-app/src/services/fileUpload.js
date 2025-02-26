@@ -8,6 +8,6 @@ export const uploadFile = async (file) => {
         const res = await axios.put(`${baseURL}/api/fileUpload`, formData);
         return res.data.fileURL;
     } catch (err) {
-        console.error("Error uploading file:", err);
+        console.error("Error uploading file:", err.response ? err.response.data : err.message);
     }
 }
