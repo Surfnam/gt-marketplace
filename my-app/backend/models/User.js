@@ -29,11 +29,6 @@ const userSchema = new mongoose.Schema({
         ref:'Listing',
         default:[]
     }], 
-    inActiveListings: [{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'Listing',
-        default:[]
-    }],
     interestedListings:  [{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Listing',

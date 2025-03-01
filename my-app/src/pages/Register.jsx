@@ -38,8 +38,7 @@ function Register() {
       setSuccess("Registration successful! You can now log in.");
 
       // Send user data to MongoDB
-      const res = await sendUserDataToMongoDB(userCredential.user);
-      const data = await res.json()
+      const data = await sendUserDataToMongoDB(userCredential.user);
       console.log('RES DATA FROM MONGO', data);
       localStorage.setItem("userId", data.userId);
       // Navigate to home page

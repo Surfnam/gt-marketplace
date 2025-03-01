@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import { set } from "mongoose";
-// import { set } from 'mongoose';
-
-const getTheUserData = async (paramUserId) => {
-  try {
-    const response = await axios.get(`/api/users/${paramUserId}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-    return null;
-  }
-};
+import {
+  BrowserRouter as Router,
+  useNavigate,
+} from "react-router-dom";
 
 function UserProfile({ userProp }) {
   const [editMode, seteditMode] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { userId: paramUserId } = useParams();
   const [favoriteListings, setFavoriteListings] = useState([]);
   const [userId, setUserId] = useState(null);
   const [displayName, setDisplayName] = useState("default User");
   const [email, setEmail] = useState(null);
   const [bio, setBio] = useState(null);
   const [name, setName] = useState(null);
+  const [interestedListings, setInterestedListings] = useState([]);
+  const navigate = useNavigate();
+
+  if (!userProp) {
+    navigate("/login")
+  }
+
 
   console.log("this is the user prop", userProp);
   const editHandler = async () => {
@@ -46,7 +42,6 @@ function UserProfile({ userProp }) {
           },
           body: JSON.stringify(updates),
         });
-        // const res = await axios.patch(`http://localhost:3001/api/users/${userId}}`, updates);
         console.log(res);
       } catch (error) {
         console.log(error);
@@ -57,51 +52,35 @@ function UserProfile({ userProp }) {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const id = localStorage.getItem("userId") || paramUserId;
-        if (!id) {
-          console.log("id nonexistent");
+        console.log("userpropemial", userProp.email);
+        let id = localStorage.getItem("userId");
+        if (id == 'undefined') {
+          const resp = await fetch(`http://localhost:3001/api/users/profile/${userProp.email}`);
+          const userData = await resp.json();
+          id = userData.user[0]._id
         }
-        console.log(id);
         const resp = await fetch(`http://localhost:3001/api/users/${id}`);
-        // const resp = await axios.get(`http://localhost:3001/api/users/${id}`);
         const data = await resp.json();
-        console.log(data);
-        console.log("THIS IS FROM ID DATA");
         setEmail(data.email);
-        console.log(email);
-        // const response = await axios.get(`http://localhost:3001/api/users/profile/${userProp.email}`);
-        // console.log(response.data)
-        // // const res = response.data
-        // const res = response.data[0]
-        // console.log(res)
-        // console.log(res._id)
         setUser(data || "temp user");
         setUserId(data._id || "defaultId");
         setDisplayName(data.username || "defaultusername");
         setName(data.fullName || "Default User");
         setDisplayName(data.username || "defaultusername");
         setBio(data.bio || "This is a default bio.");
-        console.log(user);
-        console.log(userId);
-        // console.log(bio)
-        // console.log(user)
-        // console.log(user)
+        setInterestedListings(data.interestedListings || []);
         return data;
       } catch (error) {
         console.error("Error fetching user data:", error);
         return null;
       }
     };
-    // setUser('temp user')
-    // console.log(userProp)
-    // setEmail(userProp.email)
-    // console.log(email)
-    // setBio('temp bio')
-    // setName('temp name')
 
     getUserData().then(() => {
       setLoading(false);
     });
+    fetchFavorites();
+
   }, []);
 
   const fetchFavorites = () => {
@@ -110,34 +89,9 @@ function UserProfile({ userProp }) {
   };
 
   useEffect(() => {
-    getTheUserData(paramUserId).then((data) => {
-      console.log("fetch user data: ", data);
-      setUser(data);
-      setLoading(false);
-    });
-    fetchFavorites();
-  }, [paramUserId]);
-
-  useEffect(() => {
     const fetchFavorites = async () => {
       const userId = localStorage.getItem("userId");
       if (!userId) return;
-
-      try {
-        const response = await fetch(
-          `http://localhost:3001/users/${paramUserId}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-        console.log("this is the paramuserid: ", paramUserId);
-        const data = await response.json();
-
-        setFavoriteListings(data.interestedListings || []);
-      } catch (error) {
-        console.error("Error fetching interested listings:", error);
-      }
     };
 
     fetchFavorites();

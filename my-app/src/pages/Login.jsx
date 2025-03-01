@@ -39,8 +39,10 @@ function Login() {
       const res = await sendUserDataToMongoDB(userCredential.user);
       const data = await res.json()
       console.log('user data from mongo', data)
+      console.log("this is data[0]: ", data.user[0]);
       console.log("Login successful:", userCredential.user);
-      localStorage.setItem("userId", data[0]._id);
+      localStorage.setItem("userId", data.user[0].uid);
+      console.log(localStorage.getItem("userId" ));
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error logging in:", error);
