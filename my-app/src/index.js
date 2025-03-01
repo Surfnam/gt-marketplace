@@ -28,6 +28,7 @@ function Main() {
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   const navigateToLogin = () => {
     navigate("/login");
@@ -40,19 +41,27 @@ function Main() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
+        console.log("user exists")
         setUser(user);
         // const mongoId = await getUserByEmail(email)[0]._id;
         // console.log(mongoId)
         const id = localStorage.getItem("userId");
         console.log('id at main', id);
       } else {
+        console.log("onAuthchanged unsubscribe")
         setUser(null);
         localStorage.removeItem("userId");
-      }
+        navigateToLogin()
+      } 
+      setLoadingAuth(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  if (loadingAuth) {
+    return <div>Loading...</div>
+  }
 
   return (
     <>

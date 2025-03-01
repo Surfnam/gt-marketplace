@@ -3,6 +3,7 @@ import User from '../models/User.js';
 
 export const addListing = async (req, res) => {
     try {
+        console.log("endpoint")
         const {id} = req.params
         const {title, price, condition, category, status, image} = req.body;
         const newListing = new Listing({
@@ -20,7 +21,7 @@ export const addListing = async (req, res) => {
             { $push: {listings : savedListing._id} },
             { new: true }  // Option to return the updated document
           );
-
+          console.log("userid at listing", id)
         
         res.status(201).json({message: "listing saved", newListing});
     } catch (err) {

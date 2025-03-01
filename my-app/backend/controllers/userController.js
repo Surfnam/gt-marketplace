@@ -34,7 +34,7 @@ export const getUserById = async (req, res) => {
 
     try {
         const user = await User.findById(id)
-            .populate('listings inactiveListings interestedListings') // Populate references
+            .populate('listings interestedListings') // Populate references
             .select('-password'); // Exclude the password field for security
 
         if (!user) {
@@ -53,14 +53,15 @@ export const getUserByEmail = async (req, res) => {
   try {
       
       const user = await User.find({ email: email })
-          .populate('listings savedListings interestedListings') // Populate references
+          .populate('listings interestedListings') // Populate references
           .select('-password'); // Exclude the password field for security
+     console.log("is this being hit?")
       console.log(user)
       if (!user) {
           return res.status(404).json({ message: 'User not found' });
       }
 
-      res.status(200).json(user);
+      res.status(200).json({user: user});
   } catch (error) {
       res.status(500).json({ message: 'Error retrieving user', error: error.message });
   }

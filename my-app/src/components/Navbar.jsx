@@ -68,15 +68,15 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
             <>
               <button
                 onClick={navigateToLogin}
-                className="navbar-button"
+                className="navbar-login"
               >
-                Login
+                Log In
               </button>
               <button
                 onClick={navigateToRegister}
                 className="navbar-button"
               >
-                Register
+                Sign Up
               </button>
             </>
           )}
