@@ -40,7 +40,8 @@ function Register() {
       // Send user data to MongoDB
       const data = await sendUserDataToMongoDB(userCredential.user);
       console.log('RES DATA FROM MONGO', data);
-      localStorage.setItem("userId", data.userId);
+      console.log(data.data.userId)
+      localStorage.setItem("userId", data.data.userId);
       // Navigate to home page
       navigate("/");
     } catch (error) {
@@ -56,13 +57,13 @@ function Register() {
     try {
       console.log('why login automatic?')
       const result = await signInWithPopup(auth, googleProvider);
+      console.log(result)
       console.log("Google Sign-In successful:", result.user);
 
       // Send user data to MongoDB
       const res = await sendUserDataToMongoDB(result.user);
-      const data = await res.json()
-      console.log('RES DATA FROM MONGO', data);
-      localStorage.setItem("userId", data.userId);
+      console.log(res)
+      localStorage.setItem("userId", res.data.userId);
       setSuccess("Registration successful via Google! You can now log in.");
 
       // Navigate to home page

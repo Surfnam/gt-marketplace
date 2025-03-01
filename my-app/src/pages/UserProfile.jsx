@@ -54,6 +54,7 @@ function UserProfile({ userProp }) {
       try {
         console.log("userpropemial", userProp.email);
         let id = localStorage.getItem("userId");
+        console.log("id from localstorage", id)
         if (id == 'undefined') {
           const resp = await fetch(`http://localhost:3001/api/users/profile/${userProp.email}`);
           const userData = await resp.json();

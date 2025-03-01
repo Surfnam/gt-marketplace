@@ -30,6 +30,7 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    console.log("hello0")
     const filtered = listings.filter(
       (listing) =>
         listing.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
