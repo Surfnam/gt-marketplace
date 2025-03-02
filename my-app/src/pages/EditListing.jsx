@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 function EditListing() {
   const navigate = useNavigate();
   const { id } = useParams(); // Get listing ID from URL
+
+  // State for form data
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -13,6 +15,10 @@ function EditListing() {
     status: "available",
     image: null,
   });
+
+  // State to store the original data for comparison
+  const [originalData, setOriginalData] = useState({});
+
   const [currentImage, setCurrentImage] = useState(null); // Stores current image URL
 
   // Fetch listing details when component loads
@@ -27,12 +33,13 @@ function EditListing() {
           category: data.category,
           description: data.description,
           status: data.status,
-          image: null, // Keep it null to avoid issues
+          image: null, // Reset file input
         });
 
-        // Store current image URL if available
+        setOriginalData(data); // Store the original data for comparison
+
         if (data.image) {
-          setCurrentImage(data.image);
+          setCurrentImage(data.image); // Store the existing image URL
         }
       })
       .catch((err) => console.error("Error fetching listing:", err));
@@ -49,30 +56,58 @@ function EditListing() {
   const handleImageChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
-      image: e.target.files[0],
+      image: e.target.files[0], // Store selected file
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    for (const key in formData) {
-      data.append(key, formData[key]);
-    }
+
+    let updatedData = {}; // Store only modified fields
+
+    // Compare new values with originalData before adding them to updatedData
+    if (formData.title !== originalData.title) updatedData.title = formData.title;
+    if (formData.price !== originalData.price) updatedData.price = formData.price;
+    if (formData.condition !== originalData.condition) updatedData.condition = formData.condition;
+    if (formData.category !== originalData.category) updatedData.category = formData.category;
+    if (formData.description !== originalData.description) updatedData.description = formData.description;
+    if (formData.status !== originalData.status) updatedData.status = formData.status;
 
     try {
-      const response = await fetch(`http://localhost:3001/listing/${id}`, {
-        method: "PUT",
-        body: data,
+      // Step 1: Upload the image to Backblaze if a new file was selected
+      if (formData.image) {
+        const imageFormData = new FormData();
+        imageFormData.append("file", formData.image);
+
+        const uploadResponse = await fetch(`http://localhost:3001/api/fileUpload`, {
+          method: "PUT",
+          body: imageFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload image");
+        }
+
+        const uploadResult = await uploadResponse.json();
+        updatedData.image = uploadResult.fileURL; // Use the new image URL from Backblaze
+      }
+
+      // Step 2: Send a PATCH request with only modified fields
+      const patchResponse = await fetch(`http://localhost:3001/listing/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
         credentials: "include",
       });
 
-      if (response.ok) {
-        console.log("Listing updated successfully");
-        navigate("/profile");
-      } else {
-        console.error("Failed to update listing");
+      if (!patchResponse.ok) {
+        throw new Error("Failed to update listing");
       }
+
+      console.log("Listing updated successfully");
+      navigate("/profile"); // Redirect to profile after saving
     } catch (error) {
       console.error("Error updating listing:", error);
     }
@@ -83,7 +118,7 @@ function EditListing() {
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6">Edit Listing</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Listing Title */}
+          {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700">
               Title
@@ -150,44 +185,38 @@ function EditListing() {
             ></textarea>
           </div>
 
-        {/* Image Upload & Current Image */}
-        <div>
-            <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-700">
-                Image
+          {/* Image Upload */}
+          <div>
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+              Image
             </label>
 
             <div className="flex items-center mt-1">
-                
-                {/* File Upload Input */}
-                <div className="w-auto">
-                <label htmlFor="imageUpload" className="cursor-pointer">
-                    <input
-                    type="file"
-                    id="imageUpload"
-                    name="image"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                    className="mt-1 block w-full"
-                    />
-                </label>
-                </div>
+              <div className="w-auto">
+                <input
+                  type="file"
+                  id="image"
+                  name="image"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="mt-1 block w-full"
+                />
+              </div>
 
-                <div className="flex-1"></div>
+              <div className="flex-1"></div>
 
-                {/* Display Current Image */}
-                {currentImage && (
+              {currentImage && (
                 <div className="flex justify-center w-2/3">
-                    <img
+                  <img
                     src={currentImage}
                     alt="Current Listing"
                     className="w-40 h-40 object-cover rounded"
-                    />
+                  />
                 </div>
-                )}
+              )}
             </div>
-        </div>
+          </div>
 
-          {/* Save Changes */}
           <button
             type="submit"
             className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
