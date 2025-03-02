@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaPencilAlt } from "react-icons/fa";
 import {
   BrowserRouter as Router,
   useNavigate,
@@ -223,7 +224,7 @@ function UserProfile({ userProp }) {
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {user.listings && user.listings.length > 0 ? (
                 user.listings.map((listing) => (
-                  <div key={listing.id} className="bg-white overflow-hidden shadow rounded-lg">
+                  <div key={listing._id} className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="p-5">
                       <div className="flex items-center">
                         <div className="ml-5 w-0 flex-1">
@@ -236,12 +237,15 @@ function UserProfile({ userProp }) {
                         </div>
                       </div>
                     </div>
-                    <div className="bg-gray-50 px-5 py-3">
+                    <div className="bg-gray-50 px-5 py-3 flex justify-between items-center">
                       <div className="text-sm">
-                        <a href={`/listing/${listing.id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href={`/listing/${listing._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
                           View details
                         </a>
                       </div>
+                      <a href={`/edit-listing/${listing._id}`} className="text-gray-500 hover:text-blue-500">
+                      <FaPencilAlt size={18} />
+                    </a>
                     </div>
                   </div>
                 ))
