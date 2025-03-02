@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaPencilAlt } from "react-icons/fa";
 import {
   BrowserRouter as Router,
   useNavigate,
@@ -289,12 +290,19 @@ function UserProfile({ userProp }) {
                           View details
                         </a>
                       </div>
-                      <button 
-                        onClick={() => confirmDelete(listing._id)}
-                        className="text-gray-600 hover:text-gray-800 ml-auto"
-                      >
-                        <FaTrash className="h-5 w-5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-x-3">
+                          <a href={`/edit-listing/${listing._id}`} className="text-gray-500 hover:text-blue-500">
+                              <FaPencilAlt size={18} />
+                          </a>
+
+                          <button 
+                              onClick={() => confirmDelete(listing._id)}
+                              className="text-gray-600 hover:text-gray-800"
+                          >
+                              <FaTrash className="h-5 w-5" />
+                          </button>
+                      </div>
+
                     </div>
                   </div>
                 ))
