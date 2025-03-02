@@ -217,12 +217,25 @@ function EditListing() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
-          >
-            Save Changes
-          </button>
+        <div className="flex justify-between mt-6">
+            {/* Cancel Button */}
+            <button
+                type="button"
+                onClick={() => navigate("/profile")} // Redirects to profile when canceled
+                className="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+            >
+                Cancel
+            </button>
+
+            {/* Save Changes Button */}
+            <button
+                type="submit"
+                className="w-1/2 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+            >
+                Save Changes
+            </button>
+        </div>
+
         </form>
       </div>
     </div>
