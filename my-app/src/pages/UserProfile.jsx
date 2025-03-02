@@ -238,7 +238,7 @@ function UserProfile({ userProp }) {
                     </div>
                     <div className="bg-gray-50 px-5 py-3">
                       <div className="text-sm">
-                        <a href={`/listing/${listing.id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href={`/listing/${listing._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
                           View details
                         </a>
                       </div>
