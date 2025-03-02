@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema({
         ref:'Listing',
         default:[]
     }],
+    contacts: [{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User',
+        default:[]
+    }]
     /*
     pastTransactions: {
         //define a trasaction schema?
