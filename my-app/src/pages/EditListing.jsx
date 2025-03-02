@@ -13,6 +13,7 @@ function EditListing() {
     status: "available",
     image: null,
   });
+  const [currentImage, setCurrentImage] = useState(null); // Stores current image URL
 
   // Fetch listing details when component loads
   useEffect(() => {
@@ -28,6 +29,11 @@ function EditListing() {
           status: data.status,
           image: null, // Keep it null to avoid issues
         });
+
+        // Store current image URL if available
+        if (data.image) {
+          setCurrentImage(data.image);
+        }
       })
       .catch((err) => console.error("Error fetching listing:", err));
   }, [id]);
@@ -144,22 +150,44 @@ function EditListing() {
             ></textarea>
           </div>
 
-          {/* Image Upload */}
-          <div>
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-              Image
+        {/* Image Upload & Current Image */}
+        <div>
+            <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-700">
+                Image
             </label>
-            <input
-              type="file"
-              id="image"
-              name="image"
-              onChange={handleImageChange}
-              accept="image/*"
-              className="mt-1 block w-full"
-            />
-          </div>
 
-          {/* Save Changes Button */}
+            <div className="flex items-center mt-1">
+                
+                {/* File Upload Input */}
+                <div className="w-auto">
+                <label htmlFor="imageUpload" className="cursor-pointer">
+                    <input
+                    type="file"
+                    id="imageUpload"
+                    name="image"
+                    onChange={handleImageChange}
+                    accept="image/*"
+                    className="mt-1 block w-full"
+                    />
+                </label>
+                </div>
+
+                <div className="flex-1"></div>
+
+                {/* Display Current Image */}
+                {currentImage && (
+                <div className="flex justify-center w-2/3">
+                    <img
+                    src={currentImage}
+                    alt="Current Listing"
+                    className="w-40 h-40 object-cover rounded"
+                    />
+                </div>
+                )}
+            </div>
+        </div>
+
+          {/* Save Changes */}
           <button
             type="submit"
             className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
