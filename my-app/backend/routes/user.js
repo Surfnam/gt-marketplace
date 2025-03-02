@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt'
-import {updateUser, getUserById, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings } from '../controllers/userController.js';
+import {updateUser, getUserById, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -64,5 +64,8 @@ router.get('/:id/listings', getUserListings);
 
 // Get all interested listings of a user
 router.get('/:id/interestedListings', getUserInterestedListings);
+
+// add new contact
+router.post('/addContact', addContact)
 
 export default router;

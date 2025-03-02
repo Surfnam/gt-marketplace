@@ -32,16 +32,23 @@ const Chat = ({user}) => {
     const [messageSkip, setMessageSkip] = useState(0);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-    const fetchAllUsers = async () => {
+    const fetchContacts = async () => {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('Please login to chat');
+            return
+        }
         try {
-            const res = await axios.get('http://localhost:3001/api/users');
-            let usersData = res.data;
-            usersData = usersData.filter(u => u.email !== user).map(u => u.email);
-            setOtherUsers(usersData);
+            const res = await axios.get(`http://localhost:3001/api/users/${userId}`);
+            const user  = res.data;
+            console.log(user);
+            const contacts = user.contacts.map(u => u.email);
+            console.log(contacts);
+            setOtherUsers(contacts);
             
             const newNotifications = {};
 
-            await Promise.all(usersData.map(async (otherUser) => {
+            await Promise.all(contacts.map(async (otherUser) => {
                 const room = getRoomId(user, otherUser);
                 const messages = await fetchMessages(room);
 
@@ -122,7 +129,7 @@ const Chat = ({user}) => {
     }, [curOtherUser]);
 
     useEffect(() => {
-        fetchAllUsers();
+        fetchContacts();
     }, [user]);
 
     useEffect(() => {
