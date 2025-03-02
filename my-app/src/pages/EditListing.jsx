@@ -54,10 +54,17 @@ function EditListing() {
   };
 
   const handleImageChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      image: e.target.files[0], // Store selected file
-    }));
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prevState) => ({
+        ...prevState,
+        image: file, // Store selected file
+      }));
+  
+      // Create a temporary URL for preview
+      const imagePreviewUrl = URL.createObjectURL(file);
+      setCurrentImage(imagePreviewUrl); // Update the image preview
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -185,37 +192,37 @@ function EditListing() {
             ></textarea>
           </div>
 
-          {/* Image Upload */}
-          <div>
+        {/* Image Upload */}
+        <div>
             <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-              Image
+                Image
             </label>
 
-            <div className="flex items-center mt-1">
-              <div className="w-auto">
-                <input
-                  type="file"
-                  id="image"
-                  name="image"
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  className="mt-1 block w-full"
-                />
-              </div>
-
-              <div className="flex-1"></div>
-
-              {currentImage && (
-                <div className="flex justify-center w-2/3">
-                  <img
-                    src={currentImage}
-                    alt="Current Listing"
-                    className="w-40 h-40 object-cover rounded"
-                  />
+            <div className="grid grid-cols-2 gap-4 items-center mt-1">
+                {/* File Upload (Left Side) */}
+                <div className="w-full overflow-hidden">
+                    <input
+                        type="file"
+                        id="image"
+                        name="image"
+                        onChange={handleImageChange}
+                        accept="image/*"
+                        className="mt-1 block w-full overflow-hidden text-ellipsis truncate whitespace-nowrap rounded-md p-1"
+                    />
                 </div>
-              )}
+
+                {/* Image Preview (Right Side) */}
+                {currentImage && (
+                    <div className="flex justify-center">
+                        <img
+                            src={currentImage}
+                            alt="Selected Listing"
+                            className="max-w-full max-h-48 h-auto object-contain rounded"
+                        />
+                    </div>
+                )}
             </div>
-          </div>
+        </div>
 
         <div className="flex justify-between mt-6">
             {/* Cancel Button */}
