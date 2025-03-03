@@ -34,7 +34,7 @@ export const getUserById = async (req, res) => {
 
     try {
         const user = await User.findById(id)
-            .populate('listings interestedListings') // Populate references
+            .populate('listings interestedListings contacts') // Populate references
             .select('-password'); // Exclude the password field for security
 
         if (!user) {
@@ -148,4 +148,28 @@ export const getUserInterestedListings = async (req, res) => {
   } catch (error) {
       res.status(500).json({ message: "Failed to retrieve user's interested listings", error });
   }
+};
+
+export const addContact = async (req, res) => {
+    const { user1Id, user2Id } = req.body;
+
+    if (user1Id === user2Id) {
+        return res.status(400).json({ message: "You cannot message yourself" });
+    }
+
+    try {
+        await Promise.all([
+            User.findByIdAndUpdate(user1Id, { $addToSet: { contacts: user2Id } }),
+            User.findByIdAndUpdate(user2Id, { $addToSet: { contacts: user1Id } })
+        ]);
+        
+        const user1 = await User.findById(user1Id);
+        const user2 = await User.findById(user2Id);
+        console.log('user1: ' + user1.fullName);
+        console.log('user2: ' + user2.fullName);
+        console.log('contacts: ' + user1.contacts);
+        return res.status(200).json({ message: "Contact added successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to add contact", error });
+    }
 };
