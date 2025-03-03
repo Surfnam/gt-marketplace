@@ -51,7 +51,7 @@ const ListingDetails = () => {
 
     fetchData();
   }, [id, listingDetails]);
-
+  console.log('seller: ' + seller);
   // Display nothing until listingDetails is populated and we get back the name of the seller
   if (!listingDetails || !seller) {
     return <div></div>;
@@ -63,9 +63,9 @@ const ListingDetails = () => {
         alert("Please log in to message the seller.");
         return;
     }
-
+    
     await addContact(userId, seller._id);
-    navigate('/chat');
+    navigate(`/chat?newcontactemail=${seller.email}`);
   }
 
   return (
