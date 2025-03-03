@@ -1,15 +1,16 @@
 .chat-input {
     display: flex;
     padding: 20px 20px 20px 5px;
-    background-color: #bdc3c7;
+    background-color: #ffffff;
   }
   
 .chat-input input {
   flex: 1;
   padding: 10px;
   border: none;
-  border-radius: 5px;
+  border-radius: 20px;
   margin-right: 10px;
+  background-color: #eff8f9;
 }
 
 .chat-input button {

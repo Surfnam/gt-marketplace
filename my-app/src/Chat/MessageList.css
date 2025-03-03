@@ -3,10 +3,11 @@
     position: relative;
     flex: 1;
     flex-direction: column;
-    background-color: #ecf0f1;
+    background-color: #ffffff;
     padding-left: 20px;
     padding-right: 20px;
     overflow-y: auto;
+    border-left: 3px solid #a8a8a8;
   }
 
   .messages-container::-webkit-scrollbar {
