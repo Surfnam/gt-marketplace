@@ -88,6 +88,7 @@ function CreateListing() {
           condition: "something", //formData.condition,
           category: formData.category,
           status: formData.status,
+          description: formData.description,
           image: formData.image
         }),
         credentials: "include",
