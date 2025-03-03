@@ -122,6 +122,10 @@ const Chat = ({user}) => {
     }, [curOtherUser]);
 
     useEffect(() => {
+        console.log("Chat history updated:", chatHistory);
+    }, [chatHistory]);
+
+    useEffect(() => {
         fetchAllUsers();
     }, [user]);
 

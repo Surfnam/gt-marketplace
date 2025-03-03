@@ -1,15 +1,33 @@
 .chat-sidebar {
     width: 20%;
-    background-color: #2c3e50;
-    color: white;
+    background-color: #FFFFFF;
+    color: #313131;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    margin-right: 30px;
+  }
+
+  .chat-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .chat-sidebar::-webkit-scrollbar-track {
+    background: #ededed;
+  }
+
+  .chat-sidebar::-webkit-scrollbar-thumb {
+    background: #d3d3d3;
+  }
+
+  .chat-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #acacac;
   }
   
   .chat-sidebar h2 {
     margin-top: 0;
     font-size: 1.5rem;
-    border-bottom: 1px solid #34495e;
+    font-weight: bold;
     padding-bottom: 10px;
   }
   
