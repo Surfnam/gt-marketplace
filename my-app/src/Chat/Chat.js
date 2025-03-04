@@ -37,8 +37,6 @@ const Chat = ({user}) => {
     const [messageSkip, setMessageSkip] = useState(0);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-    console.log('curOtherUser: ' + curOtherUser);
-
     const fetchUser  = async (id) => {
         try {
             const res = await axios.get(`http://localhost:3001/api/users/${id}`);
@@ -57,8 +55,11 @@ const Chat = ({user}) => {
         try {
             const res = await axios.get(`http://localhost:3001/api/users/${userId}`);
             const user  = res.data;
-            console.log(user);
-            const contacts = user.contacts.map(u => u.email);
+            const contacts = user.contacts.map(({ email, username, profilePicture }) => ({
+                email,
+                username,
+                profilePicture
+            }));
             console.log(contacts);
             setOtherUsers(contacts);
             
@@ -145,10 +146,6 @@ const Chat = ({user}) => {
     }, [curOtherUser]);
 
     useEffect(() => {
-        console.log("Chat history updated:", chatHistory);
-    }, [chatHistory]);
-
-    useEffect(() => {
         fetchContacts();
     }, [user]);
 
@@ -222,7 +219,6 @@ const Chat = ({user}) => {
                 name: curFile.name,
                 url: await uploadFile(curFile)
             }
-            console.log(JSON.stringify(messageData.file));
         }
         
         socket.emit("send_message", messageData);

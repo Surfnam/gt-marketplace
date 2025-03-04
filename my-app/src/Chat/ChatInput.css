@@ -2,6 +2,7 @@
     display: flex;
     padding: 20px 20px 20px 5px;
     background-color: #ffffff;
+    border-left: 3px solid #c2bcbc;
   }
   
 .chat-input input {

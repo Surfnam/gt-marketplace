@@ -7,7 +7,7 @@
     padding-left: 20px;
     padding-right: 20px;
     overflow-y: auto;
-    border-left: 3px solid #a8a8a8;
+    border-left: 3px solid #c2bcbc;
   }
 
   .messages-container::-webkit-scrollbar {
