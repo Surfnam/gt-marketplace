@@ -1,5 +1,6 @@
 .messages-container {
     display: flex;
+    justify-content: flex-end;
     position: relative;
     flex: 1;
     flex-direction: column;

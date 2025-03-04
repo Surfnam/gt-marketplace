@@ -31,20 +31,6 @@ const Chat = ({user}) => {
     const [notifications, setNotifications] = useState({});
     const [firstUnreadMessage, setFirstUnreadMessage] = useState(null);
     const [clearUnread, setClearUnread] = useState(null);
-    
-    // chunk render set-up (TODO)
-    const [messageLimit, setMessageLimit] = useState(20);
-    const [messageSkip, setMessageSkip] = useState(0);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-
-    const fetchUser  = async (id) => {
-        try {
-            const res = await axios.get(`http://localhost:3001/api/users/${id}`);
-            return res.data;
-        } catch (error) {
-            console.error('Error fetching user:', error);
-        }
-    }
 
     const fetchContacts = async () => {
         const userId = localStorage.getItem('userId');
@@ -60,7 +46,6 @@ const Chat = ({user}) => {
                 username,
                 profilePicture
             }));
-            console.log(contacts);
             setOtherUsers(contacts);
             
             const newNotifications = {};
