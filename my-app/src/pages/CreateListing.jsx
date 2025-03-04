@@ -11,7 +11,7 @@ function CreateListing() {
     title: "",
     seller: user,
     price: "",
-    condition: "sss",
+    condition: "None",
     category: "",
     description: "",
     status: "available",
@@ -44,7 +44,6 @@ function CreateListing() {
     e.preventDefault();
 
     // Create a FormData object to send the image file
-    console.log("test");
     const data = new FormData();
     for (const key in formData) {
       if (formData[key]) {
@@ -53,7 +52,6 @@ function CreateListing() {
     }
 
     try {
-      console.log(formData);
       if (formData.image) {
         const imageFormData = new FormData();
         imageFormData.append("file", formData.image);
@@ -85,10 +83,10 @@ function CreateListing() {
           title: formData.title,
           seller: formData.seller,
           price: formData.price,
-          condition: "something", //formData.condition,
+          condition: formData.condition,
           category: formData.category,
-          status: formData.status,
           description: formData.description,
+          status: formData.status,
           image: formData.image
         }),
         credentials: "include",
