@@ -27,6 +27,14 @@
   align-self: flex-start;
 }
 
+.message.you .message-media {
+  border-radius: 10px;
+}
+
+.message.other .message-media {
+  border-radius: 10px;
+}
+
 .message.you {
   align-self: flex-end;
   margin-right: 10px;
@@ -52,12 +60,11 @@
   display: flex;
   margin-right: 10px;
   color:rgb(92, 92, 92);
-  font-size: 11px;
-  font-weight: bold;
+  font-size: 12px;
 }
 
 .message.you .message-content {
-  background-color: #eff8f9;
+  background-color: #266c74;
 }
 
 .message.other {
@@ -84,12 +91,11 @@
   display: flex;
   margin-right: 10px;
   color:rgb(92, 92, 92);
-  font-size: 11px;
-  font-weight: bold;
+  font-size: 12px;
 }
 
 .message.other .message-content {
-  background-color: rgb(115, 115, 115);
+  background-color: rgb(123, 138, 137);
 }
 
 .file-media {
@@ -97,8 +103,6 @@
   max-width: 600px;
   max-height: 600px;
 }
-
-
 
 .file-name {
   font-size: 20px;
