@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { uploadFile } from '../services/fileUpload';
 
  const user = localStorage.getItem("userId");
 
@@ -14,6 +15,7 @@ function CreateListing() {
     condition: "None",
     category: "",
     description: "",
+    image: null,
     status: "available",
     image: null
   });
@@ -91,6 +93,7 @@ function CreateListing() {
         }),
         credentials: "include",
       });
+      await uploadFile(formData.image)
       console.log("User data sent to MongoDB:", response.listingId);
 
       navigate("/");

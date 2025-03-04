@@ -1,7 +1,13 @@
 .chat-sidebar {
+<<<<<<< HEAD
     width: 30%;
     background-color: #FFFFFF;
     color: #313131;
+=======
+    width: 20%;
+    background-color: #ffffff;
+    color: black;
+>>>>>>> 3903800650f9553b5813fadbc3707c9c87ea394f
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
@@ -27,7 +33,11 @@
   
   .chat-sidebar h2 {
     margin-top: 50px;
+<<<<<<< HEAD
     margin-left: 50px;
+=======
+    margin-left: 30px;
+>>>>>>> 3903800650f9553b5813fadbc3707c9c87ea394f
     font-size: 30px;
     font-weight: bold;
     padding-bottom: 10px;
