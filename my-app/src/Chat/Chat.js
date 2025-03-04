@@ -103,6 +103,13 @@ const Chat = ({user}) => {
     }
     
     useEffect(() => {
+        if (newContactEmail) {
+            console.log(`Detected new contact in URL: ${newContactEmail}`);
+            joinRoom(newContactEmail);
+        }
+    }, [newContactEmail]);
+     
+    useEffect(() => {
         socket.on("receive_message", (data) => {
             const formattedData = { ...data, date: new Date(data.date) }
             
