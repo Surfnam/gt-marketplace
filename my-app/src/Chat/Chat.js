@@ -149,7 +149,7 @@ const Chat = ({user}) => {
     }, [chatHistory]);
 
     useEffect(() => {
-        fetchAllUsers();
+        fetchContacts();
     }, [user]);
 
     useEffect(() => {
