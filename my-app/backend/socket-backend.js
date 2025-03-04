@@ -4,7 +4,7 @@ function initializeSocket(server) {
     const io = new Server(server, {
         cors: {
             // React is run on port 3000
-            origin: "http://localhost:3000",
+            origin: "*",
             // Requests that socket is allowed to utilize
             methods: ["GET", "POST"],
         },
