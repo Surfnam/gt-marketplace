@@ -77,7 +77,6 @@ const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnrea
                             )}
                         </div>
                         <a className="selectedMedia-link" href={selectedMedia.url} target="_blank">
-                            
                             Open in Browser
                         </a>
                     </div>
