@@ -1,19 +1,23 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { uploadFile } from '../services/fileUpload';
 
  const user = localStorage.getItem("userId");
+
 function CreateListing() {
-  
+  const [currentImage, setCurrentImage] = useState(null);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     seller: user,
     price: "",
-    condition: "sss",
+    condition: "None",
     category: "",
     description: "",
+    image: null,
     status: "available",
+    image: null
   });
 
   const handleChange = (e) => {
@@ -25,42 +29,71 @@ function CreateListing() {
   };
 
   const handleImageChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      image: e.target.files[0],
-    }));
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prevState) => ({
+        ...prevState,
+        image: file, // Store selected file
+      }));
+  
+      // Create a temporary URL for preview
+      const imagePreviewUrl = URL.createObjectURL(file);
+      setCurrentImage(imagePreviewUrl); // Update the image preview
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Create a FormData object to send the image file
-    console.log("test");
     const data = new FormData();
     for (const key in formData) {
-      data.append(key, formData[key]);
+      if (formData[key]) {
+        data.append(key, formData[key]);
+      }
     }
 
     try {
-      console.log(formData);
+      if (formData.image) {
+        const imageFormData = new FormData();
+        imageFormData.append("file", formData.image);
+
+        const uploadResponse = await fetch(`http://localhost:3001/api/fileUpload`, {
+          method: "PUT",
+          body: imageFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          const errorDetails = await uploadResponse.json(); // Get error details from the server response
+          console.error("Error uploading image:", errorDetails);
+          throw new Error("Failed to upload image");
+        }
+
+        const uploadResult = await uploadResponse.json();
+        formData.image = uploadResult.fileURL; // Use the new image URL from Backblaze
+      }
+
       const response = await fetch(`http://localhost:3001/listing/${user}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          uid: user.uid,
+          uid: user._uid,
           email: user.email,
           data: formData,
           title: formData.title,
           seller: formData.seller,
           price: formData.price,
-          condition: "something", //formData.condition,
+          condition: formData.condition,
           category: formData.category,
+          description: formData.description,
           status: formData.status,
+          image: formData.image
         }),
         credentials: "include",
       });
+      await uploadFile(formData.image)
       console.log("User data sent to MongoDB:", response.listingId);
 
       navigate("/");

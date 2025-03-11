@@ -11,7 +11,8 @@ const listingSchema = new mongoose.Schema({
         ref:'User'
     },
     description: {
-        type:String
+        type:String,
+        default:""
     },
     price: {
         type:Number,

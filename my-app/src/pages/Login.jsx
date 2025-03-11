@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import "./Auth.css";
+import "../css/Auth.css";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "./firebase";
+import { auth, googleProvider } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import axios from 'axios';
-import GoogleLogo from "./assets/Google logo.png";
-import GTLogo from "./assets/GT Marketplace Logo.jpeg";
-import ShoppingBag from "./assets/1f6cd.png";
+import GoogleLogo from "../images/Google logo.png";
+import ShoppingBag from "../images/1f6cd.png";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -41,8 +39,11 @@ function Login() {
       const res = await sendUserDataToMongoDB(userCredential.user);
       const data = await res.json()
       console.log('user data from mongo', data)
+      console.log("this is data[0]: ", data.user[0].uid);
+      console.log("this is data[0]: ", data.user[0]._id);
       console.log("Login successful:", userCredential.user);
-      localStorage.setItem("userId", data[0]._id);
+      localStorage.setItem("userId", data.user[0]._id);
+      console.log(localStorage.getItem("userId" ));
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error logging in:", error);
