@@ -3,6 +3,7 @@ import User from '../models/User.js';
 
 export const addListing = async (req, res) => {
     try {
+        console.log("endpoint")
         const {id} = req.params
         const {title, price, condition, category, status, image} = req.body;
         const newListing = new Listing({
@@ -20,7 +21,7 @@ export const addListing = async (req, res) => {
             { $push: {listings : savedListing._id} },
             { new: true }  // Option to return the updated document
           );
-
+          console.log("userid at listing", id)
         
         res.status(201).json({message: "listing saved", newListing});
     } catch (err) {
@@ -73,7 +74,7 @@ export const getListingsByCondition = async (req, res) => {
 
 export const getActiveListings = async (req, res) => {
     try {
-        const listings = await Listing.find({ status : 'available'}).select('title price category condition');
+        const listings = await Listing.find({ status : 'available'}).select('title image price category condition');
         console.log(listings)
         res.status(200).json({data: listings});
     } catch (err) {
@@ -134,19 +135,34 @@ export const getListingByPrice = async (req, res) => {
 };
 
 export const updateListing = async (req, res) => {
+    // let updates, action, userId,filteredUpdates = {};
     try {
         const listingId = req.params.id; 
-        const updates = req.body;     // Fields to update are sent in req.body
+        const {updates, action, userId} = req.body;
+        let updateQuery = {}
+        if (action) {
+            // updates = {}
+            if (action === 'add') {
+                updateQuery = {$addToSet: {interestedUsers: userId }};
+            } else if (action === 'remove') {
+                updateQuery = {$pull: {interestedUsers: userId }};
+            }
+        }// Fields to update are sent in req.body
 
-        // Remove any fields that are undefined (not provided in the request)
-        const filteredUpdates = Object.fromEntries(
-            Object.entries(updates).filter(([_, value]) => value !== undefined)
-        );
-
+        else if (updates && Object.keys(updates).length > 0 ) {
+            // Remove any fields that are undefined (not provided in the request)
+            const filteredUpdates = Object.fromEntries(
+                Object.entries(updates).filter(([_, value]) => value !== undefined)
+            );
+            updateQuery = { $set: filteredUpdates}
+        } else {
+            return res.status(400).json({ message: "No valid updates provided" });
+        }
+        
         // Use findByIdAndUpdate with $set to update only specified fields
         const updatedListing = await Listing.findByIdAndUpdate(
             listingId,
-            { $set: filteredUpdates },
+            updateQuery,
             { new: true }  // Option to return the updated document
         );
 
@@ -155,9 +171,29 @@ export const updateListing = async (req, res) => {
         }
 
         res.status(200).json({ listing: updatedListing });
+        console.log('updatequery', updateQuery);
     } 
     catch (error) {
-        res.status(500).json({ message: 'Failed to update listing', error });
+        res.status(500).json({ message: 'Failed to update listing', error , action, userId,filteredUpdates});
     }
 }
 
+export const deleteListing = async (req, res) => {
+
+    try {  
+        const listingId = req.params.id;
+        const deletedListing = await Listing.findByIdAndDelete(listingId);
+        if (!deletedListing) {
+            return res.status(404).json({ message: 'Listing not found' });
+        }
+
+        await User.findByIdAndUpdate(
+            deletedListing.seller, // Assuming `seller` field stores user ID
+            { $pull: { listings: listingId } }, // Remove the listing ID from the array
+            { new: true } // Return the updated user document
+        );
+        return res.status(200).json({ message: 'Listing deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete listing', error });
+    }
+};

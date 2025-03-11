@@ -1,13 +1,13 @@
 // Register.js
 import React, { useState } from "react";
-import "./Auth.css";
+import "../css/Auth.css";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "./firebase";
+import { auth, googleProvider } from "../firebase";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import ShoppingBag from "./assets/1f6cd.png";
+import ShoppingBag from "../images/1f6cd.png";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import GoogleLogo from "./assets/Google logo.png";
+import GoogleLogo from "../images/Google logo.png";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -38,10 +38,10 @@ function Register() {
       setSuccess("Registration successful! You can now log in.");
 
       // Send user data to MongoDB
-      const res = await sendUserDataToMongoDB(userCredential.user);
-      const data = await res.json()
+      const data = await sendUserDataToMongoDB(userCredential.user);
       console.log('RES DATA FROM MONGO', data);
-      localStorage.setItem("userId", data.userId);
+      console.log(data.data.userId)
+      localStorage.setItem("userId", data.data.userId);
       // Navigate to home page
       navigate("/");
     } catch (error) {
@@ -57,13 +57,13 @@ function Register() {
     try {
       console.log('why login automatic?')
       const result = await signInWithPopup(auth, googleProvider);
+      console.log(result)
       console.log("Google Sign-In successful:", result.user);
 
       // Send user data to MongoDB
       const res = await sendUserDataToMongoDB(result.user);
-      const data = await res.json()
-      console.log('RES DATA FROM MONGO', data);
-      localStorage.setItem("userId", data.userId);
+      console.log(res)
+      localStorage.setItem("userId", res.data.userId);
       setSuccess("Registration successful via Google! You can now log in.");
 
       // Navigate to home page
@@ -76,20 +76,12 @@ function Register() {
 
   const sendUserDataToMongoDB = async (user) => {
     try {
-      
-      const cred = {
-        uid: user.uid,
-        email: user.email,
-      }
-      const response = await fetch(
+      const response = await axios.post(
         "http://localhost:3001/api/users/register",
         {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify(cred)} 
-        
+          uid: user.uid,
+          email: user.email,
+        }
       );
       console.log("User data sent to MongoDB:", response);
       return response;

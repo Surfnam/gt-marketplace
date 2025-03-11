@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import io from "socket.io-client";
 
@@ -16,8 +17,12 @@ import {postMessage} from '../services/message';
 const socket = io.connect(`http://localhost:3001/`);
 const Chat = ({user}) => {
     user = user ? user.email : null;
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const newContactEmail = queryParams.get("newcontactemail");
+
     const [otherUsers, setOtherUsers] = useState([]);
-    const [curOtherUser, setCurOtherUser] = useState(otherUsers[0]);
+    const [curOtherUser, setCurOtherUser] = useState(newContactEmail);
     const [roomId, setRoomId] = useState("");
     const [curMessage, setCurMessage] = useState("");
     const [curFile, setCurFile] = useState(null);
@@ -26,22 +31,26 @@ const Chat = ({user}) => {
     const [notifications, setNotifications] = useState({});
     const [firstUnreadMessage, setFirstUnreadMessage] = useState(null);
     const [clearUnread, setClearUnread] = useState(null);
-    
-    // chunk render set-up (TODO)
-    const [messageLimit, setMessageLimit] = useState(20);
-    const [messageSkip, setMessageSkip] = useState(0);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-    const fetchAllUsers = async () => {
+    const fetchContacts = async () => {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('Please login to chat');
+            return
+        }
         try {
-            const res = await axios.get('http://localhost:3001/api/users');
-            let usersData = res.data;
-            usersData = usersData.filter(u => u.email !== user).map(u => u.email);
-            setOtherUsers(usersData);
+            const res = await axios.get(`http://localhost:3001/api/users/${userId}`);
+            const user  = res.data;
+            const contacts = user.contacts.map(({ email, username, profilePicture }) => ({
+                email,
+                username,
+                profilePicture
+            }));
+            setOtherUsers(contacts);
             
             const newNotifications = {};
 
-            await Promise.all(usersData.map(async (otherUser) => {
+            await Promise.all(contacts.map(async (otherUser) => {
                 const room = getRoomId(user, otherUser);
                 const messages = await fetchMessages(room);
 
@@ -92,7 +101,14 @@ const Chat = ({user}) => {
         });
         setOtherUsers(sortedUsers);
     }
-
+    
+    useEffect(() => {
+        if (newContactEmail) {
+            console.log(`Detected new contact in URL: ${newContactEmail}`);
+            joinRoom(newContactEmail);
+        }
+    }, [newContactEmail]);
+     
     useEffect(() => {
         socket.on("receive_message", (data) => {
             const formattedData = { ...data, date: new Date(data.date) }
@@ -122,7 +138,7 @@ const Chat = ({user}) => {
     }, [curOtherUser]);
 
     useEffect(() => {
-        fetchAllUsers();
+        fetchContacts();
     }, [user]);
 
     useEffect(() => {
@@ -195,7 +211,6 @@ const Chat = ({user}) => {
                 name: curFile.name,
                 url: await uploadFile(curFile)
             }
-            console.log(JSON.stringify(messageData.file));
         }
         
         socket.emit("send_message", messageData);

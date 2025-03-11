@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt'
-import {updateUser, getUserById, getUserByEmail } from '../controllers/userController.js';
+import {updateUser, getUserById, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -52,5 +52,20 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// Add an interested listing to a user's interestedListings. Pass in "userId" and "listingId" in post body.
+router.post('/interestedListings', addInterestedListing)
+
+// Remove an interested listing from a user's interestedListings. Pass in "userId" and "listingId" in post body.
+router.delete('/interestedListings', removeInterestedListing)
+
+// Get all active listings of a user
+router.get('/:id/listings', getUserListings);
+
+// Get all interested listings of a user
+router.get('/:id/interestedListings', getUserInterestedListings);
+
+// add new contact
+router.post('/addContact', addContact)
 
 export default router;
