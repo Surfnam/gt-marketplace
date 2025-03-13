@@ -36,6 +36,25 @@ const addContact = async (user1Id, user2Id) => {
     }
 }
 
+//Marks listing as inactive, changes listing condition, removes it from listings array for seller, puts it in inactiveListings array for seller
+const markAsInactive = async (listingId, sellerId) => {
+    try {
+        await axios.patch(`http://localhost:3001/listing/${listingId}`, {
+            status: "unavailable",
+        });
+        await axios.post("http://localhost:3001/api/users/inactiveListings", {
+            sellerId,
+            listingId,
+        });
+        await axios.delete("http://localhost:3001/api/users/activeListings", {
+            sellerId,
+            listingId,
+        });
+    } catch (error) {
+        console.error("Error marking listing as inactive:", error)
+    }
+}
+
 const ListingDetails = () => {
   const { id } = useParams(); // Get dynamic ID from URL
   const [listingDetails, setListingDetails] = useState(null);
@@ -57,8 +76,10 @@ const ListingDetails = () => {
     return <div></div>;
   }
 
+  const userId = localStorage.getItem("userId");
+  const isSeller = userId === seller._id
+
   const handleSendMessageClick = async () => {
-    const userId = localStorage.getItem("userId");
     if (!userId) {
         alert("Please log in to message the seller.");
         return;
@@ -66,6 +87,10 @@ const ListingDetails = () => {
     
     await addContact(userId, seller._id);
     navigate(`/chat?newcontactemail=${seller.email}`);
+  }
+
+  const handleMarkAsInactive = async () => {
+    await markAsInactive(listingDetails._id, seller._id);
   }
 
   return (
@@ -83,7 +108,7 @@ const ListingDetails = () => {
             <p id="item-condition"><strong>Condition: </strong>{listingDetails.condition}</p>
             <p id="seller-name"><strong>Seller: </strong>{seller.fullName}</p>
             <div className="listing-message-box">
-                <button className="listing-button" onClick={handleSendMessageClick}>Message Seller</button>
+                {isSeller ? (<button className="listing-button" onClick={handleMarkAsInactive}>Mark as Inactive</button>) : (<button className="listing-button" onClick={handleSendMessageClick}>Message Seller</button>)}
             </div>
         </div>
     </div>
