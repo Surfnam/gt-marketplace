@@ -169,15 +169,15 @@ export const getUserInactiveListings = async (req, res) => {
 
 export const addInactiveListing = async (req, res) => {
     try {
-        const { userId, listingId } = req.body; // Expect userId and listingId in request body
+        const { sellerId, listingId } = req.body; // Expect userId and listingId in request body
   
-        if (!userId || !listingId) {
+        if (!sellerId || !listingId) {
             return res.status(400).json({ message: "User ID and Listing ID are required." });
         }
   
         // Update the user's inactiveListings array
         const updatedUser = await User.findByIdAndUpdate(
-            userId,
+            sellerId,
             { $addToSet: { inactiveListings: listingId } }, // $addToSet prevents duplicates
             { new: true } // Return updated document
         );
@@ -194,14 +194,14 @@ export const addInactiveListing = async (req, res) => {
 
 export const removeInactiveListing = async (req, res) => {
     try {
-        const { userId, listingId } = req.body;
+        const { sellerId, listingId } = req.body;
   
-        if (!userId || !listingId) {
+        if (!sellerId || !listingId) {
             return res.status(400).json({ message: "User ID and Listing ID are required." });
         }
   
         const updatedUser = await User.findByIdAndUpdate(
-            userId,
+            sellerId,
             { $pull: { inactiveListings: listingId } }, // $pull removes matching value
             { new: true }
         );
@@ -216,16 +216,41 @@ export const removeInactiveListing = async (req, res) => {
     }
 };
 
+export const addActiveListing = async (req, res) => {
+    try {
+        const { sellerId, listingId } = req.body; // Expect userId and listingId in request body
+  
+        if (!sellerId || !listingId) {
+            return res.status(400).json({ message: "User ID and Listing ID are required." });
+        }
+  
+        // Update the user's inactiveListings array
+        const updatedUser = await User.findByIdAndUpdate(
+            sellerId,
+            { $addToSet: { listings: listingId } }, // $addToSet prevents duplicates
+            { new: true } // Return updated document
+        );
+  
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+  
+        res.status(200).json({ message: "Listing added to listings" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to add listing", error });
+    }
+};
+
 export const removeActiveListing = async (req, res) => {
     try {
-        const { userId, listingId } = req.body;
+        const { sellerId, listingId } = req.body;
   
-        if (!userId || !listingId) {
+        if (!sellerId || !listingId) {
             return res.status(400).json({ message: "User ID and Listing ID are required." });
         }
   
         const updatedUser = await User.findByIdAndUpdate(
-            userId,
+            sellerId,
             { $pull: { listings: listingId } }, // $pull removes matching value
             { new: true }
         );

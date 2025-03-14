@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt'
-import {updateUser, getUserById, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact, getUserInactiveListings, addInactiveListing, removeInactiveListing, removeActiveListing } from '../controllers/userController.js';
+import {updateUser, getUserById, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact, getUserInactiveListings, addInactiveListing, removeInactiveListing, removeActiveListing, addActiveListing } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -64,6 +64,9 @@ router.post('/inactiveListings', addInactiveListing)
 
 // Remove an inactive listing from a user's inactiveListings. Pass in "userId" and "listingId" in post body.
 router.delete('/inactiveListings', removeInactiveListing)
+
+// Add an active listing to a user's listings. Pass in "userId" and "listingId" in post body.
+router.post('/activeListings', addActiveListing)
 
 // Remove an active listing from a user's listings. Pass in "userId" and "listingId" in post body.
 router.delete('/activeListings', removeActiveListing);
