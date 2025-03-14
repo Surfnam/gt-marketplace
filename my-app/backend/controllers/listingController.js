@@ -5,15 +5,9 @@ export const addListing = async (req, res) => {
     try {
         console.log("endpoint")
         const {id} = req.params
-        const {title, price, condition, category, status, image} = req.body;
         const newListing = new Listing({
-            title,
+            ...req.body,
             seller: id,
-            price,
-            condition,
-            category,
-            status,
-            image
         });
         const savedListing = await newListing.save();
         const updatedUser = await User.findByIdAndUpdate(
