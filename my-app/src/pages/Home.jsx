@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/App.css";
 import { Heart } from "lucide-react";
+import Icons from "../images/icons";
 
 const getAllListings = async () => {
   //example placeholders
@@ -9,6 +10,10 @@ const getAllListings = async () => {
   const data = await response.json();
   return data.data;
 };
+
+const categories = ["All", "Furniture", "Electronics", "Clothing", "Vehicles", "Property Rentals",
+  "Entertainment", "Free Stuff", "Garden & Outdoor", "Hobbies", "Home Goods", "Home Improvement", 
+  "Musical Instruments", "Office Supplies", "Pet Supplies", "Sporting Goods", "Toys & Games", "Other"]
 
 function Home() {
   const navigate = useNavigate();
@@ -141,13 +146,27 @@ function Home() {
           <div className="mt-4">
             <h3 className="font-semibold mb-2">Categories</h3>
             <ul className="space-y-2">
-              {["All", "Furniture", "Electronics", "Clothing"].map(
+              {categories.map(
                 (category) => (
                   <li key={category}>
                     <button
-                      className="w-full text-left hover:bg-gray-200 py-1 px-2 rounded"
+                      className={`
+                        w-full flex items-center text-left py-1 px-2 rounded
+                        ${
+                          selectedCategory === category 
+                            ? 'bg-gray-200'  // Highlight if selected
+                            : 'hover:bg-gray-200' // Otherwise, highlight on hover
+                        }
+                      `}
                       onClick={() => handleCategorySelect(category)}
                     >
+                    {Icons[category] && (
+                      <img
+                        src={Icons[category]}
+                        alt={`${category} icon`}
+                        className="w-6 h-6 mr-4"
+                      />
+                    )}
                       {category}
                     </button>
                   </li>
