@@ -4,6 +4,7 @@ import User from '../models/User.js';
 export const addListing = async (req, res) => {
     try {
         console.log("endpoint")
+        console.log("req.body: ", req.body);
         const {id} = req.params
         const newListing = new Listing({
             ...req.body,

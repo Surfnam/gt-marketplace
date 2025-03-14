@@ -12,16 +12,19 @@ function CreateListing() {
     title: "",
     seller: user,
     price: "",
-    condition: "None",
+    condition: "",
     category: "",
     description: "",
     image: null,
     status: "available",
     image: null
   });
+  
   const categories = ["Furniture", "Electronics", "Clothing", "Vehicles", "Property Rentals",
     "Entertainment", "Free Stuff", "Garden & Outdoor", "Hobbies", "Home Goods", "Home Improvement", 
     "Musical Instruments", "Office Supplies", "Pet Supplies", "Sporting Goods", "Toys & Games", "Other"]
+  
+  const conditions = ["New", "Used - Like New", "Used - Good", "Used - Fair", "Non-functional/Broken"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -163,6 +166,26 @@ function CreateListing() {
               {categories.map((category) => (
                 <option key={category} value={category}>
                   {category}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="condition" className="block text-sm font-medium text-gray-700">
+              Condition
+            </label>
+            <select
+              id="condition"
+              name="condition"
+              value={formData.condition}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            >
+              <option value="" disabled hidden>Select condition</option>
+              {conditions.map((condition) => (
+                <option key={condition} value={condition}>
+                  {condition}
                 </option>
               ))}
             </select>
