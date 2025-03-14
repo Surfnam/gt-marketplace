@@ -21,6 +21,10 @@ function EditListing() {
 
   const [currentImage, setCurrentImage] = useState(null); // Stores current image URL
 
+  const categories = ["Furniture", "Electronics", "Clothing", "Vehicles", "Property Rentals",
+    "Entertainment", "Free Stuff", "Garden & Outdoor", "Hobbies", "Home Goods", "Home Improvement", 
+    "Musical Instruments", "Office Supplies", "Pet Supplies", "Sporting Goods", "Toys & Games", "Other"]
+
   // Fetch listing details when component loads
   useEffect(() => {
     fetch(`http://localhost:3001/listing/${id}`)
@@ -170,10 +174,12 @@ function EditListing() {
               required
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             >
-              <option value="">Select a category</option>
-              <option value="Furniture">Furniture</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Clothing">Clothing</option>
+              <option value="" disabled hidden>Select a category</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
           </div>
 
