@@ -150,6 +150,121 @@ export const getUserInterestedListings = async (req, res) => {
   }
 };
 
+export const getUserInactiveListings = async (req, res) => {
+    try {
+        const { id } = req.params;
+  
+        // Find the user and return only the inactiveListings array, populating listing details
+        const user = await User.findById(id).populate('inactiveListings', '-__v');
+  
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+  
+        res.status(200).json({ inactiveListings: user.inactiveListings });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to retrieve user's inactive listings", error });
+    }
+};
+
+export const addInactiveListing = async (req, res) => {
+    try {
+        const { sellerId, listingId } = req.body; // Expect userId and listingId in request body
+  
+        if (!sellerId || !listingId) {
+            return res.status(400).json({ message: "User ID and Listing ID are required." });
+        }
+  
+        // Update the user's inactiveListings array
+        const updatedUser = await User.findByIdAndUpdate(
+            sellerId,
+            { $addToSet: { inactiveListings: listingId } }, // $addToSet prevents duplicates
+            { new: true } // Return updated document
+        );
+  
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+  
+        res.status(200).json({ message: "Listing added to inactiveListings" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to add inactive listing", error });
+    }
+};
+
+export const removeInactiveListing = async (req, res) => {
+    try {
+        const { sellerId, listingId } = req.body;
+  
+        if (!sellerId || !listingId) {
+            return res.status(400).json({ message: "User ID and Listing ID are required." });
+        }
+  
+        const updatedUser = await User.findByIdAndUpdate(
+            sellerId,
+            { $pull: { inactiveListings: listingId } }, // $pull removes matching value
+            { new: true }
+        );
+  
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+  
+        res.status(200).json({ message: "Listing removed from inactiveListings" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to remove inactive listing", error });
+    }
+};
+
+export const addActiveListing = async (req, res) => {
+    try {
+        const { sellerId, listingId } = req.body; // Expect userId and listingId in request body
+  
+        if (!sellerId || !listingId) {
+            return res.status(400).json({ message: "User ID and Listing ID are required." });
+        }
+  
+        // Update the user's inactiveListings array
+        const updatedUser = await User.findByIdAndUpdate(
+            sellerId,
+            { $addToSet: { listings: listingId } }, // $addToSet prevents duplicates
+            { new: true } // Return updated document
+        );
+  
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+  
+        res.status(200).json({ message: "Listing added to listings" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to add listing", error });
+    }
+};
+
+export const removeActiveListing = async (req, res) => {
+    try {
+        const { sellerId, listingId } = req.body;
+  
+        if (!sellerId || !listingId) {
+            return res.status(400).json({ message: "User ID and Listing ID are required." });
+        }
+  
+        const updatedUser = await User.findByIdAndUpdate(
+            sellerId,
+            { $pull: { listings: listingId } }, // $pull removes matching value
+            { new: true }
+        );
+  
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+  
+        res.status(200).json({ message: "Listing removed from listings" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to remove listing", error });
+    }
+};
+
 export const addContact = async (req, res) => {
     const { user1Id, user2Id } = req.body;
 

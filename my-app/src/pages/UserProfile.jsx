@@ -12,6 +12,8 @@ function UserProfile({ userProp }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [favoriteListings, setFavoriteListings] = useState([]);
+  const [inactiveListings, setInactiveListings] = useState([]);
+  const [inactiveListingsData, setInactiveListingsData] = useState([]);
   const [userId, setUserId] = useState(null);
   const [displayName, setDisplayName] = useState("default User");
   const [email, setEmail] = useState(null);
@@ -97,6 +99,7 @@ function UserProfile({ userProp }) {
         setDisplayName(data.username || "defaultusername");
         setBio(data.bio || "This is a default bio.");
         setInterestedListings(data.interestedListings || []);
+        setInactiveListings(data.inactiveListings || []);
         return data;
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -111,6 +114,26 @@ function UserProfile({ userProp }) {
 
   }, []);
 
+  const fetchInactiveListings = async () => {
+    try {
+      const listings = await Promise.all(
+        inactiveListings.map(async (listingId) => {
+          const response = await axios.get(`http://localhost:3001/listing/${listingId}`);
+          return response.data; // Return the full listing data
+        })
+      );
+      setInactiveListingsData(listings); // Set the full listing data
+    } catch (err) {
+      console.error("Error fetching inactive listings:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (inactiveListings && inactiveListings.length > 0) {
+      fetchInactiveListings(); // Call fetchInactiveListings when inactiveListings changes
+    }
+  }, [inactiveListings]);
+
   const handleDeleteListing = async (listingId) => {
     try {
       await axios.delete(`http://localhost:3001/listing/${listingId}`);
@@ -118,6 +141,8 @@ function UserProfile({ userProp }) {
         ...prevUser, 
         listings: prevUser.listings.filter((listing) => listing._id !== listingId),
       }));
+      setInactiveListingsData((prev) => prev.filter((listing) => listing._id !== listingId));
+      setInactiveListings((prev) => prev.filter((listingIdInState) => listingIdInState !== listingId));
     } catch (err) {
       console.log(err);
     }
@@ -351,7 +376,52 @@ function UserProfile({ userProp }) {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">No active listings</p>
+                <p className="text-sm text-gray-500">No interested listings</p>
+              )}
+            </div>
+          </div>
+          <div className="border-t border-gray-200 p-6 sm:p-8">
+            <h3 className="text-lg font-medium text-gray-900">Inactive Listings</h3>
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {inactiveListingsData.length > 0 ? (
+                inactiveListingsData.map((listing) => (
+                  <div key={listing._id} className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="p-5">
+                      <div className="flex items-center">
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">{listing.title}</dt>
+                            <dd>
+                              <div className="text-lg font-medium text-gray-900">${listing.price}</div>
+                            </dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 px-5 py-3 flex justify-between items-center">
+                      <div className="text-sm">
+                        <a href={`/listing/${listing._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
+                          View details
+                        </a>
+                      </div>
+                      <div className="flex items-center justify-end gap-x-3">
+                          <a href={`/edit-listing/${listing._id}`} className="text-gray-500 hover:text-blue-500">
+                              <FaPencilAlt size={18} />
+                          </a>
+
+                          <button 
+                              onClick={() => confirmDelete(listing._id)}
+                              className="text-gray-600 hover:text-gray-800"
+                          >
+                              <FaTrash className="h-5 w-5" />
+                          </button>
+                      </div>
+
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No inactive listings</p>
               )}
             </div>
           </div>

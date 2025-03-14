@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt'
-import {updateUser, getUserById, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact } from '../controllers/userController.js';
+import {updateUser, getUserById, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact, getUserInactiveListings, addInactiveListing, removeInactiveListing, removeActiveListing, addActiveListing } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -59,11 +59,26 @@ router.post('/interestedListings', addInterestedListing)
 // Remove an interested listing from a user's interestedListings. Pass in "userId" and "listingId" in post body.
 router.delete('/interestedListings', removeInterestedListing)
 
+// Add an inactive listing to a user's inactiveListings. Pass in "userId" and "listingId" in post body.
+router.post('/inactiveListings', addInactiveListing)
+
+// Remove an inactive listing from a user's inactiveListings. Pass in "userId" and "listingId" in post body.
+router.delete('/inactiveListings', removeInactiveListing)
+
+// Add an active listing to a user's listings. Pass in "userId" and "listingId" in post body.
+router.post('/activeListings', addActiveListing)
+
+// Remove an active listing from a user's listings. Pass in "userId" and "listingId" in post body.
+router.delete('/activeListings', removeActiveListing);
+
 // Get all active listings of a user
 router.get('/:id/listings', getUserListings);
 
 // Get all interested listings of a user
 router.get('/:id/interestedListings', getUserInterestedListings);
+
+// Get all inactive listings of a user
+router.get('/:id/inactiveListings', getUserInactiveListings);
 
 // add new contact
 router.post('/addContact', addContact)

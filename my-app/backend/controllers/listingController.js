@@ -173,7 +173,7 @@ export const deleteListing = async (req, res) => {
 
         await User.findByIdAndUpdate(
             deletedListing.seller, // Assuming `seller` field stores user ID
-            { $pull: { listings: listingId } }, // Remove the listing ID from the array
+            { $pull: { listings: listingId, inactiveListings: listingId } }, // Remove the listing ID from the array
             { new: true } // Return the updated user document
         );
         return res.status(200).json({ message: 'Listing deleted successfully' });
