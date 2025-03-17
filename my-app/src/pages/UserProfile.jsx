@@ -135,7 +135,6 @@ function UserProfile({ userProp }) {
   const handleDeleteListing = async (listingId) => {
     try {
       await axios.delete(`http://localhost:3001/listing/${listingId}`);
-      await getUserData();
     } catch (err) {
       console.log(err);
     }
