@@ -19,6 +19,7 @@ function UserProfile({ userProp }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [listingIdToDelete, setListingIdToDelete] = useState(null);
   const [listingToDelete, setListingToDelete] = useState(null);
+  const [listingToDeleteIsActive, setListingToDeleteIsActive] = useState(null);
 
   const [activeListings, setActiveListings] = useState([]);
   const [totalActiveListingsPages, setTotalActiveListingsPages] = useState(1);
@@ -36,8 +37,9 @@ function UserProfile({ userProp }) {
     navigate("/login");
   }
 
-  const confirmDelete = (listingId) => {
+  const confirmDelete = (listingId, isActive) => {
     setListingIdToDelete(listingId);
+    setListingToDeleteIsActive(isActive);
     setShowConfirm(true);
   };
 
@@ -134,10 +136,17 @@ function UserProfile({ userProp }) {
 
   const handleDeleteListing = async (listingId) => {
     try {
-      const res = await axios.delete(`http://localhost:3001/listing/${listingId}/paginated?page=${activePage}`);
+      const res = await axios.delete(`http://localhost:3001/listing/${listingId}/paginated?page=${activePage}&isactive=${listingToDeleteIsActive}`);
       const data = res.data;
-      setActiveListings(data.listings);
-      setTotalActiveListingsPages(data.totalPages);
+
+      if (listingToDeleteIsActive) {
+        setActiveListings(data.listings);
+        setTotalActiveListingsPages(data.totalPages);
+      } else {
+        setInactiveListings(data.listings);
+        setTotalInactiveListingsPages(data.totalPages);
+      }
+      
     } catch (err) {
       console.log(err);
     }
@@ -221,21 +230,23 @@ function UserProfile({ userProp }) {
                 </div>
                 <div className="mt-4 sm:mt-0 sm:pt-1 sm:text-left">
                 {editMode? (<input 
-              type="text" 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              placeholder="Enter name" 
-              className="text-xl font-bold text-gray-900  sm:text-2xl bg-transparent border-2 border-blue-300 outline-none"
-            />) : (<p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p>)}
-                  {/* <p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p> */}
-                  {editMode? (<input 
-              type="text" 
-              value={displayName} 
-              onChange={(e) => setDisplayName(e.target.value)} 
-              placeholder="Enter username" 
-              className="text-sm font-bold text-gray-900  bg-transparent border-2 border-blue-300 outline-none"
-            />) : (<p className="text-sm font-medium text-gray-600">@{displayName || "defaultuser"}</p>)}
-                  
+                  type="text" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  placeholder="Enter name" 
+                  className="text-xl font-bold text-gray-900  sm:text-2xl bg-transparent border-2 border-blue-300 outline-none"
+                />) : (<p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p>)}
+                    {/* <p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p> */}
+                    {editMode? (<input 
+                    type="text" 
+                    value={displayName} 
+                    onChange={(e) => setDisplayName(e.target.value)} 
+                    placeholder="Enter username" 
+                    className="text-sm font-bold text-gray-900  bg-transparent border-2 border-blue-300 outline-none"
+                  />) : (
+                    <p className="text-sm font-medium text-gray-600">@{displayName || "defaultuser"}</p>
+                  )}
+                        
                 </div>
               </div>
               <div className="mt-5 sm:mt-0">
@@ -298,7 +309,7 @@ function UserProfile({ userProp }) {
                           </a>
 
                           <button 
-                              onClick={() => confirmDelete(listing._id)}
+                              onClick={() => confirmDelete(listing._id, true)}
                               className="text-gray-600 hover:text-gray-800"
                           >
                               <FaTrash className="h-5 w-5" />
@@ -403,7 +414,7 @@ function UserProfile({ userProp }) {
                           </a>
 
                           <button 
-                              onClick={() => confirmDelete(listing._id)}
+                              onClick={() => confirmDelete(listing._id, false)}
                               className="text-gray-600 hover:text-gray-800"
                           >
                               <FaTrash className="h-5 w-5" />

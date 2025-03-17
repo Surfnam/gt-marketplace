@@ -223,26 +223,33 @@ export const deleteListingPaginated = async (req, res) => {
             return res.status(404).json({ message: 'Listing not found' });
         }
 
+        const isActive = req.query.isactive; 
+
+        // Remove the listing ID from user (eithe from active or inactive array)
+        const updateUser = isActive 
+            ? { $pull: { listings: listingId } }
+            : { $pull: { inactiveListings: listingId } };
+
         await User.findByIdAndUpdate(
             deletedListing.seller, 
-            { $pull: { listings: listingId, inactiveListings: listingId } }, // Remove the listing ID from the array
-            { new: true } // Return the updated user document
+            updateUser,
+            { new: true }
         );
 
-        //Pagination for active listings
+        // Pagination: use the corresponding status for querying listings
         const page = parseInt(req.query.page) || 1;
+        const statusQuery = isActive ? 'active' : 'inactive';
 
-        const totalListings = await Listing.countDocuments({ status: 'active' });
-        const listings = await Listing.find({ status: 'active' })
-        .sort({ createdAt: -1 }) 
-        .skip((page-1) * MAX_USER_LISTINGS_PER_PAGE)
-        .limit(MAX_USER_LISTINGS_PER_PAGE);
-
+        const totalListings = await Listing.countDocuments({ status: statusQuery });
+        const listings = await Listing.find({ status: statusQuery })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * MAX_USER_LISTINGS_PER_PAGE)
+            .limit(MAX_USER_LISTINGS_PER_PAGE);
 
         return res.status(200).json({
             message: 'Listing deleted successfully',
             listings,
-            totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE)
+            totalPages: Math.ceil(totalListings / MAX_USER_LISTINGS_PER_PAGE)
         });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete listing', error });
