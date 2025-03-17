@@ -110,13 +110,13 @@ function Home() {
         }),
       });
   
-      //Update the user's interestedListings array
-      await fetch(`http://localhost:3001/users/${userId}`, {
+      // Update the user's interestedListings array
+      await fetch(`http://localhost:3001/api/users/${userId}/interestedListings`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: isFavorited ? "remove" : "add",
-          listingId: listing._id,
+            action: isFavorited ? "remove" : "add",
+            listingId: listing._id,
         }),
       });
   
@@ -137,6 +137,7 @@ function Home() {
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
+    setPage(1);
   };
 
   const handleFilter = () => {

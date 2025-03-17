@@ -1,24 +1,35 @@
 import React from "react";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null; // Hide pagination if only one page exists
+
   return (
-    <div className="flex justify-center space-x-4 mt-4">
+    <div className="flex justify-center items-center space-x-2 mt-6 text-sm">
+      {/* Previous Button */}
       <button
-        className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        className={`px-3 py-1 rounded-md transition ${
+          currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"
+        }`}
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
       >
-        Previous
+        ◀
       </button>
-      <span className="text-lg font-semibold">
-        Page {currentPage} of {totalPages}
+
+      {/* Page Numbers */}
+      <span className="font-medium">
+        {currentPage} / {totalPages}
       </span>
+
+      {/* Next Button */}
       <button
-        className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        className={`px-3 py-1 rounded-md transition ${
+          currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200"
+        }`}
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
       >
-        Next
+        ▶
       </button>
     </div>
   );

@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FaPencilAlt } from "react-icons/fa";
-import {
-  BrowserRouter as Router,
-  useNavigate,
-} from "react-router-dom";
+import { FaPencilAlt, FaTrash } from "react-icons/fa";
+import {useNavigate} from "react-router-dom";
 import axios from 'axios';
-import { FaTrash } from 'react-icons/fa';
 import Pagination from "../components/Pagination";
 
 function UserProfile({ userProp }) {
@@ -13,8 +9,6 @@ function UserProfile({ userProp }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [inactiveListings, setInactiveListings] = useState([]);
-  const [inactiveListingsData, setInactiveListingsData] = useState([]);
   const [userId, setUserId] = useState(null);
   const [displayName, setDisplayName] = useState("default User");
   const [email, setEmail] = useState(null);
@@ -33,6 +27,10 @@ function UserProfile({ userProp }) {
   const [interestedListings, setInterestedListings] = useState([]);
   const [totalInterestedListingsPages, setTotalInterestedListingsPages] = useState(1);
   const [interestedPage, setInterestedPage] = useState(1);
+
+  const [inactiveListings, setInactiveListings] = useState([]);
+  const [totalInactiveListingsPages, setTotalInactiveListingsPages] = useState(1);
+  const [inactivePage, setInactivePage] = useState(1);
 
   if (!userProp) {
     navigate("/login");
@@ -95,7 +93,7 @@ function UserProfile({ userProp }) {
           const userData = await resp.json();
           id = userData.user[0]._id
         }
-        const resp = await fetch(`http://localhost:3001/api/users/${id}/paginated?activePage=${activePage}&interestedPage=${interestedPage}`);
+        const resp = await fetch(`http://localhost:3001/api/users/${id}/paginated?activeP-age=${activePage}&interestedPage=${interestedPage}inactivePage=${inactivePage}`);
         const data = await resp.json();
         console.log('data', data);
         setEmail(data.email);
@@ -113,7 +111,8 @@ function UserProfile({ userProp }) {
         setInterestedListings(data.interestedListings);
         setTotalInterestedListingsPages(data.totalInterestedListingsPages);
 
-        setInactiveListings(data.inactiveListings || []);
+        setInactiveListings(data.inactiveListings);
+        setTotalInactiveListingsPages(data.totalInactiveListings)
         return data;
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -126,26 +125,6 @@ function UserProfile({ userProp }) {
     });
 
   }, [activePage, interestedPage]);
-
-  const fetchInactiveListings = async () => {
-    try {
-      const listings = await Promise.all(
-        inactiveListings.map(async (listingId) => {
-          const response = await axios.get(`http://localhost:3001/listing/${listingId}`);
-          return response.data; // Return the full listing data
-        })
-      );
-      setInactiveListingsData(listings); // Set the full listing data
-    } catch (err) {
-      console.error("Error fetching inactive listings:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (inactiveListings && inactiveListings.length > 0) {
-      fetchInactiveListings(); // Call fetchInactiveListings when inactiveListings changes
-    }
-  }, [inactiveListings]);
 
   const handleDeleteListing = async (listingId) => {
     try {
@@ -286,7 +265,7 @@ function UserProfile({ userProp }) {
           <div className="border-t border-gray-200 p-6 sm:p-8">
             <h3 className="text-lg font-medium text-gray-900">Active Listings</h3>
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {activeListings && activeListings.length > 0 ? (
+              {activeListings.length > 0 ? (
                 activeListings.map((listing) => (
                   <div key={listing._id} className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="p-5">
@@ -327,12 +306,13 @@ function UserProfile({ userProp }) {
                 <p className="text-sm text-gray-500">No active listings</p>
               )}
             </div>
-
-            <Pagination
-              currentPage={activePage}
-              totalPages={totalActiveListingsPages}
-              onPageChange={setActivePage}
-            />
+            {activeListings.length > 0 &&  (
+              <Pagination
+                currentPage={activePage}
+                totalPages={totalActiveListingsPages}
+                onPageChange={setActivePage}
+              />
+            )}
           </div>
 
           <div className="border-t border-gray-200 p-6 sm:p-8">
@@ -378,18 +358,20 @@ function UserProfile({ userProp }) {
                 <p className="text-sm text-gray-500">No interested listings</p>
               )}
             </div>
-            <Pagination
-              currentPage={interestedPage}
-              totalPages={totalInterestedListingsPages}
-              onPageChange={setInterestedPage}
-            />
+            {interestedListings.length > 0 && (
+              <Pagination
+                currentPage={interestedPage}
+                totalPages={totalInterestedListingsPages}
+                onPageChange={setInterestedPage}
+              />
+            )}
           </div>
 
           <div className="border-t border-gray-200 p-6 sm:p-8">
             <h3 className="text-lg font-medium text-gray-900">Inactive Listings</h3>
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {inactiveListingsData.length > 0 ? (
-                inactiveListingsData.map((listing) => (
+              {inactiveListings.length > 0 ? (
+                inactiveListings.map((listing) => (
                   <div key={listing._id} className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="p-5">
                       <div className="flex items-center">
@@ -429,6 +411,13 @@ function UserProfile({ userProp }) {
                 <p className="text-sm text-gray-500">No inactive listings</p>
               )}
             </div>
+            {inactiveListings.length > 0 && (
+              <Pagination
+                currentPage={inactivePage}
+                totalPages={totalInactiveListingsPages}
+                onPageChange={setInactivePage}
+              />
+            )}
           </div>
         </div>
       </div>
