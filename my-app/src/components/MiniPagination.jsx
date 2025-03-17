@@ -1,7 +1,7 @@
 import React from "react";
 
 const MiniPagination = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null; // Hide pagination if only one page exists
+  if (totalPages <= 1) return null;
 
   return (
     <div className="flex justify-center items-center space-x-2 mt-6 text-sm">
