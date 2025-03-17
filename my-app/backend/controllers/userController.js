@@ -1,4 +1,7 @@
 import User from "../models/User.js";
+import Listing from "../models/Listing.js"
+
+const MAX_USER_LISTINGS_PER_PAGE = 3;
 
 export const updateUser = async (req, res) => {
     try {
@@ -42,6 +45,53 @@ export const getUserById = async (req, res) => {
         }
 
         res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving user', error: error.message });
+    }
+};
+
+export const getUserByIdPaginated = async (req, res) => {
+    const { id } = req.params;
+    let { page = 1 } = req.query;
+    page = parseInt(page);
+    const skip = (page-1) * MAX_USER_LISTINGS_PER_PAGE
+
+    try {
+        const user = await User.findById(id)
+            .select("fullName username email bio interestedListings") 
+            .lean(); // Convert Mongoose object to JSON
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Fetch paginated active listings
+        const [activeListings, totalActiveListings] = await Promise.all([
+            Listing.find({ seller: id, status: "available" })
+                .sort({ createdAt: -1 }) 
+                .skip(skip)
+                .limit(MAX_USER_LISTINGS_PER_PAGE)
+                .select("title price image category createdAt"),
+            Listing.countDocuments({ seller: id, status: "available" })
+        ]);
+
+        // Fetch paginated interested listings
+        const [interestedListings, totalInterestedListings] = await Promise.all([
+            Listing.find({ _id: { $in: user.interestedListings } })
+                .sort({ createdAt: -1 }) 
+                .skip(skip)
+                .limit(MAX_USER_LISTINGS_PER_PAGE)
+                .select("title price image category createdAt"),
+            Listing.countDocuments({ _id: { $in: user.interestedListings } })
+        ]);
+
+        res.status(200).json({
+            ...user, // Include user details
+            activeListings,
+            totalActiveListingsPages: Math.ceil(totalActiveListings / MAX_USER_LISTINGS_PER_PAGE),
+            interestedListings,
+            totalInterestedListingsPages: Math.ceil(totalInterestedListings / MAX_USER_LISTINGS_PER_PAGE)
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving user', error: error.message });
     }

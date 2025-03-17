@@ -72,7 +72,6 @@ export const getListingsByCondition = async (req, res) => {
 export const getFilteredListings = async (req, res) => {
     try {
         const { page = 1, category, min = 0, max = Infinity } = req.query;
-        const skip = (page - 1) * MAX_LISTINGS_PER_PAGE;
     
         let query = {
           price: { $gte: Number(min), $lte: Number(max) }
@@ -83,7 +82,10 @@ export const getFilteredListings = async (req, res) => {
         }
     
         const totalListings = await Listing.countDocuments(query);
-        const listings = await Listing.find(query).skip(skip).limit(MAX_LISTINGS_PER_PAGE);
+        const listings = await Listing.find(query)
+            .sort({ createdAt: -1 }) 
+            .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
+            .limit(MAX_LISTINGS_PER_PAGE);
     
         res.json({
           listings,
