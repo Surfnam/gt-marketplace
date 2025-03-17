@@ -69,27 +69,45 @@ export const getListingsByCondition = async (req, res) => {
 
 }
 
+export const getFilteredListings = async (req, res) => {
+    try {
+        const { page = 1, category, min = 0, max = Infinity } = req.query;
+        const skip = (page - 1) * MAX_LISTINGS_PER_PAGE;
+    
+        let query = {
+          price: { $gte: Number(min), $lte: Number(max) }
+        };
+    
+        if (category && category !== "All") {
+          query.category = category;
+        }
+    
+        const totalListings = await Listing.countDocuments(query);
+        const listings = await Listing.find(query).skip(skip).limit(MAX_LISTINGS_PER_PAGE);
+    
+        res.json({
+          listings,
+          totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE)
+        });
+      } catch (error) {
+        console.error("Error fetching filtered listings:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+}
 export const getActiveListings = async (req, res) => {
     try {
-        let { page=1 } = req.query;
-        page = parseInt(page);
-
-        const totalListings = await Listing.countDocuments({ status: 'available' });
-
         const listings = await Listing.find({ status : 'available'})
-            .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
-            .limit(MAX_LISTINGS_PER_PAGE)
             .select('title image price category condition');
 
         res.status(200).json({
             listings: listings,
-            totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE),
         });
     } catch (err) {
         res.status(500).json( {error: err.message});
     }
 }
 
+/*
 export const getListingByCategory = async (req, res) => {
     try {
         let { page=1 } = req.query;
@@ -147,6 +165,7 @@ export const getListingByPrice = async (req, res) => {
         res.status(500).json({message: err.message});
     }
 };
+*/
 
 export const updateListing = async (req, res) => {
     try {

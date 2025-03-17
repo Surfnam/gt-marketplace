@@ -4,31 +4,20 @@ import "../css/App.css";
 import { Heart } from "lucide-react";
 import Icons from "../images/icons";
 
-const getAllListings = async (page) => {
+const fetchListings = async (page, category, min, max) => {
   try {
-    const response = await fetch(`http://localhost:3001/listing/active?page=${page}`);
+    const url = new URL("http://localhost:3001/listing/filter");
+    url.searchParams.append("page", page);
+    if (category !== "All") url.searchParams.append("category", category);
+    url.searchParams.append("min", min);
+    url.searchParams.append("max", max);
+
+    const response = await fetch(url);
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching all listings:", error);
-  }
-};
-const getListingsByCategory = async (category, page) => {
-  try {
-    const response = await fetch(`http://localhost:3001/listing/category/${category}?page=${page}`);
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching listings by category:", error);
-  }
-};
-const getListingsByPrice = async (min, max, page) => {
-  try {
-    const response = await fetch(`http://localhost:3001/listing/price?min=${min}&max=${max}&page=${page}`);
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching price range listings:", error);
+    console.error("Error fetching listings:", error);
+    return { listings: [], totalPages: 1 };
   }
 };
 
@@ -36,7 +25,6 @@ const categories = ["All", "Furniture", "Electronics", "Clothing", "Vehicles", "
   "Entertainment", "Free Stuff", "Garden & Outdoor", "Hobbies", "Home Goods", "Home Improvement", 
   "Musical Instruments", "Office Supplies", "Pet Supplies", "Sporting Goods", "Toys & Games", "Other"]
 
-const MAX_LISTINGS_PER_PAGE = 3;
 
 function Home() {
   const navigate = useNavigate();
@@ -62,35 +50,22 @@ function Home() {
   console.log(selectedCategory);
 
   useEffect(() => {
-    const fetchListings = async () => {
-      let data;
-      try {
-        if (selectedCategory !== "All") {
-          data = await getListingsByCategory(selectedCategory, page);
-        } else if (minPrice || maxPrice) {
-          data = await getListingsByPrice(minPrice, maxPrice, page);
-        } else {
-          data = await getAllListings(page);
-        }
-  
-        setListings(data.listings || []);
-        setTotalPages(data.totalPages || 1);
-      } catch (error) {
-        console.error("Error fetching listings:", error);
-        setListings([]);
-      }
+    const fetchData = async () => {
+      const data = await fetchListings(page, selectedCategory, minPrice, maxPrice);
+      setListings(data.listings || []);
+      setTotalPages(data.totalPages || 1);
     };
   
-    fetchListings();
+    fetchData();
   }, [page, selectedCategory, minPrice, maxPrice]);
 
   const navigateToListingDetails = async (id) => {
     try {
-      const response = await fetch(http://localhost:3001/listing/${id});
+      const response = await fetch(`http://localhost:3001/listing/${id}`);
       const data = await response.json();
 
       if (data) {
-        navigate(/listing/${id}, { state: { listing: data } });
+        navigate(`/listing/${id}`, { state: { listing: data } });
       } else {
         console.error("Listing not found");
       }
