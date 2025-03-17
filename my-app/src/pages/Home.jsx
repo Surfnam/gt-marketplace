@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../css/App.css";
 import { Heart } from "lucide-react";
 import Icons from "../images/icons";
+import Pagination from "../components/Pagination";
 
 const fetchListings = async (page, category, min, max) => {
   try {
@@ -232,6 +233,9 @@ function Home() {
               Create Listing
             </button>
           </div>
+          
+          <div style={{ minHeight: '900px' }}>
+          {/*Listings Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
               <div
@@ -273,28 +277,15 @@ function Home() {
               </div>
             ))}
           </div>
-        </main>
-      </div>
-      
-       {/* Pagination Controls */}
-       <div className="flex justify-center space-x-4">
-        <button
-          className="px-4 py-2 bg-gray-300 rounded"
-          disabled={page === 1}
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-        >
-          Previous
-        </button>
-        
-        <span className="text-lg font-semibold">Page {page} of {totalPages}</span>
+          </div>
 
-        <button
-          className="px-4 py-2 bg-gray-300 rounded"
-          disabled={page === totalPages}
-          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-        >
-          Next
-        </button>
+          {/* Pagination Controls */}
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </main>
       </div>
     </div>
   );

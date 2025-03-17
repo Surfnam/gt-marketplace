@@ -1,7 +1,7 @@
 import Listing from '../models/Listing.js';
 import User from '../models/User.js';
 
-const MAX_LISTINGS_PER_PAGE = 3;
+const MAX_LISTINGS_PER_PAGE = 6;
 
 export const addListing = async (req, res) => {
     try {

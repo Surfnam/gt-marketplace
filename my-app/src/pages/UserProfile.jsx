@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import {useNavigate} from "react-router-dom";
 import axios from 'axios';
-import Pagination from "../components/Pagination";
+import MiniPagination from "../components/MiniPagination";
 
 function UserProfile({ userProp }) {
   const [editMode, seteditMode] = useState(false);
@@ -76,6 +76,47 @@ function UserProfile({ userProp }) {
     }
   };
 
+  const getUserData = async () => {
+    try {
+      let id = localStorage.getItem("userId");
+      if (id == 'undefined') {
+        const res = await axios.get(`http://localhost:3001/api/users/profile/${userProp.email}`);
+        const userData = res.data;
+        id = userData.user[0]._id
+      }
+
+      const res = await axios.get(`http://localhost:3001/api/users/${id}/paginated`, {
+        params: {
+          activePage: activePage,
+          interestedPage: interestedPage,
+          inactivePage: inactivePage
+        }
+      });
+      const data = res.data;
+
+      setEmail(data.email);
+      setUser(data || "temp user");
+      setUserId(data._id || "defaultId");
+      setDisplayName(data.username || "defaultusername");
+      setName(data.fullName || "Default User");
+      setBio(data.bio || "This is a default bio.");
+
+      console.log("active: ", data.activeListings);
+      setActiveListings(data.activeListings);
+      setTotalActiveListingsPages(data.totalActiveListingsPages);
+
+      setInterestedListings(data.interestedListings);
+      setTotalInterestedListingsPages(data.totalInterestedListingsPages);
+
+      setInactiveListings(data.inactiveListings);
+      setTotalInactiveListingsPages(data.totalInactiveListings)
+      return data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (listingIdToDelete) {
       getListingById(listingIdToDelete).then((data) => {
@@ -85,53 +126,16 @@ function UserProfile({ userProp }) {
   }, [listingIdToDelete]); 
 
   useEffect(() => {
-    const getUserData = async () => {
-      try {
-        let id = localStorage.getItem("userId");
-        if (id == 'undefined') {
-          const resp = await fetch(`http://localhost:3001/api/users/profile/${userProp.email}`);
-          const userData = await resp.json();
-          id = userData.user[0]._id
-        }
-        const resp = await fetch(`http://localhost:3001/api/users/${id}/paginated?activeP-age=${activePage}&interestedPage=${interestedPage}inactivePage=${inactivePage}`);
-        const data = await resp.json();
-        console.log('data', data);
-        setEmail(data.email);
-        setUser(data || "temp user");
-        setUserId(data._id || "defaultId");
-        setDisplayName(data.username || "defaultusername");
-        setName(data.fullName || "Default User");
-        setDisplayName(data.username || "defaultusername");
-        setBio(data.bio || "This is a default bio.");
-
-        console.log("active: ", data.activeListings);
-        setActiveListings(data.activeListings);
-        setTotalActiveListingsPages(data.totalActiveListingsPages);
-
-        setInterestedListings(data.interestedListings);
-        setTotalInterestedListingsPages(data.totalInterestedListingsPages);
-
-        setInactiveListings(data.inactiveListings);
-        setTotalInactiveListingsPages(data.totalInactiveListings)
-        return data;
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        return null;
-      }
-    };
-
     getUserData().then(() => {
       setLoading(false);
     });
 
-  }, [activePage, interestedPage]);
+  }, [activePage, interestedPage, inactivePage]);
 
   const handleDeleteListing = async (listingId) => {
     try {
       await axios.delete(`http://localhost:3001/listing/${listingId}`);
-
-      setActiveListings((prev) => prev.filter((listing) => listing._id !== listingId));
-      setInactiveListings((prev) => prev.filter((listingId) => listingId !== listingId));
+      await getUserData();
     } catch (err) {
       console.log(err);
     }
@@ -307,7 +311,7 @@ function UserProfile({ userProp }) {
               )}
             </div>
             {activeListings.length > 0 &&  (
-              <Pagination
+              <MiniPagination
                 currentPage={activePage}
                 totalPages={totalActiveListingsPages}
                 onPageChange={setActivePage}
@@ -359,7 +363,7 @@ function UserProfile({ userProp }) {
               )}
             </div>
             {interestedListings.length > 0 && (
-              <Pagination
+              <MiniPagination
                 currentPage={interestedPage}
                 totalPages={totalInterestedListingsPages}
                 onPageChange={setInterestedPage}
@@ -412,7 +416,7 @@ function UserProfile({ userProp }) {
               )}
             </div>
             {inactiveListings.length > 0 && (
-              <Pagination
+              <MiniPagination
                 currentPage={inactivePage}
                 totalPages={totalInactiveListingsPages}
                 onPageChange={setInactivePage}
