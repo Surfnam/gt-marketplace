@@ -5,10 +5,31 @@ import { Heart } from "lucide-react";
 import Icons from "../images/icons";
 
 const getAllListings = async (page) => {
-  //example placeholders
-  const response = await fetch(`http://localhost:3001/listing/active?page=${page}`);
-  const data = await response.json();
-  return data;
+  try {
+    const response = await fetch(`http://localhost:3001/listing/active?page=${page}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching all listings:", error);
+  }
+};
+const getListingsByCategory = async (category, page) => {
+  try {
+    const response = await fetch(`http://localhost:3001/listing/category/${category}?page=${page}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching listings by category:", error);
+  }
+};
+const getListingsByPrice = async (min, max, page) => {
+  try {
+    const response = await fetch(`http://localhost:3001/listing/price?min=${min}&max=${max}&page=${page}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching price range listings:", error);
+  }
 };
 
 const categories = ["All", "Furniture", "Electronics", "Clothing", "Vehicles", "Property Rentals",
@@ -19,44 +40,57 @@ const MAX_LISTINGS_PER_PAGE = 3;
 
 function Home() {
   const navigate = useNavigate();
+
   const [listings, setListings] = useState([]);
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredListings, setFilteredListings] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+
   const [minPrice, setMinPrice] = useState("0");
   const [maxPrice, setMaxPrice] = useState("1000");
+
+  const [tempMinPrice, setTempMinPrice] = useState("0");
+  const [tempMaxPrice, setTempMaxPrice] = useState("1000");
+
   const [favorites, setFavorites] = useState(() => {
     return JSON.parse(localStorage.getItem("favorites")) || {};
   });
-
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    getAllListings(page).then((data) => {
-      setListings(data.listings || []);
-      setFilteredListings(data.listings || []);
-      setTotalPages(data.totalPages);
-    });
-  }, [page]);
+  console.log(listings);
+  console.log(selectedCategory);
 
   useEffect(() => {
-    const filtered = listings.filter(
-      (listing) =>
-        listing.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (selectedCategory === "All" || listing.category === selectedCategory)
-    );
-    setFilteredListings(filtered);
-    console.log(filteredListings);
-  }, [searchTerm, selectedCategory, listings]);
+    const fetchListings = async () => {
+      let data;
+      try {
+        if (selectedCategory !== "All") {
+          data = await getListingsByCategory(selectedCategory, page);
+        } else if (minPrice || maxPrice) {
+          data = await getListingsByPrice(minPrice, maxPrice, page);
+        } else {
+          data = await getAllListings(page);
+        }
+  
+        setListings(data.listings || []);
+        setTotalPages(data.totalPages || 1);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+        setListings([]);
+      }
+    };
+  
+    fetchListings();
+  }, [page, selectedCategory, minPrice, maxPrice]);
 
   const navigateToListingDetails = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3001/listing/${id}`);
+      const response = await fetch(http://localhost:3001/listing/${id});
       const data = await response.json();
 
       if (data) {
-        navigate(`/listing/${id}`, { state: { listing: data } });
+        navigate(/listing/${id}, { state: { listing: data } });
       } else {
         console.error("Listing not found");
       }
@@ -90,7 +124,7 @@ function Home() {
     return newFavorites;
     });
     try {
-      //Update the listing's `interestedUsers` array
+      //Update the listing's interestedUsers array
       await fetch(`http://localhost:3001/listing/${listing._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -100,7 +134,7 @@ function Home() {
         }),
       });
   
-      //Update the user's `interestedListings` array
+      //Update the user's interestedListings array
       await fetch(`http://localhost:3001/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -117,7 +151,7 @@ function Home() {
       console.error("Error updating favorite:", error);
     }
   
-    //Dispatch event to notify `UserProfile` of updates
+    //Dispatch event to notify UserProfile of updates
     window.dispatchEvent(new Event("favoritesUpdated"));
   };
 
@@ -129,12 +163,10 @@ function Home() {
     setSelectedCategory(category);
   };
 
-  const handleFilter = (minPrice, maxPrice) => {
-    setFilteredListings(
-      listings.filter(
-        (listing) => listing.price >= minPrice && listing.price <= maxPrice
-      )
-    );
+  const handleFilter = () => {
+    setMinPrice(tempMinPrice);
+    setMaxPrice(tempMaxPrice);
+    setPage(1);
   };
 
   return (
@@ -155,14 +187,14 @@ function Home() {
                 (category) => (
                   <li key={category}>
                     <button
-                      className={`
-                        w-full flex items-center text-left py-1 px-2 rounded
+                      className={
+                       `w-full flex items-center text-left py-1 px-2 rounded
                         ${
                           selectedCategory === category 
                             ? 'bg-gray-200'  // Highlight if selected
                             : 'hover:bg-gray-200' // Otherwise, highlight on hover
-                        }
-                      `}
+                        }`
+                      }
                       onClick={() => handleCategorySelect(category)}
                     >
                     {Icons[category] && (
@@ -187,8 +219,8 @@ function Home() {
                 type="number"
                 min="0"
                 max="1000"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
+                value={tempMinPrice}
+                onChange={(e) => setTempMinPrice(e.target.value)}
                 placeholder="Min"
                 className="w-1/2 border border-gray-300 rounded-md p-2 text-sm"
               />
@@ -197,8 +229,8 @@ function Home() {
                 type="number"
                 min="0"
                 max="1000"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
+                value={tempMaxPrice}
+                onChange={(e) => setTempMaxPrice(e.target.value)}
                 placeholder="Max"
                 className="w-1/2 border border-gray-300 rounded-md p-2 text-sm"
               />
@@ -206,7 +238,7 @@ function Home() {
             <button
               className="mt-4 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
               onClick={() => {
-                handleFilter(minPrice, maxPrice);
+                handleFilter();
               }}
             >
               Apply
@@ -224,7 +256,7 @@ function Home() {
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredListings.map((listing) => (
+            {listings.map((listing) => (
               <div
                 key={listing.id}
                 className="bg-white rounded-lg shadow-md overflow-hidden"
@@ -266,6 +298,7 @@ function Home() {
           </div>
         </main>
       </div>
+      
        {/* Pagination Controls */}
        <div className="flex justify-center space-x-4">
         <button
