@@ -85,7 +85,7 @@ function UserProfile({ userProp }) {
         id = userData.user[0]._id
       }
 
-      const res = await axios.get(`http://localhost:3001/api/users/${id}/paginated`, {
+      const res = await axios.get(`http://localhost:3001/api/users/${id}/paginated/`, {
         params: {
           activePage: activePage,
           interestedPage: interestedPage,
@@ -134,7 +134,10 @@ function UserProfile({ userProp }) {
 
   const handleDeleteListing = async (listingId) => {
     try {
-      await axios.delete(`http://localhost:3001/listing/${listingId}`);
+      const res = await axios.delete(`http://localhost:3001/listing/${listingId}/paginated?page=${activePage}`);
+      const data = res.data;
+      setActiveListings(data.listings);
+      setTotalActiveListingsPages(data.totalPages);
     } catch (err) {
       console.log(err);
     }
