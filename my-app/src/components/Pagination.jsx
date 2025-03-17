@@ -1,16 +1,14 @@
 import React from "react";
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null; // Hide pagination if only one page exists
+const maxPageButtons = 5;
+const buttonWidth = 60; //fixed width for each button
 
-  const maxPageButtons = 5;
-  // Create an array with all page numbers.
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-  
-  // Define a fixed width for each button (adjust as needed to match your design)
-  const buttonWidth = 60; // in pixels
-  
-  // Calculate offset so that the current page is centered when possible.
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null; 
+
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);   //array with all page numbers
+
+  // calculate offset so that the current page is centered 
   let offset = 0;
   if (currentPage <= Math.floor(maxPageButtons / 2) + 1) {
     offset = 0;
@@ -19,7 +17,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   } else {
     offset = currentPage - Math.floor(maxPageButtons / 2) - 1;
   }
-
+  
+  const containerWidth = buttonWidth * Math.min(totalPages, maxPageButtons);
   return (
     <div className="flex justify-center items-center space-x-2 mt-6 text-lg">
       {/* Previous Button */}
@@ -34,7 +33,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       </button>
 
       {/* Fixed Container for Page Number Buttons */}
-      <div className="overflow-hidden" style={{ width: `${buttonWidth * maxPageButtons}px` }}>
+      <div className="overflow-hidden" style={{ width: `${containerWidth}px` }}>
         <div 
           className="flex transition-transform duration-300"
           style={{ transform: `translateX(-${offset * buttonWidth}px)` }}

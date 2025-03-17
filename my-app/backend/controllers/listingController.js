@@ -1,8 +1,7 @@
 import Listing from '../models/Listing.js';
 import User from '../models/User.js';
 
-const MAX_LISTINGS_PER_PAGE = 6;
-const MAX_USER_LISTINGS_PER_PAGE = 3;
+import { MAX_LISTINGS_PER_PAGE, MAX_USER_LISTINGS_PER_PAGE } from "../config/config.js";
 export const addListing = async (req, res) => {
     try {
         console.log("endpoint")
@@ -206,7 +205,7 @@ export const deleteListing = async (req, res) => {
         }
 
         await User.findByIdAndUpdate(
-            deletedListing.seller, // Assuming `seller` field stores user ID
+            deletedListing.seller, 
             { $pull: { listings: listingId, inactiveListings: listingId } }, // Remove the listing ID from the array
             { new: true } // Return the updated user document
         );
@@ -217,7 +216,6 @@ export const deleteListing = async (req, res) => {
 };
 
 export const deleteListingPaginated = async (req, res) => {
-
     try {  
         const listingId = req.params.id;
         const deletedListing = await Listing.findByIdAndDelete(listingId);
@@ -226,11 +224,26 @@ export const deleteListingPaginated = async (req, res) => {
         }
 
         await User.findByIdAndUpdate(
-            deletedListing.seller, // Assuming `seller` field stores user ID
+            deletedListing.seller, 
             { $pull: { listings: listingId, inactiveListings: listingId } }, // Remove the listing ID from the array
             { new: true } // Return the updated user document
         );
-        return res.status(200).json({ message: 'Listing deleted successfully' });
+
+        //Pagination for active listings
+        const page = parseInt(req.query.page) || 1;
+
+        const totalListings = await Listing.countDocuments({ status: 'active' });
+        const listings = await Listing.find({ status: 'active' })
+        .sort({ createdAt: -1 }) 
+        .skip((page-1) * MAX_USER_LISTINGS_PER_PAGE)
+        .limit(MAX_USER_LISTINGS_PER_PAGE);
+
+
+        return res.status(200).json({
+            message: 'Listing deleted successfully',
+            listings,
+            totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE)
+        });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete listing', error });
     }
