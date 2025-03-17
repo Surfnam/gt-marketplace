@@ -73,6 +73,7 @@ export const getFilteredListings = async (req, res) => {
         const { page = 1, category, min = 0, max = Infinity } = req.query;
     
         let query = {
+          status: "available",
           price: { $gte: Number(min), $lte: Number(max) }
         };
     
@@ -94,7 +95,8 @@ export const getFilteredListings = async (req, res) => {
         console.error("Error fetching filtered listings:", error);
         res.status(500).json({ error: "Internal Server Error" });
       }
-}
+};
+
 export const getActiveListings = async (req, res) => {
     try {
         const listings = await Listing.find({ status : 'available'})
