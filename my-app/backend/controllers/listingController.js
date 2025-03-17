@@ -105,15 +105,6 @@ export const getListingByCategory = async (req, res) => {
             .limit(MAX_LISTINGS_PER_PAGE)
             .select('title image price category condition');
 
-        // Case where listing is not found
-        if (listings.length === 0) {
-            return res.status(200).json({
-                message: "No listings available in the category", 
-                listings: [],
-                totalPages: 0
-            });
-        }
-
         // Return the listing
         res.status(200).json({
             listings,
@@ -129,24 +120,27 @@ export const getListingByCategory = async (req, res) => {
 export const getListingByPrice = async (req, res) => {
     try {
         // Filtering based on min and max price ranges
-        const {min, max} = req.query;
+        let {min, max, page=1} = req.query;
         // Converting min and max to numbers
-        const minPrice = parseFloat(min);
-        const maxPrice = parseFloat(max);
+        min = parseFloat(min);
+        max = parseFloat(max);
+
+        const totalListings = await Listing.countDocuments({
+            price: { $gte: minPrice, $lte: maxPrice }
+        });
 
         // Query the database for the price range
-        const listings = await Listing.findByPriceRange(minPrice, maxPrice);
+        const listings = await Listing.find({
+            price: { $gte: minPrice, $lte: maxPrice }
+        })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .select("title image price category condition");
 
-        // Case where listing is not found
-        if (listings.length === 0) {
-            return res.status(200).json({
-                message: "No listings available in the price range",
-                listings: []
-            });
-        }
-
-        // Return the listing
-        res.status(200).json(listings);
+        res.status(200).json({
+            listings,
+            totalPages: Math.ceil(totalListings / limit),
+        });
     } catch (err) {
         // Logging the error
         console.error(err);
