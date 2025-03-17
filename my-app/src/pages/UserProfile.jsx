@@ -136,7 +136,13 @@ function UserProfile({ userProp }) {
 
   const handleDeleteListing = async (listingId) => {
     try {
-      const res = await axios.delete(`http://localhost:3001/listing/${listingId}/paginated?page=${activePage}&isactive=${listingToDeleteIsActive}`);
+      let res;
+      res = await axios.delete(`http://localhost:3001/listing/${listingId}/paginated`, {
+        params: {
+          listingStatus: listingToDeleteIsActive ? "available" : "unavailable",
+          page: listingToDeleteIsActive ? activePage : inactivePage
+        }
+    }) 
       const data = res.data;
 
       if (listingToDeleteIsActive) {

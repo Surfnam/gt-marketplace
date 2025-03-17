@@ -225,10 +225,10 @@ export const deleteListingPaginated = async (req, res) => {
             return res.status(404).json({ message: 'Listing not found' });
         }
 
-        const isActive = req.query.isactive; 
+        const listingStatus = req.query.listingStatus;
 
         // Remove the listing ID from user (eithe from active or inactive array)
-        const updateUser = isActive 
+        const updateUser = listingStatus === "available"
             ? { $pull: { listings: listingId } }
             : { $pull: { inactiveListings: listingId } };
 
@@ -240,10 +240,11 @@ export const deleteListingPaginated = async (req, res) => {
 
         // Pagination: use the corresponding status for querying listings
         const page = parseInt(req.query.page) || 1;
-        const statusQuery = isActive ? 'active' : 'inactive';
 
-        const totalListings = await Listing.countDocuments({ status: statusQuery });
-        const listings = await Listing.find({ status: statusQuery })
+        const sellerId = deletedListing.seller;
+        
+        const totalListings = await Listing.countDocuments({ seller: sellerId, status: listingStatus });
+        const listings = await Listing.find({ seller: sellerId, status: listingStatus })
             .sort({ createdAt: -1 })
             .skip((page - 1) * MAX_USER_LISTINGS_PER_PAGE)
             .limit(MAX_USER_LISTINGS_PER_PAGE);
