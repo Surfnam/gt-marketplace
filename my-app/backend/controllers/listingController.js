@@ -2,7 +2,7 @@ import Listing from '../models/Listing.js';
 import User from '../models/User.js';
 
 const MAX_LISTINGS_PER_PAGE = 6;
-
+const MAX_USER_LISTINGS_PER_PAGE = 3;
 export const addListing = async (req, res) => {
     try {
         console.log("endpoint")
@@ -198,6 +198,25 @@ export const updateListing = async (req, res) => {
 }
 
 export const deleteListing = async (req, res) => {
+    try {  
+        const listingId = req.params.id;
+        const deletedListing = await Listing.findByIdAndDelete(listingId);
+        if (!deletedListing) {
+            return res.status(404).json({ message: 'Listing not found' });
+        }
+
+        await User.findByIdAndUpdate(
+            deletedListing.seller, // Assuming `seller` field stores user ID
+            { $pull: { listings: listingId, inactiveListings: listingId } }, // Remove the listing ID from the array
+            { new: true } // Return the updated user document
+        );
+        return res.status(200).json({ message: 'Listing deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete listing', error });
+    }
+};
+
+export const deleteListingPaginated = async (req, res) => {
 
     try {  
         const listingId = req.params.id;

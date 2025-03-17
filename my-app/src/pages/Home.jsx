@@ -254,17 +254,26 @@ function Home() {
                       <p className="text-gray-600 mb-4">${listing.price}</p>
                     </div>
                     <div className="w-[20%]">
-                      <button onClick={() => handleFavorite(listing)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
-                        <Heart
-                          size={24}
-                          className={`transition-colors ${
-                            favorites[listing._id]
-                              ? "text-red-500"
-                              : "text-gray-400"
-                          }`}
-                          fill={favorites[listing._id] ? "red" : "none"}
-                        />
-                      </button>
+                      {listing.seller === localStorage.getItem("userId") ? (
+                        <span className="inline-block px-2 bg-green-100 text-green-800 text-xs font-bold rounded">
+                        My Listing
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleFavorite(listing)}
+                          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+                        >
+                          <Heart
+                            size={24}
+                            className={`transition-colors ${
+                              favorites[listing._id]
+                                ? "text-red-500"
+                                : "text-gray-400"
+                            }`}
+                            fill={favorites[listing._id] ? "red" : "none"}
+                          />
+                        </button>
+                      )}
                     </div>
                   </div>
                   <button
