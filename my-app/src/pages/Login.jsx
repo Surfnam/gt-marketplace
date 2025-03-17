@@ -30,6 +30,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(""); // Clear previous errors
+    console.log("hey")
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
