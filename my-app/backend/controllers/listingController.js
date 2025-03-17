@@ -1,6 +1,8 @@
 import Listing from '../models/Listing.js';
 import User from '../models/User.js';
 
+const MAX_LISTINGS_PER_PAGE = 3;
+
 export const addListing = async (req, res) => {
     try {
         console.log("endpoint")
@@ -69,9 +71,20 @@ export const getListingsByCondition = async (req, res) => {
 
 export const getActiveListings = async (req, res) => {
     try {
-        const listings = await Listing.find({ status : 'available'}).select('title image price category condition');
-        console.log(listings)
-        res.status(200).json({data: listings});
+        let { page=1 } = req.query;
+        page = parseInt(page);
+
+        const totalListings = await Listing.countDocuments({ status: 'available' });
+
+        const listings = await Listing.find({ status : 'available'})
+            .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
+            .limit(MAX_LISTINGS_PER_PAGE)
+            .select('title image price category condition');
+
+        res.status(200).json({
+            listings: listings,
+            totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE),
+        });
     } catch (err) {
         res.status(500).json( {error: err.message});
     }
@@ -79,21 +92,33 @@ export const getActiveListings = async (req, res) => {
 
 export const getListingByCategory = async (req, res) => {
     try {
+        let { page=1 } = req.query;
+        page = parseInt(page);
+
         const {category} = req.params;
         
+        const totalListings = await Listing.countDocuments({ category });
+        
         // Query the database for the category
-        const listings = await Listing.findByCategory(category);
+        const listings = await Listing.find({ category })
+            .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
+            .limit(MAX_LISTINGS_PER_PAGE)
+            .select('title image price category condition');
 
         // Case where listing is not found
         if (listings.length === 0) {
             return res.status(200).json({
                 message: "No listings available in the category", 
-                listings: []
+                listings: [],
+                totalPages: 0
             });
         }
 
         // Return the listing
-        res.status(200).json(listings);
+        res.status(200).json({
+            listings,
+            totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE),
+        });
     } catch (err) {
         // Logging the error
         console.error(err);
