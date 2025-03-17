@@ -4,16 +4,18 @@ import "../css/App.css";
 import { Heart } from "lucide-react";
 import Icons from "../images/icons";
 
-const getAllListings = async () => {
+const getAllListings = async (page) => {
   //example placeholders
-  const response = await fetch("http://localhost:3001/listing/active");
+  const response = await fetch(`http://localhost:3001/listing/active?page=${page}`);
   const data = await response.json();
-  return data.data;
+  return data;
 };
 
 const categories = ["All", "Furniture", "Electronics", "Clothing", "Vehicles", "Property Rentals",
   "Entertainment", "Free Stuff", "Garden & Outdoor", "Hobbies", "Home Goods", "Home Improvement", 
   "Musical Instruments", "Office Supplies", "Pet Supplies", "Sporting Goods", "Toys & Games", "Other"]
+
+const MAX_LISTINGS_PER_PAGE = 3;
 
 function Home() {
   const navigate = useNavigate();
@@ -27,15 +29,18 @@ function Home() {
     return JSON.parse(localStorage.getItem("favorites")) || {};
   });
 
-  useEffect(() => {
-    getAllListings().then((data) => {
-      setListings(data || []);
-      setFilteredListings(data || []);
-    });
-  }, []);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    console.log("hello0")
+    getAllListings(page).then((data) => {
+      setListings(data.listings || []);
+      setFilteredListings(data.listings || []);
+      setTotalPages(data.totalPages);
+    });
+  }, [page]);
+
+  useEffect(() => {
     const filtered = listings.filter(
       (listing) =>
         listing.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -260,6 +265,26 @@ function Home() {
             ))}
           </div>
         </main>
+      </div>
+       {/* Pagination Controls */}
+       <div className="flex justify-center space-x-4">
+        <button
+          className="px-4 py-2 bg-gray-300 rounded"
+          disabled={page === 1}
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+        >
+          Previous
+        </button>
+        
+        <span className="text-lg font-semibold">Page {page} of {totalPages}</span>
+
+        <button
+          className="px-4 py-2 bg-gray-300 rounded"
+          disabled={page === totalPages}
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
