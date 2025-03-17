@@ -19,11 +19,23 @@ function UserProfile({ userProp }) {
   const [email, setEmail] = useState(null);
   const [bio, setBio] = useState(null);
   const [name, setName] = useState(null);
-  const [interestedListings, setInterestedListings] = useState([]);
+  
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [listingIdToDelete, setListingIdToDelete] = useState(null);
   const [listingToDelete, setListingToDelete] = useState(null);
+
+  const [activeListings, setActiveListings] = useState([]);
+  const [totalActiveListingsPages, setTotalActiveListingsPages] = useState(1);
+  const [activePage, setActivePage] = useState(1);
+
+  const [interestedListings, setInterestedListings] = useState([]);
+  const [totalInterestedListingsPages, setTotalInterestedListingsPages] = useState(1);
+  const [interestedPage, setInterestedPage] = useState(1);
+
+  if (!userProp) {
+    navigate("/login");
+  }
 
   const confirmDelete = (listingId) => {
     setListingIdToDelete(listingId);
@@ -37,11 +49,6 @@ function UserProfile({ userProp }) {
       setListingIdToDelete(null);
     }
   };
-
-  if (!userProp) {
-    navigate("/login")
-  }
-
 
   console.log("this is the user prop", userProp);
   const editHandler = async () => {
@@ -81,9 +88,7 @@ function UserProfile({ userProp }) {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        console.log("userpropemial", userProp.email);
         let id = localStorage.getItem("userId");
-        console.log("id from localstorage", id)
         if (id == 'undefined') {
           const resp = await fetch(`http://localhost:3001/api/users/profile/${userProp.email}`);
           const userData = await resp.json();
@@ -91,6 +96,7 @@ function UserProfile({ userProp }) {
         }
         const resp = await fetch(`http://localhost:3001/api/users/${id}`);
         const data = await resp.json();
+
         setEmail(data.email);
         setUser(data || "temp user");
         setUserId(data._id || "defaultId");
@@ -98,7 +104,13 @@ function UserProfile({ userProp }) {
         setName(data.fullName || "Default User");
         setDisplayName(data.username || "defaultusername");
         setBio(data.bio || "This is a default bio.");
-        setInterestedListings(data.interestedListings || []);
+
+        setActiveListings(data.activeListings);
+        setTotalActiveListingsPages(data.totalActiveListingsPages);
+
+        setInterestedListings(data.interestedListings);
+        setTotalInterestedListingsPages(data.totalInterestedListingsPages);
+
         setInactiveListings(data.inactiveListings || []);
         return data;
       } catch (error) {
@@ -112,7 +124,7 @@ function UserProfile({ userProp }) {
     });
     fetchFavorites();
 
-  }, []);
+  }, [activePage, interestedPage]);
 
   const fetchInactiveListings = async () => {
     try {
