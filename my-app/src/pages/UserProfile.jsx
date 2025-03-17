@@ -6,12 +6,13 @@ import {
 } from "react-router-dom";
 import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
+import Pagination from "../components/Pagination";
 
 function UserProfile({ userProp }) {
   const [editMode, seteditMode] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [favoriteListings, setFavoriteListings] = useState([]);
+
   const [inactiveListings, setInactiveListings] = useState([]);
   const [inactiveListingsData, setInactiveListingsData] = useState([]);
   const [userId, setUserId] = useState(null);
@@ -94,9 +95,9 @@ function UserProfile({ userProp }) {
           const userData = await resp.json();
           id = userData.user[0]._id
         }
-        const resp = await fetch(`http://localhost:3001/api/users/${id}`);
+        const resp = await fetch(`http://localhost:3001/api/users/${id}/paginated?activePage=${activePage}&interestedPage=${interestedPage}`);
         const data = await resp.json();
-
+        console.log('data', data);
         setEmail(data.email);
         setUser(data || "temp user");
         setUserId(data._id || "defaultId");
@@ -105,6 +106,7 @@ function UserProfile({ userProp }) {
         setDisplayName(data.username || "defaultusername");
         setBio(data.bio || "This is a default bio.");
 
+        console.log("active: ", data.activeListings);
         setActiveListings(data.activeListings);
         setTotalActiveListingsPages(data.totalActiveListingsPages);
 
@@ -122,7 +124,6 @@ function UserProfile({ userProp }) {
     getUserData().then(() => {
       setLoading(false);
     });
-    fetchFavorites();
 
   }, [activePage, interestedPage]);
 
@@ -149,12 +150,9 @@ function UserProfile({ userProp }) {
   const handleDeleteListing = async (listingId) => {
     try {
       await axios.delete(`http://localhost:3001/listing/${listingId}`);
-      setUser((prevUser) => ({
-        ...prevUser, 
-        listings: prevUser.listings.filter((listing) => listing._id !== listingId),
-      }));
-      setInactiveListingsData((prev) => prev.filter((listing) => listing._id !== listingId));
-      setInactiveListings((prev) => prev.filter((listingIdInState) => listingIdInState !== listingId));
+
+      setActiveListings((prev) => prev.filter((listing) => listing._id !== listingId));
+      setInactiveListings((prev) => prev.filter((listingId) => listingId !== listingId));
     } catch (err) {
       console.log(err);
     }
@@ -168,24 +166,6 @@ function UserProfile({ userProp }) {
       console.log(err);
     }
   };
-
-  const fetchFavorites = () => {
-    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || {};
-    setFavoriteListings(Object.values(storedFavorites)); //Convert object to array
-  };
-
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      const userId = localStorage.getItem("userId");
-      if (!userId) return;
-    };
-
-    fetchFavorites();
-
-    //Listen for favorite updates
-    window.addEventListener("favoritesUpdated", fetchFavorites);
-    return () => window.removeEventListener("favoritesUpdated", fetchFavorites);
-  }, []);
 
   if (loading) {
     return <div className="text-center mt-8">Loading...</div>;
@@ -306,8 +286,8 @@ function UserProfile({ userProp }) {
           <div className="border-t border-gray-200 p-6 sm:p-8">
             <h3 className="text-lg font-medium text-gray-900">Active Listings</h3>
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {user.listings && user.listings.length > 0 ? (
-                user.listings.map((listing) => (
+              {activeListings && activeListings.length > 0 ? (
+                activeListings.map((listing) => (
                   <div key={listing._id} className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="p-5">
                       <div className="flex items-center">
@@ -347,14 +327,21 @@ function UserProfile({ userProp }) {
                 <p className="text-sm text-gray-500">No active listings</p>
               )}
             </div>
+
+            <Pagination
+              currentPage={activePage}
+              totalPages={totalActiveListingsPages}
+              onPageChange={setActivePage}
+            />
           </div>
+
           <div className="border-t border-gray-200 p-6 sm:p-8">
             <h3 className="text-lg font-medium text-gray-900">
               Interested Listings
             </h3>
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {favoriteListings.length > 0 ? (
-                favoriteListings.map((listing) => (
+              {interestedListings.length > 0 ? (
+                interestedListings.map((listing) => (
                   <div
                     key={listing._id}
                     className="bg-white overflow-hidden shadow rounded-lg"
@@ -391,7 +378,13 @@ function UserProfile({ userProp }) {
                 <p className="text-sm text-gray-500">No interested listings</p>
               )}
             </div>
+            <Pagination
+              currentPage={interestedPage}
+              totalPages={totalInterestedListingsPages}
+              onPageChange={setInterestedPage}
+            />
           </div>
+
           <div className="border-t border-gray-200 p-6 sm:p-8">
             <h3 className="text-lg font-medium text-gray-900">Inactive Listings</h3>
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

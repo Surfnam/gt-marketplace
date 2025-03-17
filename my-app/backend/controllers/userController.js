@@ -52,9 +52,9 @@ export const getUserById = async (req, res) => {
 
 export const getUserByIdPaginated = async (req, res) => {
     const { id } = req.params;
-    let { page = 1 } = req.query;
-    page = parseInt(page);
-    const skip = (page-1) * MAX_USER_LISTINGS_PER_PAGE
+    let { activePage = 1, interestedPage = 1} = req.query;
+    activePage = parseInt(activePage);
+    interestedPage = parseInt(interestedPage);
 
     try {
         const user = await User.findById(id)
@@ -69,7 +69,7 @@ export const getUserByIdPaginated = async (req, res) => {
         const [activeListings, totalActiveListings] = await Promise.all([
             Listing.find({ seller: id, status: "available" })
                 .sort({ createdAt: -1 }) 
-                .skip(skip)
+                .skip((activePage-1) * MAX_USER_LISTINGS_PER_PAGE)
                 .limit(MAX_USER_LISTINGS_PER_PAGE)
                 .select("title price image category createdAt"),
             Listing.countDocuments({ seller: id, status: "available" })
@@ -79,7 +79,7 @@ export const getUserByIdPaginated = async (req, res) => {
         const [interestedListings, totalInterestedListings] = await Promise.all([
             Listing.find({ _id: { $in: user.interestedListings } })
                 .sort({ createdAt: -1 }) 
-                .skip(skip)
+                .skip((interestedPage-1) * MAX_USER_LISTINGS_PER_PAGE)
                 .limit(MAX_USER_LISTINGS_PER_PAGE)
                 .select("title price image category createdAt"),
             Listing.countDocuments({ _id: { $in: user.interestedListings } })

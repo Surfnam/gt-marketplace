@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt'
-import {updateUser, getUserById, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact, getUserInactiveListings, addInactiveListing, removeInactiveListing, removeActiveListing, addActiveListing } from '../controllers/userController.js';
+import {updateUser, getUserById, getUserByIdPaginated, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact, getUserInactiveListings, addInactiveListing, removeInactiveListing, removeActiveListing, addActiveListing } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -28,8 +28,12 @@ router.post('/register', async (req, res) => {
 // update user related details
 router.patch('/:id', updateUser)
 router.get('/profile/:email', getUserByEmail)
+
 // get all user info (except password) by id
 router.get('/:id', getUserById)
+
+// get all user info with paginated listings
+router.get('/:id/paginated', getUserByIdPaginated);
 
 // GET route to retrieve all users
 router.get('/', async (req, res) => {
