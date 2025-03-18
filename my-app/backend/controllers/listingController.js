@@ -1,17 +1,24 @@
 import Listing from '../models/Listing.js';
 import User from '../models/User.js';
+import { getEmbedding } from '../utils/embedding.js';
 
 import { MAX_LISTINGS_PER_PAGE, MAX_USER_LISTINGS_PER_PAGE } from "../config/config.js";
+
 export const addListing = async (req, res) => {
     try {
-        console.log("endpoint")
-        console.log("req.body: ", req.body);
-        const {id} = req.params
+        const {id} = req.params;
+        const { title } = req.body;
+
+        const embedding = await getEmbedding(title);
+
         const newListing = new Listing({
             ...req.body,
             seller: id,
+            embedding,
         });
+
         const savedListing = await newListing.save();
+
         const updatedUser = await User.findByIdAndUpdate(
             id,
             { $push: {listings : savedListing._id} },
@@ -23,7 +30,7 @@ export const addListing = async (req, res) => {
     } catch (err) {
         res.status(500).json({error: err.message});
     }
-}
+};
 
 export const getListingById = async (req, res) => {
     try {
@@ -70,7 +77,7 @@ export const getListingsByCondition = async (req, res) => {
 export const getFilteredListings = async (req, res) => {
     try {
         const { page = 1, category, min = 0, max = Infinity, search } = req.query;
-    
+        
         let query = {
           status: "available",
           price: { $gte: Number(min), $lte: Number(max) }
@@ -79,19 +86,58 @@ export const getFilteredListings = async (req, res) => {
         if (category && category !== "All")
           query.category = category;
 
-        if (search) 
-            query.title = { $regex: search, $options: "i" };
-    
-        const totalListings = await Listing.countDocuments(query);
-        const listings = await Listing.find(query)
-            .sort({ createdAt: -1 }) 
-            .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
-            .limit(MAX_LISTINGS_PER_PAGE);
-    
+        let listings, totalListings;
+        if (search) {
+            const searchEmbedding = await getEmbedding(search);
+            
+            listings = await Listing.aggregate([
+                { 
+                    $search: { 
+                        index: 'default',  // your search index name
+                        knnBeta: {
+                            vector: searchEmbedding,
+                            path: 'embedding',
+                            k: 10  // Return top 10 matches
+                        }
+                    }
+                },
+                {
+                    $addFields: { score: { $meta: "searchScore" } }
+                },
+                {
+                    $match: {
+                      $and: [
+                        query,               // category, price
+                        { score: { $gte: 0.7 } }  // min similarity threshold
+                      ]
+                    }
+                  },
+                {
+                    $sort: { score: -1 }
+                },
+                { 
+                    $skip: (page - 1) * MAX_LISTINGS_PER_PAGE 
+                },
+                { 
+                    $limit: MAX_LISTINGS_PER_PAGE 
+                }
+            ]);
+
+            totalListings = listings.length;
+        } else {
+            listings = await Listing.find(query)
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
+                .limit(MAX_LISTINGS_PER_PAGE);
+
+            totalListings = await Listing.countDocuments(query);
+        }
+
         res.json({
           listings,
           totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE)
         });
+
       } catch (error) {
         console.error("Error fetching filtered listings:", error);
         res.status(500).json({ error: "Internal Server Error" });
