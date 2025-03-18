@@ -18,7 +18,8 @@ const backfillListings = async () => {
     const listingsToUpdate = await Listing.find({
       $or: [
         { embedding: { $exists: false } },
-        { embedding: { $size: 0 } }
+        { embedding: { $size: 0 } },
+        { embedding: { $size: 3072 } }
       ]
     });
 
@@ -31,7 +32,7 @@ const backfillListings = async () => {
         listing.embedding = embedding;
         await listing.save();
         console.log(`Updated listing ${listing._id}`);
-        await new Promise(r => setTimeout(r, 1000)); // wait 1 sec
+        await new Promise(r => setTimeout(r, 1000));
       } else {
         console.log(`Skipping listing ${listing._id} because title is missing.`);
       }
