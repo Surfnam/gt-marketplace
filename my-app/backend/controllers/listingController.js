@@ -88,8 +88,9 @@ export const getFilteredListings = async (req, res) => {
 
         let listings, totalListings;
         if (search) {
+            console.log("search term", search);
             const searchEmbedding = await getEmbedding(search);
-            
+
             listings = await Listing.aggregate([
                 { 
                     $search: { 
@@ -122,7 +123,7 @@ export const getFilteredListings = async (req, res) => {
                     $limit: MAX_LISTINGS_PER_PAGE 
                 }
             ]);
-
+            console.log("vector similarity finished")
             totalListings = listings.length;
         } else {
             listings = await Listing.find(query)

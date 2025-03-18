@@ -6,7 +6,7 @@ export const getEmbedding = async (text) => {
     const model = genAI.getGenerativeModel({ model: "gemini-embedding-exp-03-07" });
 
     const res = await model.embedContent(text);
-    console.log(res.embedding.values);
+    console.log("created embedding");
     return res.embedding.values;
 };
 
