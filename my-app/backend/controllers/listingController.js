@@ -91,40 +91,34 @@ export const getFilteredListings = async (req, res) => {
             console.log("search term", search);
             const searchEmbedding = await getEmbedding(search);
 
-            listings = await Listing.aggregate([
+            const [aggregation] = await Listing.aggregate([
                 { 
                     $search: { 
-                        index: 'default',  // your search index name
+                        index: 'listingEmbeddingIndex',
                         knnBeta: {
                             vector: searchEmbedding,
                             path: 'embedding',
-                            k: 10  // Return top 10 matches
-                        }
+                            k: 10, // Return top 10 matches
+                        },
                     }
                 },
                 {
-                    $addFields: { score: { $meta: "searchScore" } }
+                    $match: query
                 },
-                {
-                    $match: {
-                      $and: [
-                        query,               // category, price
-                        { score: { $gte: 0.7 } }  // min similarity threshold
-                      ]
+                { 
+                    $facet: {
+                        metadata: [{ $count: "total" }], // Total before pagination
+                        data: [ // Paginated results
+                            { $skip: (page - 1) * MAX_LISTINGS_PER_PAGE },
+                            { $limit: MAX_LISTINGS_PER_PAGE }
+                        ]
                     }
-                  },
-                {
-                    $sort: { score: -1 }
-                },
-                { 
-                    $skip: (page - 1) * MAX_LISTINGS_PER_PAGE 
-                },
-                { 
-                    $limit: MAX_LISTINGS_PER_PAGE 
                 }
             ]);
             console.log("vector similarity finished")
-            totalListings = listings.length;
+             
+            listings = aggregation.data || [];
+            totalListings = aggregation.metadata[0].total || 0;
         } else {
             listings = await Listing.find(query)
                 .sort({ createdAt: -1 })
