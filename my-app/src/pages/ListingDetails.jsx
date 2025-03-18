@@ -79,6 +79,7 @@ const ListingDetails = () => {
   const [seller, setSeller] = useState(null);
   const [listingStatus, setListingStatus] = useState("");
   const navigate = useNavigate(); 
+
   useEffect(() => {
     const fetchData = async () => {
         const data = await getListing(id);
@@ -122,7 +123,9 @@ const ListingDetails = () => {
         <div className="listing-details-container">
             <div className="listing-title-container">
                 <h1 id="item-title">{listingDetails.title}</h1>
-                <button className="listing-heart-button" onClick="toggleHeart(this)">&#10084;</button>
+                {seller._id !== userId && (
+                    <button className="listing-heart-button" onClick="toggleHeart(this)">&#10084;</button>
+                )}
             </div>
             <p id="item-price"><strong>Price: </strong> ${listingDetails.price}</p>
             <p id="item-description">
