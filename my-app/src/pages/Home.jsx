@@ -33,9 +33,10 @@ function Home() {
 
   const [listings, setListings] = useState([]);
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tempSearchTerm, setTempSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState("0");
   const [maxPrice, setMaxPrice] = useState("1000");
 
@@ -133,16 +134,16 @@ function Home() {
     window.dispatchEvent(new Event("favoritesUpdated"));
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
     setPage(1);
   };
 
-  const handleFilter = () => {
+  const handleSearchTermSelect = () => {
+    setSearchTerm(tempSearchTerm)
+  }
+  
+  const handlePriceFilterSelect = () => {
     setMinPrice(tempMinPrice);
     setMaxPrice(tempMaxPrice);
     setPage(1);
@@ -152,13 +153,21 @@ function Home() {
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex">
         <aside className="w-64 mr-8 flex flex-col">
-          <label className="font-semibold mb-2">Filters</label>
-          <input
-            placeholder="Search listings..."
-            className="border border-gray-300 rounded-md p-2 mb-4"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <label className="font-semibold mb-2">Search</label>
+          <div className="mb-4">
+            <input
+              placeholder="Search listings..."
+              className="border border-gray-300 rounded-md p-2 w-full"
+              value={tempSearchTerm}
+              onChange={e => setTempSearchTerm(e.target.value)}
+            />
+            <button
+              onClick={handleSearchTermSelect}
+              className="mt-2 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
+            >
+              Apply
+            </button>
+          </div>
           <div className="mt-4">
             <h3 className="font-semibold mb-2">Categories</h3>
             <ul className="space-y-2">
@@ -217,7 +226,7 @@ function Home() {
             <button
               className="mt-4 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
               onClick={() => {
-                handleFilter();
+                handlePriceFilterSelect();
               }}
             >
               Apply
