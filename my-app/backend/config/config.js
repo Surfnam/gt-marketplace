@@ -1,4 +1,4 @@
-export const MAX_LISTINGS_PER_PAGE = 3;
+export const MAX_LISTINGS_PER_PAGE = 6;
 export const MAX_USER_LISTINGS_PER_PAGE = 3;
 
 export const EMBEDDING_SIMILARITY_THRESHOLD = 0.7;

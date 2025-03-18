@@ -95,7 +95,7 @@ export const getFilteredListings = async (req, res) => {
                         knnBeta: {
                             vector: searchEmbedding,
                             path: 'embedding',
-                            k: K_NEAREST_NEIGHBORS
+                            k: K_NEAREST_NEIGHBORS,
                         },
                     }
                 },
@@ -107,6 +107,9 @@ export const getFilteredListings = async (req, res) => {
                 },
                 {
                     $match: query
+                },
+                { 
+                    $sort: { score: -1 } 
                 },
                 { 
                     $facet: {
