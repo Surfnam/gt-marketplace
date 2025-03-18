@@ -65,21 +65,22 @@ export const getListingsByCondition = async (req, res) => {
     } catch (err) {
         res.status(500).json( {error: err.message} );
     }
-
-}
+};
 
 export const getFilteredListings = async (req, res) => {
     try {
-        const { page = 1, category, min = 0, max = Infinity } = req.query;
+        const { page = 1, category, min = 0, max = Infinity, search } = req.query;
     
         let query = {
           status: "available",
           price: { $gte: Number(min), $lte: Number(max) }
         };
     
-        if (category && category !== "All") {
+        if (category && category !== "All")
           query.category = category;
-        }
+
+        if (search) 
+            query.title = { $regex: search, $options: "i" };
     
         const totalListings = await Listing.countDocuments(query);
         const listings = await Listing.find(query)
@@ -108,67 +109,7 @@ export const getActiveListings = async (req, res) => {
     } catch (err) {
         res.status(500).json( {error: err.message});
     }
-}
-
-/*
-export const getListingByCategory = async (req, res) => {
-    try {
-        let { page=1 } = req.query;
-        page = parseInt(page);
-
-        const {category} = req.params;
-        
-        const totalListings = await Listing.countDocuments({ category });
-        
-        // Query the database for the category
-        const listings = await Listing.find({ category })
-            .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
-            .limit(MAX_LISTINGS_PER_PAGE)
-            .select('title image price category condition');
-
-        // Return the listing
-        res.status(200).json({
-            listings,
-            totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE),
-        });
-    } catch (err) {
-        // Logging the error
-        console.error(err);
-        res.status(500).json({message: err.message});
-    }
 };
-
-export const getListingByPrice = async (req, res) => {
-    try {
-        // Filtering based on min and max price ranges
-        let {min, max, page=1} = req.query;
-        // Converting min and max to numbers
-        min = parseFloat(min);
-        max = parseFloat(max);
-
-        const totalListings = await Listing.countDocuments({
-            price: { $gte: minPrice, $lte: maxPrice }
-        });
-
-        // Query the database for the price range
-        const listings = await Listing.find({
-            price: { $gte: minPrice, $lte: maxPrice }
-        })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .select("title image price category condition");
-
-        res.status(200).json({
-            listings,
-            totalPages: Math.ceil(totalListings / limit),
-        });
-    } catch (err) {
-        // Logging the error
-        console.error(err);
-        res.status(500).json({message: err.message});
-    }
-};
-*/
 
 export const updateListing = async (req, res) => {
     try {
@@ -196,7 +137,7 @@ export const updateListing = async (req, res) => {
     catch (error) {
         res.status(500).json({ message: 'Failed to update listing', error });
     }
-}
+};
 
 export const deleteListing = async (req, res) => {
     try {  
@@ -258,3 +199,63 @@ export const deleteListingPaginated = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete listing', error });
     }
 };
+
+/*
+export const getListingByCategory = async (req, res) => {
+    try {
+        let { page=1 } = req.query;
+        page = parseInt(page);
+
+        const {category} = req.params;
+        
+        const totalListings = await Listing.countDocuments({ category });
+        
+        // Query the database for the category
+        const listings = await Listing.find({ category })
+            .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
+            .limit(MAX_LISTINGS_PER_PAGE)
+            .select('title image price category condition');
+
+        // Return the listing
+        res.status(200).json({
+            listings,
+            totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE),
+        });
+    } catch (err) {
+        // Logging the error
+        console.error(err);
+        res.status(500).json({message: err.message});
+    }
+};
+
+export const getListingByPrice = async (req, res) => {
+    try {
+        // Filtering based on min and max price ranges
+        let {min, max, page=1} = req.query;
+        // Converting min and max to numbers
+        min = parseFloat(min);
+        max = parseFloat(max);
+
+        const totalListings = await Listing.countDocuments({
+            price: { $gte: minPrice, $lte: maxPrice }
+        });
+
+        // Query the database for the price range
+        const listings = await Listing.find({
+            price: { $gte: minPrice, $lte: maxPrice }
+        })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .select("title image price category condition");
+
+        res.status(200).json({
+            listings,
+            totalPages: Math.ceil(totalListings / limit),
+        });
+    } catch (err) {
+        // Logging the error
+        console.error(err);
+        res.status(500).json({message: err.message});
+    }
+};
+*/
