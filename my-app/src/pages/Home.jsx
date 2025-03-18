@@ -5,13 +5,14 @@ import { Heart } from "lucide-react";
 import Icons from "../images/icons";
 import Pagination from "../components/Pagination";
 
-const fetchListings = async (page, category, min, max) => {
+const fetchListings = async (page, category, min, max, search) => {
   try {
     const url = new URL("http://localhost:3001/listing/filter");
     url.searchParams.append("page", page);
     if (category !== "All") url.searchParams.append("category", category);
     url.searchParams.append("min", min);
     url.searchParams.append("max", max);
+    if (search) url.searchParams.append("search", search);
 
     const response = await fetch(url);
     const data = await response.json();
@@ -52,14 +53,14 @@ function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchListings(page, selectedCategory, minPrice, maxPrice);
+      const data = await fetchListings(page, selectedCategory, minPrice, maxPrice, searchTerm);
       setListings(data.listings || []);
       setTotalPages(data.totalPages || 1);
     };
   
     fetchData();
 
-  }, [page, selectedCategory, minPrice, maxPrice]);
+  }, [page, selectedCategory, minPrice, maxPrice, searchTerm]);
 
   const navigateToListingDetails = async (id) => {
     try {
