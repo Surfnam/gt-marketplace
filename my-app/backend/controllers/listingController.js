@@ -2,7 +2,7 @@ import Listing from '../models/Listing.js';
 import User from '../models/User.js';
 import { getEmbedding } from '../utils/embedding.js';
 
-import { MAX_LISTINGS_PER_PAGE, MAX_USER_LISTINGS_PER_PAGE } from "../config/config.js";
+import { EMBEDDING_SIMILARITY_THRESHOLD, K_NEAREST_NEIGHBORS, MAX_LISTINGS_PER_PAGE, MAX_USER_LISTINGS_PER_PAGE } from "../config/config.js";
 
 export const addListing = async (req, res) => {
     try {
@@ -76,11 +76,11 @@ export const getListingsByCondition = async (req, res) => {
 
 export const getFilteredListings = async (req, res) => {
     try {
-        const { page = 1, category, min = 0, max = Infinity, search } = req.query;
-        
+        const { page = 1, category, min = 0, max = 1000000, search, searchEmbedding } = req.body;
+        console.log("category", category, category === "All");
         let query = {
           status: "available",
-          price: { $gte: Number(min), $lte: Number(max) }
+          price: { $gte: Number(min), $lte: Number(max)}
         };
     
         if (category && category !== "All")
@@ -88,9 +88,6 @@ export const getFilteredListings = async (req, res) => {
 
         let listings, totalListings;
         if (search) {
-            console.log("search term", search);
-            const searchEmbedding = await getEmbedding(search);
-
             const [aggregation] = await Listing.aggregate([
                 { 
                     $search: { 
@@ -98,9 +95,15 @@ export const getFilteredListings = async (req, res) => {
                         knnBeta: {
                             vector: searchEmbedding,
                             path: 'embedding',
-                            k: 10, // Return top 10 matches
+                            k: K_NEAREST_NEIGHBORS
                         },
                     }
+                },
+                {
+                    $addFields: { score: { $meta: "searchScore" } }
+                },
+                {
+                    $match: { score: { $gte: EMBEDDING_SIMILARITY_THRESHOLD } } 
                 },
                 {
                     $match: query
@@ -117,9 +120,11 @@ export const getFilteredListings = async (req, res) => {
             ]);
             console.log("vector similarity finished")
              
-            listings = aggregation.data || [];
-            totalListings = aggregation.metadata[0].total || 0;
+            listings = aggregation?.data || [];
+            totalListings = aggregation?.metadata?.[0]?.total || 0;
+            console.log(listings.length);
         } else {
+            console.log("hi");
             listings = await Listing.find(query)
                 .sort({ createdAt: -1 })
                 .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
@@ -241,6 +246,22 @@ export const deleteListingPaginated = async (req, res) => {
     }
 };
 
+
+export const getListingEmbedding = async (req, res) => {
+    const { text } = req.body;
+
+    try {
+        const embedding = await getEmbedding(text);
+        res.json({ embedding });
+    } catch (error) {
+        if (error.status === 429) {
+            console.log("REACHeD 429");
+            return res.status(429).json({ error: "Too many requests. Please wait and try again later." });
+        }
+
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
 /*
 export const getListingByCategory = async (req, res) => {
     try {
