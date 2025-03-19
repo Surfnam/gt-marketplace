@@ -5,52 +5,71 @@ import { Heart } from "lucide-react";
 import AuthModal from "../components/AuthModal";
 import { useAuthCheck } from "../components/useAuthCheck";
 
-
 const getAllListings = async () => {
-  //example placeholders
-  const response = await fetch("http://localhost:3001/listing/active");
-  const data = await response.json();
-  return data.data;
+  console.log('Fetching all listings...');
+  try {
+    const response = await fetch("http://localhost:3001/listing/active");
+    const data = await response.json();
+    console.log('Listings fetched successfully:', data.data);
+    return data.data;
+  } catch (error) {
+    console.error('Error fetching listings:', error);
+    return [];
+  }
 };
 
 function Home() {
   const navigate = useNavigate();
+  const { showAuthModal, setShowAuthModal, checkAuth } = useAuthCheck();
+
+  // State management
   const [listings, setListings] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [filteredListings, setFilteredListings] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [minPrice, setMinPrice] = useState("0");
   const [maxPrice, setMaxPrice] = useState("1000");
   const [favorites, setFavorites] = useState(() => {
-    return JSON.parse(localStorage.getItem("favorites")) || {};
+    const storedFavorites = localStorage.getItem("favorites");
+    console.log('Initial favorites loaded from localStorage:', storedFavorites);
+    return JSON.parse(storedFavorites) || {};
   });
 
-  const { showAuthModal, setShowAuthModal, checkAuth } = useAuthCheck();
-
+  // Fetch listings on component mount
   useEffect(() => {
     getAllListings().then((data) => {
+      console.log('Setting initial listings:', data);
       setListings(data || []);
       setFilteredListings(data || []);
     });
   }, []);
 
+  // Filter listings when search or category changes
   useEffect(() => {
-    console.log("hello0");
+    console.log('Filtering listings with:', {
+      searchTerm,
+      selectedCategory,
+      listingsCount: listings.length
+    });
+    
     const filtered = listings.filter(
       (listing) =>
         listing.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
         (selectedCategory === "All" || listing.category === selectedCategory)
     );
+    console.log('Filtered listings count:', filtered.length);
     setFilteredListings(filtered);
-    console.log(filteredListings);
   }, [searchTerm, selectedCategory, listings]);
 
+  // Navigation and listing details
   const navigateToListingDetails = async (id) => {
+    console.log('Fetching details for listing:', id);
     try {
       const response = await fetch(`http://localhost:3001/listing/${id}`);
       const data = await response.json();
 
       if (data) {
+        console.log('Listing details found:', data);
         navigate(`/listing/${id}`, { state: { listing: data } });
       } else {
         console.error("Listing not found");
@@ -60,23 +79,29 @@ function Home() {
     }
   };
 
+  // Favorites management
   const handleFavorite = async (listing) => {
-    if (!listing._id) return;
+    console.log('Handling favorite for listing:', listing._id);
+    
+    if (!listing._id) {
+      console.error('Invalid listing ID');
+      return;
+    }
 
     const isAuthenticated = checkAuth(() => {
       const userId = localStorage.getItem("userId");
       const isFavorited = favorites[listing._id];
+      console.log('User authenticated, updating favorites. Currently favorited:', isFavorited);
 
       setFavorites((prev) => {
         const newFavorites = { ...prev };
-
         if (isFavorited) {
           delete newFavorites[listing._id];
         } else {
           newFavorites[listing._id] = listing;
         }
-
         localStorage.setItem("favorites", JSON.stringify(newFavorites));
+        console.log('Updated favorites in localStorage');
         return newFavorites;
       });
 
@@ -89,8 +114,15 @@ function Home() {
   };
 
   const updateFavoriteInDatabase = async (listing, isFavorited, userId) => {
+    console.log('Updating favorite in database:', {
+      listingId: listing._id,
+      userId,
+      action: isFavorited ? 'remove' : 'add'
+    });
+    
     try {
-      await fetch(`http://localhost:3001/listing/${listing._id}`, {
+      // Update listing favorites
+      const listingResponse = await fetch(`http://localhost:3001/listing/${listing._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -98,10 +130,11 @@ function Home() {
           userId,
         }),
       });
+      console.log('Listing favorites update response:', listingResponse.ok);
 
+      // Update user interested listings
       const url = "http://localhost:3001/users/interestedListings";
       const method = isFavorited ? "DELETE" : "POST";
-
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -115,35 +148,38 @@ function Home() {
         throw new Error("Failed to update interestedListings in database");
       }
 
-      console.log(
-        `Successfully ${isFavorited ? "removed" : "added"} listing ${listing._id}`
-      );
-      
+      console.log('Successfully updated user interested listings');
       window.dispatchEvent(new Event("favoritesUpdated"));
     } catch (error) {
       console.error("Error updating favorite:", error);
     }
   };
 
+  // Filter handlers
   const handleSearch = (e) => {
+    console.log('Search term updated:', e.target.value);
     setSearchTerm(e.target.value);
   };
-
+  
   const handleCategorySelect = (category) => {
+    console.log('Category selected:', category);
     setSelectedCategory(category);
   };
-
-  const handleFilter = (minPrice, maxPrice) => {
+  
+  const handleFilter = (min, max) => {
+    console.log('Applying price filter:', { min, max });
     setFilteredListings(
-      listings.filter(
-        (listing) => listing.price >= minPrice && listing.price <= maxPrice
-      )
+      listings.filter((listing) => listing.price >= min && listing.price <= max)
     );
   };
+
+  // Categories list
+  const categories = ["All", "Furniture", "Electronics", "Clothing"];
 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex">
+        {/* Sidebar filters */}
         <aside className="w-64 mr-8 flex flex-col">
           <label className="font-semibold mb-2">Filters</label>
           <input
@@ -152,21 +188,20 @@ function Home() {
             value={searchTerm}
             onChange={handleSearch}
           />
+
           <div className="mt-4">
             <h3 className="font-semibold mb-2">Categories</h3>
             <ul className="space-y-2">
-              {["All", "Furniture", "Electronics", "Clothing"].map(
-                (category) => (
-                  <li key={category}>
-                    <button
-                      className="w-full text-left hover:bg-gray-200 py-1 px-2 rounded"
-                      onClick={() => handleCategorySelect(category)}
-                    >
-                      {category}
-                    </button>
-                  </li>
-                )
-              )}
+              {categories.map((category) => (
+                <li key={category}>
+                  <button
+                    className="w-full text-left hover:bg-gray-200 py-1 px-2 rounded"
+                    onClick={() => handleCategorySelect(category)}
+                  >
+                    {category}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -195,28 +230,28 @@ function Home() {
             </div>
             <button
               className="mt-4 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
-              onClick={() => {
-                handleFilter(minPrice, maxPrice);
-              }}
+              onClick={() => handleFilter(minPrice, maxPrice)}
             >
               Apply
             </button>
           </div>
         </aside>
+
+        {/* Main content */}
         <main className="flex-1">
           <div className="flex justify-between items-center mt-4 mb-4">
             <h1 className="text-2xl font-bold">Active Listings</h1>
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
               onClick={() => {
-                checkAuth(() => {
-                  navigate("/createlisting");
-                });
+                checkAuth(() => navigate("/createlisting"));
               }}
             >
               Create Listing
             </button>
           </div>
+
+          {/* Listings grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredListings.map((listing) => (
               <div
@@ -236,10 +271,7 @@ function Home() {
                     </div>
                     <div className="w-[20%]">
                       <button
-                        onClick={() => {
-                          console.log("heart button clicked");
-                          handleFavorite(listing);
-                        }}
+                        onClick={() => handleFavorite(listing)}
                         className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
                       >
                         <Heart

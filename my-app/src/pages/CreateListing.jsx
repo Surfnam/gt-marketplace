@@ -1,9 +1,11 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { uploadFile } from '../services/fileUpload';
+import { uploadFile } from "../services/fileUpload";
+import { FaArrowLeft } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
- const user = localStorage.getItem("userId");
+const user = localStorage.getItem("userId");
 
 function CreateListing() {
   const [currentImage, setCurrentImage] = useState(null);
@@ -17,7 +19,7 @@ function CreateListing() {
     description: "",
     image: null,
     status: "available",
-    image: null
+    image: null,
   });
 
   const handleChange = (e) => {
@@ -35,7 +37,7 @@ function CreateListing() {
         ...prevState,
         image: file, // Store selected file
       }));
-  
+
       // Create a temporary URL for preview
       const imagePreviewUrl = URL.createObjectURL(file);
       setCurrentImage(imagePreviewUrl); // Update the image preview
@@ -58,10 +60,13 @@ function CreateListing() {
         const imageFormData = new FormData();
         imageFormData.append("file", formData.image);
 
-        const uploadResponse = await fetch(`http://localhost:3001/api/fileUpload`, {
-          method: "PUT",
-          body: imageFormData,
-        });
+        const uploadResponse = await fetch(
+          `http://localhost:3001/api/fileUpload`,
+          {
+            method: "PUT",
+            body: imageFormData,
+          }
+        );
 
         if (!uploadResponse.ok) {
           const errorDetails = await uploadResponse.json(); // Get error details from the server response
@@ -89,11 +94,11 @@ function CreateListing() {
           category: formData.category,
           description: formData.description,
           status: formData.status,
-          image: formData.image
+          image: formData.image,
         }),
         credentials: "include",
       });
-      await uploadFile(formData.image)
+      await uploadFile(formData.image);
       console.log("User data sent to MongoDB:", response.listingId);
 
       navigate("/");
@@ -105,6 +110,13 @@ function CreateListing() {
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <Link
+          to="/"
+          className="flex items-center mb-6 transition-colors text-blue-500 hover:text-blue-700"
+        >
+          <FaArrowLeft className="mr-2" />
+          Back to Marketplace
+        </Link>
         <h1 className="text-2xl font-bold mb-6">Create New Listing</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
