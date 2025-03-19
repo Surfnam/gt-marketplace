@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/App.css";
 import { Heart } from "lucide-react";
+import AuthModal from "../components/AuthModal";
+import { useAuthCheck } from "../components/useAuthCheck";
+
 
 const getAllListings = async () => {
   //example placeholders
@@ -22,6 +25,8 @@ function Home() {
     return JSON.parse(localStorage.getItem("favorites")) || {};
   });
 
+  const { showAuthModal, setShowAuthModal, checkAuth } = useAuthCheck();
+
   useEffect(() => {
     getAllListings().then((data) => {
       setListings(data || []);
@@ -30,7 +35,7 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    console.log("hello0")
+    console.log("hello0");
     const filtered = listings.filter(
       (listing) =>
         listing.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -58,57 +63,66 @@ function Home() {
   const handleFavorite = async (listing) => {
     if (!listing._id) return;
 
-    const userId = localStorage.getItem("userId"); //Assuming userId is stored in localStorage
-  if (!userId) {
-    console.error("User not logged in");
-    return;
-  }
+    const isAuthenticated = checkAuth(() => {
+      const userId = localStorage.getItem("userId");
+      const isFavorited = favorites[listing._id];
 
-  const isFavorited = favorites[listing._id];
+      setFavorites((prev) => {
+        const newFavorites = { ...prev };
 
-  //Update local state first for instant UI response
-  setFavorites((prev) => {
-    const newFavorites = { ...prev };
+        if (isFavorited) {
+          delete newFavorites[listing._id];
+        } else {
+          newFavorites[listing._id] = listing;
+        }
 
-    if (isFavorited) {
-      delete newFavorites[listing._id]; //Unfavorite
-    } else {
-      newFavorites[listing._id] = listing; //Favorite
-    }
+        localStorage.setItem("favorites", JSON.stringify(newFavorites));
+        return newFavorites;
+      });
 
-    localStorage.setItem("favorites", JSON.stringify(newFavorites));
-    return newFavorites;
+      updateFavoriteInDatabase(listing, isFavorited, userId);
     });
+
+    if (!isAuthenticated) {
+      console.log("User needs to authenticate");
+    }
+  };
+
+  const updateFavoriteInDatabase = async (listing, isFavorited, userId) => {
     try {
-      //Update the listing's `interestedUsers` array
       await fetch(`http://localhost:3001/listing/${listing._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: isFavorited ? "remove" : "add", //Remove if already favorited, otherwise add
+          action: isFavorited ? "remove" : "add",
           userId,
         }),
       });
-  
-      //Update the user's `interestedListings` array
-      await fetch(`http://localhost:3001/users/${userId}`, {
-        method: "PATCH",
+
+      const url = "http://localhost:3001/users/interestedListings";
+      const method = isFavorited ? "DELETE" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: isFavorited ? "remove" : "add",
+          userId,
           listingId: listing._id,
         }),
       });
-  
+
+      if (!response.ok) {
+        throw new Error("Failed to update interestedListings in database");
+      }
+
       console.log(
         `Successfully ${isFavorited ? "removed" : "added"} listing ${listing._id}`
       );
+      
+      window.dispatchEvent(new Event("favoritesUpdated"));
     } catch (error) {
       console.error("Error updating favorite:", error);
     }
-  
-    //Dispatch event to notify `UserProfile` of updates
-    window.dispatchEvent(new Event("favoritesUpdated"));
   };
 
   const handleSearch = (e) => {
@@ -194,7 +208,11 @@ function Home() {
             <h1 className="text-2xl font-bold">Active Listings</h1>
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
-              onClick={() => navigate("/createlisting")}
+              onClick={() => {
+                checkAuth(() => {
+                  navigate("/createlisting");
+                });
+              }}
             >
               Create Listing
             </button>
@@ -217,7 +235,13 @@ function Home() {
                       <p className="text-gray-600 mb-4">${listing.price}</p>
                     </div>
                     <div className="w-[20%]">
-                      <button onClick={() => handleFavorite(listing)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+                      <button
+                        onClick={() => {
+                          console.log("heart button clicked");
+                          handleFavorite(listing);
+                        }}
+                        className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+                      >
                         <Heart
                           size={24}
                           className={`transition-colors ${
@@ -229,6 +253,10 @@ function Home() {
                         />
                       </button>
                     </div>
+                    <AuthModal
+                      isOpen={showAuthModal}
+                      onClose={() => setShowAuthModal(false)}
+                    />
                   </div>
                   <button
                     onClick={() => navigateToListingDetails(listing._id)}
