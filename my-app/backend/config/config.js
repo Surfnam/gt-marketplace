@@ -1,2 +1,5 @@
-export const MAX_LISTINGS_PER_PAGE = 3;
+export const MAX_LISTINGS_PER_PAGE = 9;
 export const MAX_USER_LISTINGS_PER_PAGE = 3;
+
+export const EMBEDDING_SIMILARITY_THRESHOLD = 0.7;
+export const K_NEAREST_NEIGHBORS = 20;

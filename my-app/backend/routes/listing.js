@@ -1,11 +1,13 @@
 import express from 'express'
-import { addListing, updateListing, getListingById, getActiveListings, getListingsBySeller, deleteListing, getFilteredListings, deleteListingPaginated} from '../controllers/listingController.js'
+import { addListing, updateListing, getListingById, getActiveListings, getListingsBySeller, deleteListing, getFilteredListings, deleteListingPaginated, getListingEmbedding} from '../controllers/listingController.js'
 
 const router = express.Router();
 
-router.get('/filter', getFilteredListings)
+router.post('/filter', getFilteredListings)
 // get all listings (this needs to be above the get request for '/:id' so that 'active' does not get confused as id)
 router.get('/active', getActiveListings);
+
+router.post('/embedding', getListingEmbedding);
 
 // add new Listing
 router.post('/:id', addListing) //id specifies the user id 

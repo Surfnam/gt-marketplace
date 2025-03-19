@@ -1,17 +1,24 @@
 import Listing from '../models/Listing.js';
 import User from '../models/User.js';
+import { getEmbedding } from '../utils/embedding.js';
 
-import { MAX_LISTINGS_PER_PAGE, MAX_USER_LISTINGS_PER_PAGE } from "../config/config.js";
+import { EMBEDDING_SIMILARITY_THRESHOLD, K_NEAREST_NEIGHBORS, MAX_LISTINGS_PER_PAGE, MAX_USER_LISTINGS_PER_PAGE } from "../config/config.js";
+
 export const addListing = async (req, res) => {
     try {
-        console.log("endpoint")
-        console.log("req.body: ", req.body);
-        const {id} = req.params
+        const {id} = req.params;
+        const { title } = req.body;
+
+        const embedding = await getEmbedding(title);
+
         const newListing = new Listing({
             ...req.body,
             seller: id,
+            embedding,
         });
+
         const savedListing = await newListing.save();
+
         const updatedUser = await User.findByIdAndUpdate(
             id,
             { $push: {listings : savedListing._id} },
@@ -23,7 +30,7 @@ export const addListing = async (req, res) => {
     } catch (err) {
         res.status(500).json({error: err.message});
     }
-}
+};
 
 export const getListingById = async (req, res) => {
     try {
@@ -69,29 +76,71 @@ export const getListingsByCondition = async (req, res) => {
 
 export const getFilteredListings = async (req, res) => {
     try {
-        const { page = 1, category, min = 0, max = Infinity, search } = req.query;
-    
+        const { page = 1, category, min = 0, max = 1000000, search, searchEmbedding } = req.body;
+        console.log("category", category, category === "All");
         let query = {
           status: "available",
-          price: { $gte: Number(min), $lte: Number(max) }
+          price: { $gte: Number(min), $lte: Number(max)}
         };
     
         if (category && category !== "All")
           query.category = category;
 
-        if (search) 
-            query.title = { $regex: search, $options: "i" };
-    
-        const totalListings = await Listing.countDocuments(query);
-        const listings = await Listing.find(query)
-            .sort({ createdAt: -1 }) 
-            .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
-            .limit(MAX_LISTINGS_PER_PAGE);
-    
+        let listings, totalListings;
+        if (search) {
+            const [aggregation] = await Listing.aggregate([
+                { 
+                    $search: { 
+                        index: 'listingEmbeddingIndex',
+                        knnBeta: {
+                            vector: searchEmbedding,
+                            path: 'embedding',
+                            k: K_NEAREST_NEIGHBORS,
+                        },
+                    }
+                },
+                {
+                    $addFields: { score: { $meta: "searchScore" } }
+                },
+                {
+                    $match: { score: { $gte: EMBEDDING_SIMILARITY_THRESHOLD } } 
+                },
+                {
+                    $match: query
+                },
+                { 
+                    $sort: { score: -1 } 
+                },
+                { 
+                    $facet: {
+                        metadata: [{ $count: "total" }], // Total before pagination
+                        data: [ // Paginated results
+                            { $skip: (page - 1) * MAX_LISTINGS_PER_PAGE },
+                            { $limit: MAX_LISTINGS_PER_PAGE }
+                        ]
+                    }
+                }
+            ]);
+            console.log("vector similarity finished")
+             
+            listings = aggregation?.data || [];
+            totalListings = aggregation?.metadata?.[0]?.total || 0;
+            console.log(listings.length);
+        } else {
+            console.log("hi");
+            listings = await Listing.find(query)
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * MAX_LISTINGS_PER_PAGE)
+                .limit(MAX_LISTINGS_PER_PAGE);
+
+            totalListings = await Listing.countDocuments(query);
+        }
+
         res.json({
           listings,
           totalPages: Math.ceil(totalListings / MAX_LISTINGS_PER_PAGE)
         });
+
       } catch (error) {
         console.error("Error fetching filtered listings:", error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -200,6 +249,22 @@ export const deleteListingPaginated = async (req, res) => {
     }
 };
 
+
+export const getListingEmbedding = async (req, res) => {
+    const { text } = req.body;
+
+    try {
+        const embedding = await getEmbedding(text);
+        res.json({ embedding });
+    } catch (error) {
+        if (error.status === 429) {
+            console.log("REACHeD 429");
+            return res.status(429).json({ error: "Too many requests. Please wait and try again later." });
+        }
+
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
 /*
 export const getListingByCategory = async (req, res) => {
     try {
