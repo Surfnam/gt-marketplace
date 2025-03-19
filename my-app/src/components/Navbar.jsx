@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { auth } from '../firebase'; // Import Firebase auth
 import '../css/Navbar.css';
+import { FaHome, FaInfoCircle, FaUser, FaEnvelope, FaComments, FaCreditCard, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const handleLogout = async () => {
     try {
       await auth.signOut();
@@ -15,6 +18,10 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
     }
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -24,46 +31,50 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
         <ul className="navbar-menu">
           <li className="navbar-item">
             <NavLink exact to="/" activeClassName="active" className="navbar-link">
-              Home
+              <FaHome className="navbar-icon" /> Home
             </NavLink>
           </li>
           <li className="navbar-item">
             <NavLink to="/about-us" activeClassName="active" className="navbar-link">
-              About Us
+              <FaInfoCircle className="navbar-icon" /> About Us
             </NavLink>
-          </li>
-          <li className="navbar-item">
-            <NavLink to="/profile" activeClassName="active" className="navbar-link">
-              My Profile
-            </NavLink>
-          </li>
+          </li>     
           <li className="navbar-item">
             <NavLink to="/contact" activeClassName="active" className="navbar-link">
-              Contact
+              <FaEnvelope className="navbar-icon" /> Contact
             </NavLink>
           </li>
           <li className="navbar-item">
             <NavLink to="/chat" activeClassName="active" className="navbar-link">
-              Chat
+              <FaComments className="navbar-icon" /> Chat
             </NavLink>
           </li>
           <li className="navbar-item">
             <NavLink to="/payment" activeClassName="active" className="navbar-link">
-              Make Payment
+              <FaCreditCard className="navbar-icon" /> Payment
             </NavLink>
           </li>
         </ul>
         <div className="navbar-buttons">
           {user ? (
-            <>
-              <span className="navbar-welcome" style={{ color: 'white' }}>Welcome, {user.email}!</span>
-              <button
-                onClick={handleLogout}
-                className="navbar-button"
-              >
-                Logout
-              </button>
-            </>
+            <div className="profile-dropdown">
+              <div className="profile-trigger" onClick={toggleDropdown}>
+                <FaUserCircle className="profile-avatar" />
+                <span className="profile-username">{user.email}</span>
+              </div>
+              {isDropdownOpen && (
+                <div className="dropdown-menu">
+                  <Link to="/profile" className="dropdown-item">
+                    <FaUser className="dropdown-icon" />
+                    Profile
+                  </Link>
+                  <button onClick={handleLogout} className="dropdown-item">
+                    <FaSignOutAlt className="dropdown-icon" />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <button

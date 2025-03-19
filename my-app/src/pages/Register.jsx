@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import ShoppingBag from "../images/1f6cd.png";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "../images/Google logo.png";
+import { FaArrowLeft } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -98,6 +100,11 @@ function Register() {
 
       <div className="w-full max-w-lg bg-white p-16 mx-36 rounded-3xl shadow-lg">
         <div className="w-full">
+          <Link to="/login" className="flex items-center text-customBlue mb-6 hover:text-slate-700 transition-colors">
+            <FaArrowLeft className="mr-2" />
+            <span>Back to Login</span>
+          </Link>
+        
           <div className="space-y-3 mb-8">
             <h1 className="text-2xl font-semibold text-customBlue">
               GT Marketplace

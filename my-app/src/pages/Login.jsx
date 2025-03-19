@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "../images/Google logo.png";
 import ShoppingBag from "../images/1f6cd.png";
+import { FaUserSecret } from "react-icons/fa";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -66,6 +67,11 @@ function Login() {
       console.error("Error with Google sign-in:", error);
       setError(error.message);
     }
+  };
+
+  const handleGuestLogin = () => {
+    localStorage.setItem("userId", "guest");
+    navigate("/");
   };
 
   return (
@@ -168,6 +174,11 @@ function Login() {
           >
             <img className="w-5 h-5 mr-2" src={GoogleLogo} alt="" />
             Sign in with Google
+          </button>
+
+          <button onClick={handleGuestLogin} className="w-full flex items-center justify-center bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+            <FaUserSecret className="w-5 h-5 mr-2" />
+            Continue as Guest
           </button>
 
           <p className="text-sm text-center">
