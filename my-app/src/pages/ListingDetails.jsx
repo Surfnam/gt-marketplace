@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Heart } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 
 const getListing = async (id) => {
   try {
@@ -116,14 +118,9 @@ const ListingDetails = () => {
         {/* Right side of page */}
         <div className="md:basis-1/3 basis-1/2 max-h-[85vh] overflow-y-auto px-4 md:px-20 py-6 flex justify-center">
             <div className="flex flex-col gap-4 w-full max-w-[500px] self-center my-auto">
-                {/* Listing Title and Heart Button */}
+                {/* Listing Title */}
                 <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">{listingDetails.title}</h1>
-                {seller._id !== userId && (
-                    <button className="text-2xl text-gray-400 hover:text-red-500 transition">
-                    &#10084;
-                    </button>
-                )}
                 </div>
 
                 {/* Price */}
@@ -131,23 +128,35 @@ const ListingDetails = () => {
                 <strong>${listingDetails.price}</strong>
                 </p>
 
-                {/* Message Seller / Mark Inactive Button */}
-                <div>
-                {isSeller ? (
-                    <button
-                    onClick={handleMarkAsInactive}
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full mb-5"
-                    >
-                    {listingStatus === "available" ? "Mark as Inactive" : "Mark as Active"}
-                    </button>
-                ) : (
-                    <button
-                    onClick={handleSendMessageClick}
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full mb-5"
-                    >
-                    Message Seller
-                    </button>
-                )}
+                {/* Message Seller / Mark Inactive Button & Heart Button*/}
+                <div className="flex items-center gap-3 mb-5">
+                    {isSeller ? (
+                        <button
+                        onClick={handleMarkAsInactive}
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full"
+                        >
+                        {listingStatus === "available" ? "Mark as Inactive" : "Mark as Active"}
+                        </button>
+                    ) : (
+                        <>
+                        <button
+                            onClick={handleSendMessageClick}
+                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full flex items-center justify-center gap-2"
+                            >
+                            <MessageCircle className="w-5 h-5" />
+                            Message
+                        </button>
+                        <button
+                            className="p-2 rounded bg-gray-200 hover:bg-gray-300 transition group"
+                            aria-label="Add to Favorites"
+                            >
+                            <Heart
+                                className="w-5 h-5 text-gray-400 group-hover:text-red-500 group-hover:fill-red-500 transition-colors"
+                                fill="none"
+                            />
+                        </button>
+                        </>
+                    )}
                 </div>
 
                 {/* Condition */}
