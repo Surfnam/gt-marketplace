@@ -105,9 +105,9 @@ const ListingDetails = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row w-11/12 min-h-[85vh] md:h-[85vh] mx-auto mt-10 bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="flex flex-col mds:flex-row w-11/12 min-h-[85vh] mds:h-[85vh] mx-auto mt-10 bg-white shadow-md rounded-lg overflow-hidden">
         {/* Left Side of Page with Image */}
-        <div className="md:basis-2/3 basis-1/2 bg-gray-200 flex items-center justify-center px-4 py-6 md:h-full">
+        <div className="mds:basis-2/3 basis-1/2 bg-gray-200 flex items-center justify-center px-4 mds:px-10 py-6 mds:h-full">
         <img
             src={listingDetails.image}
             alt="Product"
@@ -116,7 +116,7 @@ const ListingDetails = () => {
         </div>
 
         {/* Right side of page */}
-        <div className="md:basis-1/3 basis-1/2 max-h-[85vh] overflow-y-auto px-4 md:px-20 py-6 flex justify-center">
+        <div className="mds:basis-1/3 basis-1/2 min-w-[350px] max-h-[85vh] overflow-y-auto px-4 mds:px-20 py-6 flex justify-center">
             <div className="flex flex-col gap-4 w-full max-w-[500px] self-center my-auto">
                 {/* Listing Title */}
                 <div className="flex justify-between items-center mb-4">
