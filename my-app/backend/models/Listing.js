@@ -39,6 +39,10 @@ const listingSchema = new mongoose.Schema({
         ref:'User',
         default:[]
     }],
+
+    embedding: {
+        type: [Number],
+    },
 }, {timestamps:true})
 
 // Static method to find by category
