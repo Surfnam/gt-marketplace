@@ -63,10 +63,12 @@ function Login() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google Sign-In successful:", result.user);
-      const res = await sendUserDataToMongoDB(result.user);
-      const data = await res.json()
+      const data = await sendUserDataToMongoDB(result.user);
       console.log('RES DATA FROM MONGO', data);
-      localStorage.setItem("userId", data[0]._id);
+      if (!data || !data.user || !data.user[0]) {
+        throw new Error('Invalid user data received from server');
+      }
+      localStorage.setItem("userId", data.user[0]._id);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error with Google sign-in:", error);
