@@ -17,15 +17,18 @@ function Login() {
   const navigate = useNavigate();
   const sendUserDataToMongoDB = async (user) => {
     try {
-      
       const response = await fetch(
         `http://localhost:3001/api/users/profile/${user.email}`
-       
       );
-      console.log("successfully fetched user data from mongo", response.data);
-      return response;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("successfully fetched user data from mongo", data);
+      return data;
     } catch (error) {
       console.error("Error sending user data to MongoDB:", error);
+      throw error;
     }
   };
   const handleLogin = async (e) => {
@@ -37,14 +40,16 @@ function Login() {
         email,
         password
       );
-      const res = await sendUserDataToMongoDB(userCredential.user);
-      const data = await res.json()
-      console.log('user data from mongo', data)
+      const data = await sendUserDataToMongoDB(userCredential.user);
+      console.log('user data from mongo', data);
+      if (!data || !data.user || !data.user[0]) {
+        throw new Error('Invalid user data received from server');
+      }
       console.log("this is data[0]: ", data.user[0].uid);
       console.log("this is data[0]: ", data.user[0]._id);
       console.log("Login successful:", userCredential.user);
       localStorage.setItem("userId", data.user[0]._id);
-      console.log(localStorage.getItem("userId" ));
+      console.log(localStorage.getItem("userId"));
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error logging in:", error);
