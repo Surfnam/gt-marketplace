@@ -30,7 +30,7 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
         </Link>
         <ul className="navbar-menu">
           <li className="navbar-item">
-            <NavLink exact to="/" activeClassName="active" className="navbar-link">
+            <NavLink to="/" activeClassName="active" className="navbar-link">
               <FaHome className="navbar-icon" /> Home
             </NavLink>
           </li>

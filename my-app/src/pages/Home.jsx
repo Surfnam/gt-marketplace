@@ -10,8 +10,8 @@ const getAllListings = async () => {
   try {
     const response = await fetch("http://localhost:3001/listing/active");
     const data = await response.json();
-    console.log('Listings fetched successfully:', data.data);
-    return data.data;
+    console.log('Listings fetched successfully:', data.listings);
+    return data.listings;
   } catch (error) {
     console.error('Error fetching listings:', error);
     return [];
