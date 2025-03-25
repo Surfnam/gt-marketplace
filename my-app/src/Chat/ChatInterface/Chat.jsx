@@ -175,7 +175,6 @@ const Chat = ({user}) => {
         const newRoomId = getRoomId(user, otherUser);
         setRoomId(newRoomId);
         const messages = await fetchMessages(newRoomId);
-        console.log(messages);
 
         // Identify unread messages
         const unreadMessages = messages.filter(msg => !msg.read && msg.author !== user);
@@ -226,9 +225,6 @@ const Chat = ({user}) => {
             date: new Date(),
             read: true
         };
-        console.log(userDetails);
-
-        console.log(messageData);
 
         if (curFile) {
             messageData.file = {
