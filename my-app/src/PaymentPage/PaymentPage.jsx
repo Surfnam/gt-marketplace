@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
-import '../css/PaymentPage.css';
+import './PaymentPage.css';
 
 const stripePromise = loadStripe('sk_test_51Pam32EidpAFYbKdUEoME5Me4QvRpEZPeduGtwLlrlG531wQatIFtbvSwNMPoEi8YigTsv2gLwAq0KP02AJYcu2F00Oi9OZR7u'); // Replace with your Stripe publishable key
 

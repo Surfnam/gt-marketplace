@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // Chat Component Files
-import NewDayLine from './NewDayLine';
-import UnreadMessageLine from './UnreadMessageLine';
-import Message from './Message';
+import NewDayLine from '../ChatComponents/NewDayLine.jsx';
+import UnreadMessageLine from '../ChatComponents/UnreadMessageLine.jsx';
+import Message from './Message.jsx';
 import './MessageList.css';
 
 const MessageList = ({ chatHistory, roomId, user, firstUnreadMessage, clearUnread, curOtherUser }) => {

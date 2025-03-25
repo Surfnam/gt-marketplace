@@ -6,11 +6,9 @@ const ChatSidebar = ({ joinRoom, otherUsers, curOtherUser, notifications }) => {
     // Filtering user checking
     const [searchTerm, setSearchTerm] = useState("");
     const filteredUsers = otherUsers.filter((user) =>
-        user.username.toLowerCase().includes(searchTerm.toLowerCase())
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        (user.lastMessage && user.lastMessage.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-
-    // Replace with actual last message
-    const lastMessageText = "Last message from user will go here";
 
     return (
         <div className="chat-sidebar">
@@ -43,7 +41,7 @@ const ChatSidebar = ({ joinRoom, otherUsers, curOtherUser, notifications }) => {
                                 {otherUser.username.length > 17 ? otherUser.username.substring(0, 17) + "..." : otherUser.username}
                             </span>
                             <span className={`message ${notifications[otherUser.email]?.count > 0 ? 'notif' : ''}`}>
-                                {lastMessageText.length > 25 ? lastMessageText.substring(0, 25) + "..." : lastMessageText}
+                                {otherUser.lastMessage.length > 25 ? otherUser.lastMessage.substring(0, 25) + "..." : otherUser.lastMessage}
                             </span>
                         </div>
                         {notifications[otherUser.email]?.count > 0 && 

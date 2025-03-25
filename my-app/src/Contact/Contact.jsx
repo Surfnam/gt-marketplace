@@ -1,6 +1,6 @@
 import React from 'react';
 import Swal from 'sweetalert2';
-import '../css/Contact.css';
+import './Contact.css';
 
 export default function Contact() {
   const [result, setResult] = React.useState("");

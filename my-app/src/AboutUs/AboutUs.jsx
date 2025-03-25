@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../css/AboutUs.css'; 
+import './AboutUs.css'; 
 import teamMember1 from '../images/aryan.jpg';
 import teamMember2 from '../images/fevin.jpg';
 import teamMember3 from '../images/kevin_ma.jpg';

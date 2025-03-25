@@ -53,7 +53,6 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
         }
     };
     const renderMessageFile = (file) => {
-        console.log(file);
         const fileExtension = file.name.split('.').pop().toLowerCase();
         if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
             // Render image
@@ -97,7 +96,7 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
         >
             {(isFirstMessage || lastAuthor !== message.author || timeDifference > 10 * 60 * 1000) && (
                 <div className="message-meta">
-                    <p className="author">{message.author}</p>
+                    <p className="author">{message.username}</p>
                     <p className="date">{getFullDate(message.date)}</p>
                 </div>
             )}
