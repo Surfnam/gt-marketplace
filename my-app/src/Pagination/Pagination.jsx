@@ -43,7 +43,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
               key={page}
               style={{ width: `${buttonWidth}px` }}
               className={`flex-shrink-0 px-4 py-2 rounded-md transition ${
-                currentPage === page ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                currentPage === page ? "bg-blue-400 text-white" : "hover:bg-gray-200"
               }`}
               onClick={() => onPageChange(page)}
             >

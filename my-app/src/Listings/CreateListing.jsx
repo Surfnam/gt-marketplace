@@ -221,7 +221,19 @@ function CreateListing() {
               accept="image/*"
               className="mt-1 block w-full"
             />
+            
+            {/* Image Preview (Right Side) */}
+            {currentImage && (
+              <div className="flex justify-center">
+                <img
+                    src={currentImage}
+                    alt="Selected Listing"
+                    className="max-w-full max-h-48 h-auto object-contain rounded"
+                />
+              </div>
+            )}
           </div>
+          
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
