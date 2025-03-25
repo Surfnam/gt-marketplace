@@ -11,7 +11,6 @@ import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/message.js';
 import fileUpload from './routes/fileUpload.js'; 
 import bodyParser from 'body-parser';
-import stripePackage from 'stripe';
 
 const app = express();
 dotenv.config({ override: true });
@@ -43,15 +42,13 @@ app.use(session({
         secure: false, // true : cookie transmits only over https
         saneSite: 'none',
     },
-    //store: new MongoStore({mongooseConnection: mongoose.connection})
 }))
 
 app.use('/testAPI', testRoutes);
 app.use('/listing', listingRoutes);
-app.use('/api/users', userRoutes); // Use the new user routes
-app.use('/api/message', messageRoutes); // Use the new message routes
+app.use('/api/users', userRoutes);
+app.use('/api/message', messageRoutes);
 app.use('/api/fileUpload', fileUpload);
-// app.use('/file', fileUpload);
 
 
 // Creating the server (http) const
