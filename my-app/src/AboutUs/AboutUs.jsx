@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import './AboutUs.css'; 
-import teamMember1 from '../images/aryan.jpg';
-import teamMember2 from '../images/fevin.jpg';
-import teamMember3 from '../images/kevin_ma.jpg';
-import teamMember4 from '../images/viraj.jpg';
-import teamMember5 from '../images/kevin_zhang.jpg';
-import teamMember6 from '../images/daniel_lee.jpg';
-import teamMember7 from '../images/adwaith.jpg';
-import teamMember8 from '../images/andi.jpg';
-import teamMember9 from '../images/glenda.jpg';
-import teamMember10 from '../images/terry.jpg';
+import teamMember1 from '../assets/images/aryan.jpg';
+import teamMember2 from '../assets/images/fevin.jpg';
+import teamMember3 from '../assets/images/kevin_ma.jpg';
+import teamMember4 from '../assets/images/viraj.jpg';
+import teamMember5 from '../assets/images/kevin_zhang.jpg';
+import teamMember6 from '../assets/images/daniel_lee.jpg';
+import teamMember7 from '../assets/images/adwaith.jpg';
+import teamMember8 from '../assets/images/andi.jpg';
+import teamMember9 from '../assets/images/glenda.jpg';
+import teamMember10 from '../assets/images/terry.jpg';
 
 const teamMembers = [
   { name: 'Aryan Roy', position: 'Project Manager', img: teamMember1, description: 'Placeholder description for Aryan.' },

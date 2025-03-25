@@ -55,7 +55,7 @@ const Chat = ({user}) => {
         const userId = localStorage.getItem('userId');
         if (!userId) {
             alert('Please login to chat');
-            return
+            return;
         }
 
         try {
@@ -78,7 +78,7 @@ const Chat = ({user}) => {
             const newNotifications = {};
 
             await Promise.all(contacts.map(async (otherUser) => {
-                const room = getRoomId(user, otherUser.userId);
+                const room = getRoomId(user.email, otherUser.email);
                 const messages = await fetchMessages(room);
 
                 // Calculating unread messages
@@ -172,10 +172,10 @@ const Chat = ({user}) => {
 
     const joinRoom = async (otherUser) => {
         setCurOtherUser(otherUser);
-        const newRoomId = getRoomId(user, otherUser.userId);
+        const newRoomId = getRoomId(user, otherUser);
         setRoomId(newRoomId);
-
         const messages = await fetchMessages(newRoomId);
+        console.log(messages);
 
         // Identify unread messages
         const unreadMessages = messages.filter(msg => !msg.read && msg.author !== user);
@@ -217,7 +217,7 @@ const Chat = ({user}) => {
         if ((curMessage === "" && !curFile) || roomId === "") {
             return;
         }
-    
+
         const messageData = {
             roomId: roomId,
             author: userDetails.email,
@@ -226,6 +226,9 @@ const Chat = ({user}) => {
             date: new Date(),
             read: true
         };
+        console.log(userDetails);
+
+        console.log(messageData);
 
         if (curFile) {
             messageData.file = {
@@ -263,10 +266,16 @@ const Chat = ({user}) => {
                 notifications={notifications}
             />
             <div className="chat-main">
-                <h2>
-                    {curOtherUser ? (otherUsers.find(user => user.email === curOtherUser)?.username 
-                    || curOtherUser) : `Welcome, ${userDetails.username}`}
-                </h2>
+                <div className="chat-header">
+                    {curOtherUser? <img
+                        src={otherUsers.find(user => user.email === curOtherUser)?.profilePicture} 
+                        alt={curOtherUser ? otherUsers.find(user => user.email === curOtherUser)?.username : 'User'}
+                    /> : null}
+                    <h2>
+                        {curOtherUser ? (otherUsers.find(user => user.email === curOtherUser)?.username 
+                        || curOtherUser) : `Welcome, ${userDetails.username}`}
+                    </h2>
+                </div>
                 <MessageList
                     chatHistory={chatHistory}
                     roomId={roomId}

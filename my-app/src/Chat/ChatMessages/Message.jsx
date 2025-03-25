@@ -52,6 +52,7 @@ const Message = ({ user, isFirstMessage, lastAuthor, message, currentMessageDate
             console.error('Download failed:', error);
         }
     };
+    
     const renderMessageFile = (file) => {
         const fileExtension = file.name.split('.').pop().toLowerCase();
         if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {

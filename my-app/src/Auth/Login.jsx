@@ -4,8 +4,8 @@ import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import GoogleLogo from "../images/Google logo.png";
-import ShoppingBag from "../images/1f6cd.png";
+import GoogleLogo from "../assets/images/Google logo.png";
+import ShoppingBag from "../assets/images/1f6cd.png";
 
 function Login() {
   const [email, setEmail] = useState("");

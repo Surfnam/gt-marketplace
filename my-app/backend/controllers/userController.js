@@ -179,9 +179,6 @@ export const addContact = async (req, res) => {
         
         const user1 = await User.findById(user1Id);
         const user2 = await User.findById(user2Id);
-        console.log('user1: ' + user1.fullName);
-        console.log('user2: ' + user2.fullName);
-        console.log('contacts: ' + user1.contacts);
         return res.status(200).json({ message: "Contact added successfully" });
     } catch (error) {
         console.log(error);

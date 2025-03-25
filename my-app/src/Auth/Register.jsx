@@ -5,9 +5,9 @@ import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import ShoppingBag from "../images/1f6cd.png";
+import ShoppingBag from "../assets/images/1f6cd.png";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import GoogleLogo from "../images/Google logo.png";
+import GoogleLogo from "../assets/images/Google logo.png";
 
 function Register() {
   const [email, setEmail] = useState("");

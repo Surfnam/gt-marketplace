@@ -5,6 +5,8 @@ import "./Home.css";
 import { Heart } from "lucide-react";
 import Icons from "../assets/icons";
 import Pagination from "../Pagination/Pagination";
+import { IoIosSearch } from "react-icons/io";
+import debounce from "lodash.debounce";
 
 const fetchListings = async (page, category, min, max, search) => {
   try {
@@ -66,8 +68,9 @@ function Home() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  console.log(listings);
-  console.log(selectedCategory);
+  const debouncedSearchTerm = debounce((term) => {
+    setSearchTerm(term);
+  }, 200);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,6 +82,11 @@ function Home() {
     fetchData();
 
   }, [page, selectedCategory, minPrice, maxPrice, searchTerm]);
+
+  const filteredListings = listings.filter(listing => 
+    listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    listing.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const navigateToListingDetails = async (id) => {
     try {
@@ -139,10 +147,6 @@ function Home() {
             listingId: listing._id,
         }),
       });
-  
-      console.log(
-        `Successfully ${isFavorited ? "removed" : "added"} listing ${listing._id}`
-      );
     } catch (error) {
       console.error("Error updating favorite:", error);
     }
@@ -155,10 +159,6 @@ function Home() {
     setSelectedCategory(category);
     setPage(1);
   };
-
-  const handleSearchTermSelect = () => {
-    setSearchTerm(tempSearchTerm)
-  }
   
   const handlePriceFilterSelect = () => {
     setMinPrice(tempMinPrice);
@@ -167,33 +167,31 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex">
-        <aside className="w-64 mr-8 flex flex-col">
-          <label className="font-semibold mb-2">Search</label>
-          <div className="mb-4">
-            <input
-              placeholder="Search listings..."
-              className="border border-gray-300 rounded-md p-2 w-full"
-              value={tempSearchTerm}
-              onChange={e => setTempSearchTerm(e.target.value)}
+    <div className="home">
+      <div className="home-content">
+        <aside className="sidebar">
+          <div className="listing-search">
+            <IoIosSearch className="icon" />
+            <input 
+                type="text" 
+                placeholder="Search Listings" 
+                value={tempSearchTerm}
+                onChange={e => {
+                  setTempSearchTerm(e.target.value)
+                  debouncedSearchTerm(e.target.value)
+                }}
             />
-            <button
-              onClick={handleSearchTermSelect}
-              className="mt-2 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
-            >
-              Apply
-            </button>
           </div>
-          <div className="mt-4">
-            <h3 className="font-semibold mb-2">Categories</h3>
-            <ul className="space-y-2">
+          <div className="category-box">
+            <h1 className="category-title">Categories</h1>
+            <hr  className="break-line" />
+            <ul className="category-item">
               {categories.map(
                 (category) => (
                   <li key={category}>
                     <button
                       className={
-                       `w-full flex items-center text-left py-1 px-2 rounded
+                       `category-button
                         ${
                           selectedCategory === category 
                             ? 'bg-gray-200'  // Highlight if selected
@@ -206,7 +204,7 @@ function Home() {
                       <img
                         src={Icons[category]}
                         alt={`${category} icon`}
-                        className="w-6 h-6 mr-4"
+                        className="category-icon"
                       />
                     )}
                       {category}
@@ -216,10 +214,10 @@ function Home() {
               )}
             </ul>
           </div>
-
-          <div className="mt-6">
-            <h3 className="font-semibold mb-2">Price Range</h3>
-            <div className="flex items-center gap-2">
+          <div className="price-box">
+            <h1 className="price-title">Price Range</h1>
+            <hr  className="break-line" />
+            <div className="price-content">
               <input
                 type="number"
                 min="0"
@@ -227,9 +225,8 @@ function Home() {
                 value={tempMinPrice}
                 onChange={(e) => setTempMinPrice(e.target.value)}
                 placeholder="Min"
-                className="w-1/2 border border-gray-300 rounded-md p-2 text-sm"
               />
-              <span className="text-gray-600">-</span>
+              <span className="middle-span">-</span>
               <input
                 type="number"
                 min="0"
@@ -237,11 +234,10 @@ function Home() {
                 value={tempMaxPrice}
                 onChange={(e) => setTempMaxPrice(e.target.value)}
                 placeholder="Max"
-                className="w-1/2 border border-gray-300 rounded-md p-2 text-sm"
               />
             </div>
             <button
-              className="mt-4 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
+              className="apply-button"
               onClick={() => {
                 handlePriceFilterSelect();
               }}
@@ -250,39 +246,37 @@ function Home() {
             </button>
           </div>
         </aside>
-        <main className="flex-1">
-          <div className="flex justify-between items-center mt-4 mb-4">
-            <h1 className="text-2xl font-bold">Active Listings</h1>
+        <main className="listing-page">
+          <div className="listing-header">
+            <h1 className="listing-title">{selectedCategory} Listings</h1>
             <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
+              className="create-listing-button"
               onClick={() => navigate("/createlisting")}
             >
               Create Listing
             </button>
           </div>
-          
-          <div style={{ minHeight: '900px' }}>
-          {/*Listings Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map((listing) => (
+          <div>
+          <div className="listings">
+            {filteredListings.map((listing) => (
               <div
                 key={listing._id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
+                className="listing-box"
               >
                 <img
                   src={listing.image}
                   alt={listing.title}
-                  className="w-full h-48 object-cover"
+                  className="listing-image"
                 />
-                <div className="p-4">
-                  <div className="w-full flex">
-                    <div className="w-[80%]">
-                      <h2 className="text-lg font-semibold">{listing.title}</h2>
-                      <p className="text-gray-600 mb-4">${listing.price}</p>
+                <div className="listing-description-box">
+                  <div className="listing-description-content">
+                    <div className="listing-text">
+                      <h2 className="listing-description-title">{listing.title}</h2>
+                      <p className="listing-description-price">${listing.price}</p>
                     </div>
-                    <div className="w-[20%]">
+                    <div className="heart-icon">
                       {listing.seller === localStorage.getItem("userId") ? (
-                        <span className="inline-block px-2 bg-green-100 text-green-800 text-xs font-bold rounded">
+                        <span className="my-listing">
                         My Listing
                         </span>
                       ) : (
@@ -305,7 +299,7 @@ function Home() {
                   </div>
                   <button
                     onClick={() => navigateToListingDetails(listing._id)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full"
+                    className="view-listing-button"
                   >
                     View Details
                   </button>
