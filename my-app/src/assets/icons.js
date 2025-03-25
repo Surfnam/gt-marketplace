@@ -1,5 +1,5 @@
 const Icons = {
-    "Electronics": "/icons/electronics_icon.svg",
+    "Electronics": "icons/electronics_icon.svg",
     "Furniture": "icons/furniture_icon.png",
     "Clothing": "icons/clothing_icon.png",
     "Vehicles": "icons/vehicles_icon.svg",

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import { Heart } from "lucide-react";
-import Icons from "../images/icons";
+import Icons from "../assets/icons";
 import Pagination from "../Pagination/Pagination";
 
 const fetchListings = async (page, category, min, max, search) => {
