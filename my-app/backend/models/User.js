@@ -34,16 +34,10 @@ const userSchema = new mongoose.Schema({
         ref:'Listing',
         default:[]
     }],
-    inactiveListings:  [{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'Listing',
-        default:[]
-    }],
     contacts: [{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'User',
-        default:[]
-    }]
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        lastMessage: { type: String, default: '' }
+    }],
     /*
     pastTransactions: {
         //define a trasaction schema?

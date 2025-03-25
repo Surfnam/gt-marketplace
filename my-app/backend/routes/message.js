@@ -21,6 +21,7 @@ router.post('/read', async (req, res) => {
     const { roomId } = req.body;
     try {
         const messages = await Message.find({ roomId });
+        console.log(messages);
         const updatedMessages = await Promise.all(messages.map(async (message) => {
             message.read = true;
             return message.save();

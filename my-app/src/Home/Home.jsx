@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import "../css/App.css";
+import "./Home.css";
 import { Heart } from "lucide-react";
 import Icons from "../images/icons";
-import Pagination from "../components/Pagination";
+import Pagination from "../Pagination/Pagination";
 
 const fetchListings = async (page, category, min, max, search) => {
   try {

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Heart } from "lucide-react";
 import { MessageCircle } from "lucide-react";
+import './ViewListing.css';
 
 const getListing = async (id) => {
   try {

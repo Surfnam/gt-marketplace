@@ -1,6 +1,6 @@
 // Register.js
 import React, { useState } from "react";
-import "../css/Auth.css";
+import "./Auth.css";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import axios from "axios";

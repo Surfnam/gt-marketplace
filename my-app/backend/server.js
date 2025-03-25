@@ -17,8 +17,8 @@ const app = express();
 dotenv.config({ override: true });
 
 const corsOptions = {
-    origin: 'http://localhost:3000', // Allow your frontend origin
-    credentials: true, // Allow cookies to be sent with the request
+    origin: 'http://localhost:3000', 
+    credentials: true,
 };
 
 // const stripe = stripePackage(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key from .env

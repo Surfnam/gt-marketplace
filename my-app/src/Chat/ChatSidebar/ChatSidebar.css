@@ -2,10 +2,8 @@
     width: 30%;
     background-color: #FFFFFF;
     color: #313131;
-    padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-    margin-right: 30px;
     box-shadow: none;
   }
 
@@ -14,15 +12,16 @@
   }
 
   .chat-sidebar::-webkit-scrollbar-track {
-    background: #ededed;
+    background: #C2BCBC;
   }
 
   .chat-sidebar::-webkit-scrollbar-thumb {
-    background: #d3d3d3;
+    background: #7e7e7e;
+    border-radius: 30px;
   }
 
   .chat-sidebar::-webkit-scrollbar-thumb:hover {
-    background: #acacac;
+    background: #696969;
   }
   
   .chat-sidebar h2 {

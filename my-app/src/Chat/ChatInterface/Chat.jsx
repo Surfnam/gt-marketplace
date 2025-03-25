@@ -4,14 +4,14 @@ import axios from 'axios';
 import io from "socket.io-client";
 
 // Chat Component Files
-import ChatInput from './ChatInput';
-import ChatSidebar from './ChatSidebar';
-import MessageList from './MessageList';
+import ChatInput from '../ChatInput/ChatInput.jsx';
+import ChatSidebar from '../ChatSidebar/ChatSidebar.jsx';
+import MessageList from '../ChatMessages/MessageList.jsx';
 import './Chat.css';
 
 // Services
-import {uploadFile} from '../services/fileUpload';
-import {postMessage} from '../services/message';
+import {uploadFile} from '../../services/fileUpload.js';
+import {postMessage} from '../../services/message.js';
 
 
 const socket = io.connect(`http://localhost:3001/`);
@@ -31,6 +31,25 @@ const Chat = ({user}) => {
     const [notifications, setNotifications] = useState({});
     const [firstUnreadMessage, setFirstUnreadMessage] = useState(null);
     const [clearUnread, setClearUnread] = useState(null);
+    const [userDetails, setUserDetails] = useState({ email: "", username: "" });
+    
+    const fetchUserDetails = async () => {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
+        
+        try {
+            const res = await axios.get(`http://localhost:3001/api/users/${userId}`);
+            const userData = res.data;
+            setUserDetails({ email: userData.email, username: userData.username });
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+        }
+    };
+    
+    // Run this when the component mounts
+    useEffect(() => {
+        fetchUserDetails();
+    }, []);
 
     const fetchContacts = async () => {
         const userId = localStorage.getItem('userId');
@@ -38,25 +57,33 @@ const Chat = ({user}) => {
             alert('Please login to chat');
             return
         }
+
         try {
             const res = await axios.get(`http://localhost:3001/api/users/${userId}`);
             const user  = res.data;
-            const contacts = user.contacts.map(({ email, username, profilePicture }) => ({
-                email,
-                username,
-                profilePicture
+            const contacts = await Promise.all(
+            user.contacts.map(async (contact) => {
+                const contactUser = await axios.get(`http://localhost:3001/api/users/${contact.user}`);
+                return {
+                    email: contactUser.data.email,
+                    username: contactUser.data.username,
+                    profilePicture: contactUser.data.profilePicture,
+                    lastMessage: contact.lastMessage,
+                    userId: contact.user
+                };
             }));
+
             setOtherUsers(contacts);
             
             const newNotifications = {};
 
             await Promise.all(contacts.map(async (otherUser) => {
-                const room = getRoomId(user, otherUser);
+                const room = getRoomId(user, otherUser.userId);
                 const messages = await fetchMessages(room);
 
                 // Calculating unread messages
                 const unreadCount = messages.filter(message => !message.read).length;
-                newNotifications[otherUser] = { count: unreadCount };
+                newNotifications[otherUser.userId] = { count: unreadCount };
 
                 if (messages.length > 0) {
                     const latestMessage = messages[messages.length - 1];
@@ -103,13 +130,6 @@ const Chat = ({user}) => {
     }
     
     useEffect(() => {
-        if (newContactEmail) {
-            console.log(`Detected new contact in URL: ${newContactEmail}`);
-            joinRoom(newContactEmail);
-        }
-    }, [newContactEmail]);
-     
-    useEffect(() => {
         socket.on("receive_message", (data) => {
             const formattedData = { ...data, date: new Date(data.date) }
             
@@ -152,7 +172,7 @@ const Chat = ({user}) => {
 
     const joinRoom = async (otherUser) => {
         setCurOtherUser(otherUser);
-        const newRoomId = getRoomId(user, otherUser);
+        const newRoomId = getRoomId(user, otherUser.userId);
         setRoomId(newRoomId);
 
         const messages = await fetchMessages(newRoomId);
@@ -169,7 +189,7 @@ const Chat = ({user}) => {
         }
 
         // Marks all messages to read when joining a room
-        await markMessagesAsRead(newRoomId, otherUser);
+        await markMessagesAsRead(newRoomId, otherUser.userId);
 
         // Resets notifications
         setChatHistory(prev => ({
@@ -179,7 +199,7 @@ const Chat = ({user}) => {
 
         setNotifications(prev => ({
             ...prev,
-            [otherUser]: { count: 0 }
+            [otherUser.userId]: { count: 0 }
         }))
 
         socket.emit("join_room", newRoomId);
@@ -200,7 +220,8 @@ const Chat = ({user}) => {
     
         const messageData = {
             roomId: roomId,
-            author: user,
+            author: userDetails.email,
+            username: userDetails.username,
             content: curMessage,
             date: new Date(),
             read: true
@@ -212,13 +233,23 @@ const Chat = ({user}) => {
                 url: await uploadFile(curFile)
             }
         }
-        
+
         socket.emit("send_message", messageData);
         
         updateLatestMessages(messageData);
         setCurMessage("");
         setCurFile(null);
         await postMessage(messageData);
+
+        try {
+            await axios.post("http://localhost:3001/api/users/updateLastMessage", {
+                user1Email: user,
+                user2Email: curOtherUser,
+                messageContent: messageData.content
+            });
+        } catch (error) {
+            console.error("Error updating last message:", error);
+        }
     };
 
     if (!user) return <h1>Please login</h1>;
@@ -232,7 +263,10 @@ const Chat = ({user}) => {
                 notifications={notifications}
             />
             <div className="chat-main">
-                <h2>{curOtherUser ? curOtherUser : `Welcome, ${user}`}</h2>
+                <h2>
+                    {curOtherUser ? (otherUsers.find(user => user.email === curOtherUser)?.username 
+                    || curOtherUser) : `Welcome, ${userDetails.username}`}
+                </h2>
                 <MessageList
                     chatHistory={chatHistory}
                     roomId={roomId}

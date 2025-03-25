@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import {useNavigate} from "react-router-dom";
 import axios from 'axios';
-import MiniPagination from "../components/MiniPagination";
+import MiniPagination from "../Pagination/MiniPagination";
+import './UserProfile.css';
 
 function UserProfile({ userProp }) {
   const [editMode, seteditMode] = useState(false);
