@@ -11,14 +11,13 @@ import initializeSocket  from './socket-backend.js';
 import messageRoutes from './routes/message.js';
 import fileUpload from './routes/fileUpload.js'; 
 import bodyParser from 'body-parser';
-import stripePackage from 'stripe';
 
 const app = express();
 dotenv.config({ override: true });
 
 const corsOptions = {
-    origin: 'http://localhost:3000', // Allow your frontend origin
-    credentials: true, // Allow cookies to be sent with the request
+    origin: 'http://localhost:3000', 
+    credentials: true,
 };
 
 // const stripe = stripePackage(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key from .env
@@ -43,15 +42,13 @@ app.use(session({
         secure: false, // true : cookie transmits only over https
         saneSite: 'none',
     },
-    //store: new MongoStore({mongooseConnection: mongoose.connection})
 }))
 
 app.use('/testAPI', testRoutes);
 app.use('/listing', listingRoutes);
-app.use('/api/users', userRoutes); // Use the new user routes
-app.use('/api/message', messageRoutes); // Use the new message routes
+app.use('/api/users', userRoutes);
+app.use('/api/message', messageRoutes);
 app.use('/api/fileUpload', fileUpload);
-// app.use('/file', fileUpload);
 
 
 // Creating the server (http) const
