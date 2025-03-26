@@ -21,6 +21,7 @@ import UserProfile from "./pages/UserProfile";
 import CreateListing from "./pages/CreateListing";
 import PaymentPage from './pages/PaymentPage';
 import EditListing from "./pages/EditListing";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -85,6 +86,7 @@ function Main() {
         <Route path="/edit-listing/:id" element={<EditListing />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/listing/:id" element={<ListingDetails />}></Route>
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </>
   );

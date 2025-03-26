@@ -161,19 +161,34 @@ export const getActiveListings = async (req, res) => {
 };
 
 export const updateListing = async (req, res) => {
+    // let updates, action, userId,filteredUpdates = {};
     try {
         const listingId = req.params.id; 
-        const updates = req.body;     // Fields to update are sent in req.body
+        const {updates, action, userId} = req.body;
+        let updateQuery = {}
+        if (action) {
+            // updates = {}
+            if (action === 'add') {
+                updateQuery = {$addToSet: {interestedUsers: userId }};
+            } else if (action === 'remove') {
+                updateQuery = {$pull: {interestedUsers: userId }};
+            }
+        }// Fields to update are sent in req.body
 
-        // Remove any fields that are undefined (not provided in the request)
-        const filteredUpdates = Object.fromEntries(
-            Object.entries(updates).filter(([_, value]) => value !== undefined)
-        );
-
+        else if (updates && Object.keys(updates).length > 0 ) {
+            // Remove any fields that are undefined (not provided in the request)
+            const filteredUpdates = Object.fromEntries(
+                Object.entries(updates).filter(([_, value]) => value !== undefined)
+            );
+            updateQuery = { $set: filteredUpdates}
+        } else {
+            return res.status(400).json({ message: "No valid updates provided" });
+        }
+        
         // Use findByIdAndUpdate with $set to update only specified fields
         const updatedListing = await Listing.findByIdAndUpdate(
             listingId,
-            { $set: filteredUpdates },
+            updateQuery,
             { new: true }  // Option to return the updated document
         );
 
@@ -182,9 +197,10 @@ export const updateListing = async (req, res) => {
         }
 
         res.status(200).json({ listing: updatedListing });
+        console.log('updatequery', updateQuery);
     } 
     catch (error) {
-        res.status(500).json({ message: 'Failed to update listing', error });
+        res.status(500).json({ message: 'Failed to update listing', error , action, userId,filteredUpdates});
     }
 };
 

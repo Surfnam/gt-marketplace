@@ -4,21 +4,40 @@ import Listing from "../models/Listing.js"
 import { MAX_USER_LISTINGS_PER_PAGE } from "../config/config.js";
 
 export const updateUser = async (req, res) => {
+    //  let action, listingId, filteredUpdates = {};
     try {
-      const userId = req.params.id; 
-      const updates = req.body; 
-      
-      // Remove any fields that are undefined (not provided in the request)
-      const filteredUpdates = Object.fromEntries(
-        Object.entries(updates).filter(([_, value]) => value !== undefined)
-      );
+      const userId = req.params.id
+      const {updates,action,listingId } = req.body; 
+      console.log('updates', updates)
+      console.log('action', action)
+      console.log('listingId', listingId)
 
-      console.log('filteredUpdates', filteredUpdates)
+      let updateQuery = {}
+      if (action && listingId) {
+        console.log('action', action)
+        console.log('listingId', listingId)
+        if (action === "add") {
+          updateQuery = { $addToSet: { interestedListings: listingId } }
+        } else if (action === "remove") {
+          updateQuery = { $pull: { interestedListings: listingId } }
+        }
+        console.log('updateQuery', updateQuery)
+      } else if (updates && Object.keys(updates).length > 0) {
+         // Remove any fields that are undefined (not provided in the request)
+        const filteredUpdates = Object.fromEntries(
+            Object.entries(updates).filter(([_, value]) => value !== undefined)
+          );
+        updateQuery = { $set: filteredUpdates}
+      } else {
+        return res.status(400).json({ message: "No valid updates provided" });
+    }
+
+    //   console.log('filteredUpdates', filteredUpdates)
   
       // Use findByIdAndUpdate with $set to update only specified fields
       const updatedUser = await User.findByIdAndUpdate(
         userId,
-        { $set: filteredUpdates },
+        updateQuery,
         { new: true }  // Option to return the updated document
       );
   
@@ -27,8 +46,9 @@ export const updateUser = async (req, res) => {
       }
   
       res.status(200).json({ user: updatedUser });
+      console.log('updatequery', updateQuery);
     } catch (error) {
-      res.status(500).json({ message: 'Failed to update user profile', error });
+      res.status(500).json({ message: 'Failed to update user profile', error, });
     }
 };
 

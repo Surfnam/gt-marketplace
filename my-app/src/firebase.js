@@ -3,13 +3,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyANsfiNvE3nONEvXQig-_sEjUYUAq6QOXY",
-  authDomain: "gt-marketplace.firebaseapp.com",
-  projectId: "gt-marketplace",
-  storageBucket: "gt-marketplace.appspot.com",
-  messagingSenderId: "1094493222641",
-  appId: "1:1094493222641:web:79bb15d55d4db9d7575b50",
-  measurementId: "G-1M27YDGH1T"
+  apiKey: process.env.REACT_APP_FBAPIKEY,
+  authDomain: process.env.REACT_APP_FBAUTHDOMAIN,
+  projectId: process.env.REACT_APP_FBPROJECT_ID,
+  storageBucket: process.env.REACT_APP_FBSTORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FBMESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FBAPP_ID ,
+  measurementId: process.env.REACT_APP_FBMEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
