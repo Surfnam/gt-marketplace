@@ -271,8 +271,10 @@ function Home() {
                 <div className="listing-description-box">
                   <div className="listing-description-content">
                     <div className="listing-text">
-                      <h2 className="listing-description-title">{listing.title}</h2>
-                      <p className="listing-description-price">${listing.price}</p>
+                    <h2 className="listing-description-title">
+                      {listing.title.length > 18 ? `${listing.title.slice(0, 18)}..` : listing.title}
+                    </h2>
+                    <p className="listing-description-price">${listing.price}</p>
                     </div>
                     <div className="heart-icon">
                       {listing.seller === localStorage.getItem("userId") ? (
