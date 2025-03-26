@@ -119,30 +119,17 @@ function Home() {
     localStorage.setItem("favorites", JSON.stringify(newFavorites));
     return newFavorites;
     });
-
     try {
       //Update the listing's interestedUsers array
       await fetch(`http://localhost:3001/listing/${listing._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          { 
+        body: JSON.stringify({
           action: isFavorited ? "remove" : "add", //Remove if already favorited, otherwise add
           userId,
-          updates: {}
         }),
       });
   
-<<<<<<< HEAD
-      //Update the user's `interestedListings` array
-      await fetch(`http://localhost:3001/api/users/${userId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: isFavorited ? "remove" : "add",
-          listingId: listing._id,
-          updates: {}
-=======
       // Update the user's interestedListings array
       await fetch(`http://localhost:3001/api/users/${userId}/interestedListings`, {
         method: "PATCH",
@@ -150,7 +137,6 @@ function Home() {
         body: JSON.stringify({
             action: isFavorited ? "remove" : "add",
             listingId: listing._id,
->>>>>>> 19304c9dde82ea8a659805192ce1a12a562470a3
         }),
       });
   
