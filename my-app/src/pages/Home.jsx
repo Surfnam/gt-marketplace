@@ -1,44 +1,84 @@
 import React, { useEffect, useState } from "react";
+import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import "../css/App.css";
 import { Heart } from "lucide-react";
+import Icons from "../images/icons";
+import Pagination from "../components/Pagination";
 
-const getAllListings = async () => {
-  //example placeholders
-  const response = await fetch("http://localhost:3001/listing/active");
-  const data = await response.json();
-  return data.data;
+const fetchListings = async (page, category, min, max, search) => {
+  try {
+    let searchEmbedding = null;
+    if (search) {
+      searchEmbedding = await getEmbedding(search); 
+    }
+    const res = await axios.post("http://localhost:3001/listing/filter", {
+      page,
+      'category': category === "All" ? null : category,
+      min,
+      max,
+      'search': search === "" ? null : search,
+      searchEmbedding,
+    });
+
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching listings:", error);
+    return { listings: [], totalPages: 1 };
+  }
 };
+
+const getEmbedding = async (text) => {
+  try {
+    const res = await axios.post("http://localhost:3001/listing/embedding", { text });
+    return res.data.embedding;
+  } catch (error) {
+    if (error.response.status === 429) {
+      alert("Too many requests! Please wait and try again later.");
+    }
+    return null;
+  }
+};
+
+const categories = ["All", "Furniture", "Electronics", "Clothing", "Vehicles", "Property Rentals",
+  "Entertainment", "Free Stuff", "Garden & Outdoor", "Hobbies", "Home Goods", "Home Improvement", 
+  "Musical Instruments", "Office Supplies", "Pet Supplies", "Sporting Goods", "Toys & Games", "Other"]
+
 
 function Home() {
   const navigate = useNavigate();
+
   const [listings, setListings] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredListings, setFilteredListings] = useState([]);
+
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tempSearchTerm, setTempSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState("0");
   const [maxPrice, setMaxPrice] = useState("1000");
+
+  const [tempMinPrice, setTempMinPrice] = useState("0");
+  const [tempMaxPrice, setTempMaxPrice] = useState("1000");
+
   const [favorites, setFavorites] = useState(() => {
     return JSON.parse(localStorage.getItem("favorites")) || {};
   });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  console.log(listings);
+  console.log(selectedCategory);
 
   useEffect(() => {
-    getAllListings().then((data) => {
-      setListings(data || []);
-      setFilteredListings(data || []);
-    });
-  }, []);
+    const fetchData = async () => {
+      const data = await fetchListings(page, selectedCategory, minPrice, maxPrice, searchTerm);
+      setListings(data.listings || []);
+      setTotalPages(data.totalPages || 1);
+    };
+  
+    fetchData();
 
-  useEffect(() => {
-    console.log("hello0")
-    const filtered = listings.filter(
-      (listing) =>
-        listing.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (selectedCategory === "All" || listing.category === selectedCategory)
-    );
-    setFilteredListings(filtered);
-    console.log(filteredListings);
-  }, [searchTerm, selectedCategory, listings]);
+  }, [page, selectedCategory, minPrice, maxPrice, searchTerm]);
 
   const navigateToListingDetails = async (id) => {
     try {
@@ -81,7 +121,7 @@ function Home() {
     });
 
     try {
-      //Update the listing's `interestedUsers` array
+      //Update the listing's interestedUsers array
       await fetch(`http://localhost:3001/listing/${listing._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -93,6 +133,7 @@ function Home() {
         }),
       });
   
+<<<<<<< HEAD
       //Update the user's `interestedListings` array
       await fetch(`http://localhost:3001/api/users/${userId}`, {
         method: "PATCH",
@@ -101,6 +142,15 @@ function Home() {
           action: isFavorited ? "remove" : "add",
           listingId: listing._id,
           updates: {}
+=======
+      // Update the user's interestedListings array
+      await fetch(`http://localhost:3001/api/users/${userId}/interestedListings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            action: isFavorited ? "remove" : "add",
+            listingId: listing._id,
+>>>>>>> 19304c9dde82ea8a659805192ce1a12a562470a3
         }),
       });
   
@@ -111,47 +161,68 @@ function Home() {
       console.error("Error updating favorite:", error);
     }
   
-    //Dispatch event to notify `UserProfile` of updates
+    //Dispatch event to notify UserProfile of updates
     window.dispatchEvent(new Event("favoritesUpdated"));
-  };
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
   };
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
+    setPage(1);
   };
 
-  const handleFilter = (minPrice, maxPrice) => {
-    setFilteredListings(
-      listings.filter(
-        (listing) => listing.price >= minPrice && listing.price <= maxPrice
-      )
-    );
+  const handleSearchTermSelect = () => {
+    setSearchTerm(tempSearchTerm)
+  }
+  
+  const handlePriceFilterSelect = () => {
+    setMinPrice(tempMinPrice);
+    setMaxPrice(tempMaxPrice);
+    setPage(1);
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex">
         <aside className="w-64 mr-8 flex flex-col">
-          <label className="font-semibold mb-2">Filters</label>
-          <input
-            placeholder="Search listings..."
-            className="border border-gray-300 rounded-md p-2 mb-4"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <label className="font-semibold mb-2">Search</label>
+          <div className="mb-4">
+            <input
+              placeholder="Search listings..."
+              className="border border-gray-300 rounded-md p-2 w-full"
+              value={tempSearchTerm}
+              onChange={e => setTempSearchTerm(e.target.value)}
+            />
+            <button
+              onClick={handleSearchTermSelect}
+              className="mt-2 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
+            >
+              Apply
+            </button>
+          </div>
           <div className="mt-4">
             <h3 className="font-semibold mb-2">Categories</h3>
             <ul className="space-y-2">
-              {["All", "Furniture", "Electronics", "Clothing"].map(
+              {categories.map(
                 (category) => (
                   <li key={category}>
                     <button
-                      className="w-full text-left hover:bg-gray-200 py-1 px-2 rounded"
+                      className={
+                       `w-full flex items-center text-left py-1 px-2 rounded
+                        ${
+                          selectedCategory === category 
+                            ? 'bg-gray-200'  // Highlight if selected
+                            : 'hover:bg-gray-200' // Otherwise, highlight on hover
+                        }`
+                      }
                       onClick={() => handleCategorySelect(category)}
                     >
+                    {Icons[category] && (
+                      <img
+                        src={Icons[category]}
+                        alt={`${category} icon`}
+                        className="w-6 h-6 mr-4"
+                      />
+                    )}
                       {category}
                     </button>
                   </li>
@@ -167,8 +238,8 @@ function Home() {
                 type="number"
                 min="0"
                 max="1000"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
+                value={tempMinPrice}
+                onChange={(e) => setTempMinPrice(e.target.value)}
                 placeholder="Min"
                 className="w-1/2 border border-gray-300 rounded-md p-2 text-sm"
               />
@@ -177,8 +248,8 @@ function Home() {
                 type="number"
                 min="0"
                 max="1000"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
+                value={tempMaxPrice}
+                onChange={(e) => setTempMaxPrice(e.target.value)}
                 placeholder="Max"
                 className="w-1/2 border border-gray-300 rounded-md p-2 text-sm"
               />
@@ -186,7 +257,7 @@ function Home() {
             <button
               className="mt-4 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 transition"
               onClick={() => {
-                handleFilter(minPrice, maxPrice);
+                handlePriceFilterSelect();
               }}
             >
               Apply
@@ -203,10 +274,13 @@ function Home() {
               Create Listing
             </button>
           </div>
+          
+          <div style={{ minHeight: '900px' }}>
+          {/*Listings Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredListings.map((listing) => (
+            {listings.map((listing) => (
               <div
-                key={listing.id}
+                key={listing._id}
                 className="bg-white rounded-lg shadow-md overflow-hidden"
               >
                 <img
@@ -221,17 +295,26 @@ function Home() {
                       <p className="text-gray-600 mb-4">${listing.price}</p>
                     </div>
                     <div className="w-[20%]">
-                      <button onClick={() => handleFavorite(listing)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
-                        <Heart
-                          size={24}
-                          className={`transition-colors ${
-                            favorites[listing._id]
-                              ? "text-red-500"
-                              : "text-gray-400"
-                          }`}
-                          fill={favorites[listing._id] ? "red" : "none"}
-                        />
-                      </button>
+                      {listing.seller === localStorage.getItem("userId") ? (
+                        <span className="inline-block px-2 bg-green-100 text-green-800 text-xs font-bold rounded">
+                        My Listing
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleFavorite(listing)}
+                          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+                        >
+                          <Heart
+                            size={24}
+                            className={`transition-colors ${
+                              favorites[listing._id]
+                                ? "text-red-500"
+                                : "text-gray-400"
+                            }`}
+                            fill={favorites[listing._id] ? "red" : "none"}
+                          />
+                        </button>
+                      )}
                     </div>
                   </div>
                   <button
@@ -244,6 +327,14 @@ function Home() {
               </div>
             ))}
           </div>
+          </div>
+
+          {/* Pagination Controls */}
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </main>
       </div>
     </div>
