@@ -1,6 +1,5 @@
 import express from 'express'
 import {addUser, addListing, deleteUsersandListings, updateUser, updateListing} from '../controllers/testAPI.controllers.js'
-import { getListingByCategory, getListingByPrice } from '../controllers/listingController.js';
 
 const router = express.Router();
 

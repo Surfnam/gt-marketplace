@@ -1,30 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { FaPencilAlt } from "react-icons/fa";
-import {
-  BrowserRouter as Router,
-  useNavigate,
-} from "react-router-dom";
+import { FaPencilAlt, FaTrash } from "react-icons/fa";
+import {useNavigate} from "react-router-dom";
 import axios from 'axios';
-import { FaTrash } from 'react-icons/fa';
+import MiniPagination from "../components/MiniPagination";
 
 function UserProfile({ userProp }) {
   const [editMode, seteditMode] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [favoriteListings, setFavoriteListings] = useState([]);
+
   const [userId, setUserId] = useState(null);
   const [displayName, setDisplayName] = useState("default User");
   const [email, setEmail] = useState(null);
   const [bio, setBio] = useState(null);
   const [name, setName] = useState(null);
-  const [interestedListings, setInterestedListings] = useState([]);
+  
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [listingIdToDelete, setListingIdToDelete] = useState(null);
   const [listingToDelete, setListingToDelete] = useState(null);
+  const [listingToDeleteIsActive, setListingToDeleteIsActive] = useState(null);
 
-  const confirmDelete = (listingId) => {
+  const [activeListings, setActiveListings] = useState([]);
+  const [totalActiveListingsPages, setTotalActiveListingsPages] = useState(1);
+  const [activePage, setActivePage] = useState(1);
+
+  const [interestedListings, setInterestedListings] = useState([]);
+  const [totalInterestedListingsPages, setTotalInterestedListingsPages] = useState(1);
+  const [interestedPage, setInterestedPage] = useState(1);
+
+  const [inactiveListings, setInactiveListings] = useState([]);
+  const [totalInactiveListingsPages, setTotalInactiveListingsPages] = useState(1);
+  const [inactivePage, setInactivePage] = useState(1);
+
+  if (!userProp) {
+    navigate("/login");
+  }
+
+  const confirmDelete = (listingId, isActive) => {
     setListingIdToDelete(listingId);
+    setListingToDeleteIsActive(isActive);
     setShowConfirm(true);
   };
 
@@ -35,11 +50,6 @@ function UserProfile({ userProp }) {
       setListingIdToDelete(null);
     }
   };
-
-  if (!userProp) {
-    navigate("/login")
-  }
-
 
   console.log("this is the user prop", userProp);
   const editHandler = async () => {
@@ -68,6 +78,47 @@ function UserProfile({ userProp }) {
     }
   };
 
+  const getUserData = async () => {
+    try {
+      let id = localStorage.getItem("userId");
+      if (id == 'undefined') {
+        const res = await axios.get(`http://localhost:3001/api/users/profile/${userProp.email}`);
+        const userData = res.data;
+        id = userData.user[0]._id
+      }
+
+      const res = await axios.get(`http://localhost:3001/api/users/${id}/paginated/`, {
+        params: {
+          activePage: activePage,
+          interestedPage: interestedPage,
+          inactivePage: inactivePage
+        }
+      });
+      const data = res.data;
+
+      setEmail(data.email);
+      setUser(data || "temp user");
+      setUserId(data._id || "defaultId");
+      setDisplayName(data.username || "defaultusername");
+      setName(data.fullName || "Default User");
+      setBio(data.bio || "This is a default bio.");
+
+      console.log("active: ", data.activeListings);
+      setActiveListings(data.activeListings);
+      setTotalActiveListingsPages(data.totalActiveListingsPages);
+
+      setInterestedListings(data.interestedListings);
+      setTotalInterestedListingsPages(data.totalInterestedListingsPages);
+
+      setInactiveListings(data.inactiveListings);
+      setTotalInactiveListingsPages(data.totalInactiveListings)
+      return data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (listingIdToDelete) {
       getListingById(listingIdToDelete).then((data) => {
@@ -77,47 +128,31 @@ function UserProfile({ userProp }) {
   }, [listingIdToDelete]); 
 
   useEffect(() => {
-    const getUserData = async () => {
-      try {
-        console.log("userpropemial", userProp.email);
-        let id = localStorage.getItem("userId");
-        console.log("id from localstorage", id)
-        if (id == 'undefined') {
-          const resp = await fetch(`http://localhost:3001/api/users/profile/${userProp.email}`);
-          const userData = await resp.json();
-          id = userData.user[0]._id
-        }
-        const resp = await fetch(`http://localhost:3001/api/users/${id}`);
-        const data = await resp.json();
-        setEmail(data.email);
-        setUser(data || "temp user");
-        setUserId(data._id || "defaultId");
-        setDisplayName(data.username || "defaultusername");
-        setName(data.fullName || "Default User");
-        setDisplayName(data.username || "defaultusername");
-        setBio(data.bio || "This is a default bio.");
-        setInterestedListings(data.interestedListings || []);
-        return data;
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        return null;
-      }
-    };
-
     getUserData().then(() => {
       setLoading(false);
     });
-    fetchFavorites();
 
-  }, []);
+  }, [activePage, interestedPage, inactivePage]);
 
   const handleDeleteListing = async (listingId) => {
     try {
-      await axios.delete(`http://localhost:3001/listing/${listingId}`);
-      setUser((prevUser) => ({
-        ...prevUser, 
-        listings: prevUser.listings.filter((listing) => listing._id !== listingId),
-      }));
+      let res;
+      res = await axios.delete(`http://localhost:3001/listing/${listingId}/paginated`, {
+        params: {
+          listingStatus: listingToDeleteIsActive ? "available" : "unavailable",
+          page: listingToDeleteIsActive ? activePage : inactivePage
+        }
+    }) 
+      const data = res.data;
+
+      if (listingToDeleteIsActive) {
+        setActiveListings(data.listings);
+        setTotalActiveListingsPages(data.totalPages);
+      } else {
+        setInactiveListings(data.listings);
+        setTotalInactiveListingsPages(data.totalPages);
+      }
+      
     } catch (err) {
       console.log(err);
     }
@@ -131,24 +166,6 @@ function UserProfile({ userProp }) {
       console.log(err);
     }
   };
-
-  const fetchFavorites = () => {
-    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || {};
-    setFavoriteListings(Object.values(storedFavorites)); //Convert object to array
-  };
-
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      const userId = localStorage.getItem("userId");
-      if (!userId) return;
-    };
-
-    fetchFavorites();
-
-    //Listen for favorite updates
-    window.addEventListener("favoritesUpdated", fetchFavorites);
-    return () => window.removeEventListener("favoritesUpdated", fetchFavorites);
-  }, []);
 
   if (loading) {
     return <div className="text-center mt-8">Loading...</div>;
@@ -219,21 +236,23 @@ function UserProfile({ userProp }) {
                 </div>
                 <div className="mt-4 sm:mt-0 sm:pt-1 sm:text-left">
                 {editMode? (<input 
-              type="text" 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              placeholder="Enter name" 
-              className="text-xl font-bold text-gray-900  sm:text-2xl bg-transparent border-2 border-blue-300 outline-none"
-            />) : (<p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p>)}
-                  {/* <p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p> */}
-                  {editMode? (<input 
-              type="text" 
-              value={displayName} 
-              onChange={(e) => setDisplayName(e.target.value)} 
-              placeholder="Enter username" 
-              className="text-sm font-bold text-gray-900  bg-transparent border-2 border-blue-300 outline-none"
-            />) : (<p className="text-sm font-medium text-gray-600">@{displayName || "defaultuser"}</p>)}
-                  
+                  type="text" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  placeholder="Enter name" 
+                  className="text-xl font-bold text-gray-900  sm:text-2xl bg-transparent border-2 border-blue-300 outline-none"
+                />) : (<p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p>)}
+                    {/* <p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p> */}
+                    {editMode? (<input 
+                    type="text" 
+                    value={displayName} 
+                    onChange={(e) => setDisplayName(e.target.value)} 
+                    placeholder="Enter username" 
+                    className="text-sm font-bold text-gray-900  bg-transparent border-2 border-blue-300 outline-none"
+                  />) : (
+                    <p className="text-sm font-medium text-gray-600">@{displayName || "defaultuser"}</p>
+                  )}
+                        
                 </div>
               </div>
               <div className="mt-5 sm:mt-0">
@@ -269,8 +288,8 @@ function UserProfile({ userProp }) {
           <div className="border-t border-gray-200 p-6 sm:p-8">
             <h3 className="text-lg font-medium text-gray-900">Active Listings</h3>
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {user.listings && user.listings.length > 0 ? (
-                user.listings.map((listing) => (
+              {activeListings.length > 0 ? (
+                activeListings.map((listing) => (
                   <div key={listing._id} className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="p-5">
                       <div className="flex items-center">
@@ -296,7 +315,7 @@ function UserProfile({ userProp }) {
                           </a>
 
                           <button 
-                              onClick={() => confirmDelete(listing._id)}
+                              onClick={() => confirmDelete(listing._id, true)}
                               className="text-gray-600 hover:text-gray-800"
                           >
                               <FaTrash className="h-5 w-5" />
@@ -310,14 +329,22 @@ function UserProfile({ userProp }) {
                 <p className="text-sm text-gray-500">No active listings</p>
               )}
             </div>
+            {activeListings.length > 0 &&  (
+              <MiniPagination
+                currentPage={activePage}
+                totalPages={totalActiveListingsPages}
+                onPageChange={setActivePage}
+              />
+            )}
           </div>
+
           <div className="border-t border-gray-200 p-6 sm:p-8">
             <h3 className="text-lg font-medium text-gray-900">
               Interested Listings
             </h3>
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {favoriteListings.length > 0 ? (
-                favoriteListings.map((listing) => (
+              {interestedListings.length > 0 ? (
+                interestedListings.map((listing) => (
                   <div
                     key={listing._id}
                     className="bg-white overflow-hidden shadow rounded-lg"
@@ -351,9 +378,69 @@ function UserProfile({ userProp }) {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">No active listings</p>
+                <p className="text-sm text-gray-500">No interested listings</p>
               )}
             </div>
+            {interestedListings.length > 0 && (
+              <MiniPagination
+                currentPage={interestedPage}
+                totalPages={totalInterestedListingsPages}
+                onPageChange={setInterestedPage}
+              />
+            )}
+          </div>
+
+          <div className="border-t border-gray-200 p-6 sm:p-8">
+            <h3 className="text-lg font-medium text-gray-900">Inactive Listings</h3>
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {inactiveListings.length > 0 ? (
+                inactiveListings.map((listing) => (
+                  <div key={listing._id} className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="p-5">
+                      <div className="flex items-center">
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">{listing.title}</dt>
+                            <dd>
+                              <div className="text-lg font-medium text-gray-900">${listing.price}</div>
+                            </dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 px-5 py-3 flex justify-between items-center">
+                      <div className="text-sm">
+                        <a href={`/listing/${listing._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
+                          View details
+                        </a>
+                      </div>
+                      <div className="flex items-center justify-end gap-x-3">
+                          <a href={`/edit-listing/${listing._id}`} className="text-gray-500 hover:text-blue-500">
+                              <FaPencilAlt size={18} />
+                          </a>
+
+                          <button 
+                              onClick={() => confirmDelete(listing._id, false)}
+                              className="text-gray-600 hover:text-gray-800"
+                          >
+                              <FaTrash className="h-5 w-5" />
+                          </button>
+                      </div>
+
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No inactive listings</p>
+              )}
+            </div>
+            {inactiveListings.length > 0 && (
+              <MiniPagination
+                currentPage={inactivePage}
+                totalPages={totalInactiveListingsPages}
+                onPageChange={setInactivePage}
+              />
+            )}
           </div>
         </div>
       </div>
