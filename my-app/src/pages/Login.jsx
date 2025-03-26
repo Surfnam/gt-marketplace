@@ -61,7 +61,7 @@ function Login() {
       const res = await sendUserDataToMongoDB(result.user);
       const data = await res.json()
       console.log('RES DATA FROM MONGO', data);
-      localStorage.setItem("userId", data[0]._id);
+      localStorage.setItem("userId", data.user[0]._id);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error with Google sign-in:", error);
@@ -139,7 +139,7 @@ function Login() {
             </label>
             <Link
               className="text-sm text-blue-500 hover:underline"
-              to="/register"
+              to="/forgot-password"
             >
               Forgot password?
             </Link>
