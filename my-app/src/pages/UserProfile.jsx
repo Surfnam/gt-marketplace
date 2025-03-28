@@ -3,8 +3,11 @@ import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import {useNavigate} from "react-router-dom";
 import axios from 'axios';
 import MiniPagination from "../components/MiniPagination";
+import CompleteProfileModal from "../components/CompleteProfileModal";
 
 function UserProfile({ userProp }) {
+  const [showModal, setShowModal] = useState(false);
+
   const [editMode, seteditMode] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +38,14 @@ function UserProfile({ userProp }) {
 
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
+
+  useEffect(() => {
+    const justRegistered = localStorage.getItem("justRegistered");
+    if (justRegistered === "true") {
+      setShowModal(true);
+      localStorage.removeItem("justRegistered");
+    }
+  }, []);
 
   if (!userProp) {
     navigate("/login");
@@ -268,6 +279,12 @@ function UserProfile({ userProp }) {
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
+      {showModal && (
+      <CompleteProfileModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
+    )}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="p-6 sm:p-8">
