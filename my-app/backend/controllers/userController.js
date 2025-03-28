@@ -94,7 +94,7 @@ export const getUserByIdPaginated = async (req, res) => {
 
     try {
         const user = await User.findById(id)
-            .select("fullName username email bio interestedListings") 
+            .select("fullName username email bio interestedListings profilePicture") 
             .lean(); // Convert Mongoose object to JSON
 
         if (!user) {
