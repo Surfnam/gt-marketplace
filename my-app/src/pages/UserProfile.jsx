@@ -273,34 +273,41 @@ function UserProfile({ userProp }) {
           <div className="p-6 sm:p-8">
             <div className="sm:flex sm:items-center sm:justify-between">
               <div className="sm:flex sm:space-x-5">
-                <div className="flex-shrink-0 text-center"> 
+              <div className="flex-shrink-0 text-center">
+                {editMode ? (
+                  <div className="relative flex flex-col items-center">
+                    <img 
+                      className="h-20 w-20 rounded-md cursor-pointer border-2 border-blue-300 hover:opacity-80 transition p-0.5"
+                      src={profilePicturePreview || user.profilePicture || "https://GTMarketplace.s3.us-east-005.backblazeb2.com/defaultPFP.jpg"} 
+                      alt={name || "Default User"} 
+                      onClick={() => document.getElementById('profileUpload').click()}
+                    />
+                    <input
+                      id="profileUpload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setSelectedImageFile(file);
+                          const imagePreviewUrl = URL.createObjectURL(file);
+                          setProfilePicturePreview(imagePreviewUrl);
+                        }
+                      }}
+                    />
+                    {selectedImageFile && (
+                      <span className="mt-1 text-xs text-gray-500">{selectedImageFile.name}</span>
+                    )}
+                  </div>
+                ) : (
                   <img 
-                    className="mx-auto h-20 w-20 rounded-full" 
-                    src={
-                      editMode && profilePicturePreview
-                        ? profilePicturePreview
-                        : user.profilePicture || "https://GTMarketplace.s3.us-east-005.backblazeb2.com/defaultPFP.jpg"
-                    }
+                    className="h-20 w-20 rounded-full" 
+                    src={user.profilePicture || "https://GTMarketplace.s3.us-east-005.backblazeb2.com/defaultPFP.jpg"} 
                     alt={name || "Default User"} 
                   />
-                  {editMode && (
-                    <div className="mt-2 flex justify-center items-center">
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            setSelectedImageFile(file);
-                            const imagePreviewUrl = URL.createObjectURL(file);
-                            setProfilePicturePreview(imagePreviewUrl);
-                          }
-                        }}
-                        className="text-sm text-gray-500"
-                      />
-                    </div>
-                  )}
-                </div>
+                )}
+              </div>
                 <div className="mt-4 sm:mt-0 sm:pt-1 sm:text-left">
                 {editMode? (<input 
                   type="text" 
