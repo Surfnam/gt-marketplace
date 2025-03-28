@@ -55,7 +55,6 @@ function Register() {
     setSuccess(""); // Clear any success messages
 
     try {
-      console.log('why login automatic?')
       const result = await signInWithPopup(auth, googleProvider);
       console.log(result)
       console.log("Google Sign-In successful:", result.user);
@@ -76,10 +75,11 @@ function Register() {
 
   const sendUserDataToMongoDB = async (user) => {
     try {
+      const userId = user.email.split('@')[0];
       const response = await axios.post(
         "http://localhost:3001/api/users/register",
         {
-          uid: user.uid,
+          uid: userId,
           email: user.email,
         }
       );
