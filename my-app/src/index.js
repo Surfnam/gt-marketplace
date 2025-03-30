@@ -22,6 +22,7 @@ import CreateListing from "./pages/CreateListing";
 import PaymentPage from './pages/PaymentPage';
 import EditListing from "./pages/EditListing";
 import ForgotPassword from "./pages/ForgotPassword";
+import Unauthorized from "./pages/Unauthorized";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -83,10 +84,11 @@ function Main() {
         <Route path="/chat" element={<Chat user={user} />} />
         <Route path="/profile" element={<UserProfile userProp = {user}/>} />
         <Route path="/createlisting" element={<CreateListing />} />
-        <Route path="/edit-listing/:id" element={<EditListing />} />
+        <Route path="/edit-listing/:id" element={<EditListing userProp={user}/>} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/listing/:id" element={<ListingDetails />}></Route>
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/unauthorized" element={<Unauthorized />}></Route>
       </Routes>
     </>
   );

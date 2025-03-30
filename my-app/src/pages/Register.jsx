@@ -44,8 +44,16 @@ function Register() {
       console.log("RES DATA FROM MONGO", data);
       console.log(data.data.userId);
       localStorage.setItem("userId", data.data.userId);
-      // Navigate to home page
-      navigate("/");
+
+      // Navigate to profile page on initial account creation
+      if (data.data.isNewUser) {
+        localStorage.setItem("justRegistered", "true");
+        navigate("/profile")
+      } else {
+        // Navigate to home page
+        navigate("/");
+      }
+
     } catch (error) {
       console.error("Error registering user:", error);
       setError(error.message);
@@ -68,8 +76,15 @@ function Register() {
       localStorage.setItem("userId", res.data.userId);
       setSuccess("Registration successful via Google! You can now log in.");
 
-      // Navigate to home page
-      navigate("/");
+      // Navigate to profile page on initial account creation
+      if (res.data.isNewUser) {
+        localStorage.setItem("justRegistered", "true");
+        navigate("/profile")
+      } else {
+        // Navigate to home page
+        navigate("/");
+      }
+
     } catch (error) {
       console.error("Error with Google sign-in:", error);
       setError(error.message);
