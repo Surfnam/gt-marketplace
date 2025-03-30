@@ -194,7 +194,7 @@ const ListingDetails = () => {
                 </p>
                 <div className="flex items-center gap-3">
                 <img
-                    src={seller.profileImageUrl || "/images/defaultPFP.jpg"}
+                    src={seller.profilePicture || "/images/defaultPFP.jpg"}
                     alt={`${seller.fullName}'s profile`}
                     className="w-10 h-10 rounded-full object-cover bg-gray-200 border border-black/20"
                 />
