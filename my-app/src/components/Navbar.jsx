@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { auth } from '../firebase'; // Import Firebase auth
 import '../css/Navbar.css';
@@ -7,6 +7,7 @@ import { FaHome, FaInfoCircle, FaUser, FaEnvelope, FaComments, FaCreditCard, FaS
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchProfilePicture = async () => {
@@ -24,6 +25,24 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
 
     fetchProfilePicture();
   }, [user]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const handleLogout = async () => {
     try {
@@ -75,7 +94,7 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
         </ul>
         <div className="navbar-buttons">
           {user ? (
-            <div className="profile-dropdown">
+            <div className="profile-dropdown" ref={dropdownRef}>
               <div className="profile-trigger" onClick={toggleDropdown}>
                 <img
                   src={profilePicture}
@@ -86,11 +105,16 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
               </div>
               {isDropdownOpen && (
                 <div className="dropdown-menu">
-                  <Link to="/profile" className="dropdown-item">
+                  <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                     <FaUser className="dropdown-icon" />
                     Profile
                   </Link>
-                  <button onClick={handleLogout} className="dropdown-item">
+                  <button 
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      handleLogout();
+                    }} 
+                    className="dropdown-item" >
                     <FaSignOutAlt className="dropdown-icon" />
                     Logout
                   </button>
