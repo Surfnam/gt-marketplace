@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "../images/Google logo.png";
 import ShoppingBag from "../images/1f6cd.png";
+import { FaUserSecret } from "react-icons/fa";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -16,15 +17,18 @@ function Login() {
   const navigate = useNavigate();
   const sendUserDataToMongoDB = async (user) => {
     try {
-      
       const response = await fetch(
         `http://localhost:3001/api/users/profile/${user.email}`
-       
       );
-      console.log("successfully fetched user data from mongo", response.data);
-      return response;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("successfully fetched user data from mongo", data);
+      return data;
     } catch (error) {
       console.error("Error sending user data to MongoDB:", error);
+      throw error;
     }
   };
   const handleLogin = async (e) => {
@@ -37,36 +41,45 @@ function Login() {
         email,
         password
       );
-      const res = await sendUserDataToMongoDB(userCredential.user);
-      const data = await res.json()
-      console.log('user data from mongo', data)
+      const data = await sendUserDataToMongoDB(userCredential.user);
+      console.log("user data from mongo", data);
+      if (!data || !data.user || !data.user[0]) {
+        throw new Error("Invalid user data received from server");
+      }
       console.log("this is data[0]: ", data.user[0].uid);
       console.log("this is data[0]: ", data.user[0]._id);
       console.log("Login successful:", userCredential.user);
       localStorage.setItem("userId", data.user[0]._id);
-      console.log(localStorage.getItem("userId" ));
+      console.log(localStorage.getItem("userId"));
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error logging in:", error);
       setError(error.message);
     }
   };
-  
+
   const handleGoogleSignIn = async () => {
-    console.log('is it this endpoint..')
+    console.log("is it this endpoint..");
     setError(""); // Clear previous errors
     try {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google Sign-In successful:", result.user);
-      const res = await sendUserDataToMongoDB(result.user);
-      const data = await res.json()
-      console.log('RES DATA FROM MONGO', data);
+      const data = await sendUserDataToMongoDB(result.user);
+      console.log("RES DATA FROM MONGO", data);
+      if (!data || !data.user || !data.user[0]) {
+        throw new Error("Invalid user data received from server");
+      }
       localStorage.setItem("userId", data.user[0]._id);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
       console.error("Error with Google sign-in:", error);
       setError(error.message);
     }
+  };
+
+  const handleGuestLogin = () => {
+    localStorage.setItem("userId", "guest");
+    navigate("/");
   };
 
   return (
@@ -169,6 +182,14 @@ function Login() {
           >
             <img className="w-5 h-5 mr-2" src={GoogleLogo} alt="" />
             Sign in with Google
+          </button>
+
+          <button
+            onClick={handleGuestLogin}
+            className="w-full flex items-center justify-center bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
+          >
+            <FaUserSecret className="w-5 h-5 mr-2" />
+            Continue as Guest
           </button>
 
           <p className="text-sm text-center">
