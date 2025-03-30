@@ -17,7 +17,7 @@
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* space-between for bigger screens */
   align-items: center;
 }
 
@@ -28,14 +28,32 @@
   font-weight: 700;
 }
 
+/* Hamburger menu icon (visible on mobile, hidden on desktop by default) */
+.menu-icon {
+  display: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #fff;
+}
+
+/* The nav menu */
 .navbar-menu {
   list-style: none;
   display: flex;
-  display: space-between;
+  justify-content: space-between;
+  align-items: center;
+  transition: max-height 0.3s ease-in-out;
+}
+
+/* By default we want no scrollbar, but if it wraps or needs it, let’s ensure the user can see everything horizontally */
+.navbar-menu {
+  overflow-x: auto; /* horizontal scrolling if too wide */
 }
 
 .navbar-item {
   margin-left: 28px;
+  /* Ensures items have some vertical padding if wrapped */
+  padding: 0 0.5rem;
 }
 
 .navbar-link {
@@ -43,6 +61,7 @@
   text-decoration: none;
   font-size: 14px;
   transition: color 0.2s ease;
+  white-space: nowrap; /* So that the text doesn’t break in weird spots */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -57,6 +76,7 @@
   color: #a8dadc;
 }
 
+/* Buttons (desktop style) */
 .navbar-buttons {
   display: flex;
   align-items: center;
@@ -130,6 +150,13 @@
 
 .dropdown-icon {
   font-size: 16px;
+  margin-left: 28px; /* so the buttons are spaced away from the last item */
+}
+
+.navbar-welcome {
+  color: #ffffff;
+  font-size: 14px;
+  margin-right: 16px;
 }
 
 .navbar-login {
@@ -138,10 +165,12 @@
   font-size: 14px;
   cursor: pointer;
   transition: color 0.2s ease;
+  background: none;
+  border: none;
 }
 
 .navbar-login:hover {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .navbar-button {
@@ -156,43 +185,73 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
-
 .navbar-button:hover {
-  background-color: #FFFFFF;
+  background-color: #84c7ca;
 }
 
 .navbar-icon {
   font-size: 32px;
 }
 
-@media (max-width: 768px) {
-  .navbar-menu {
-    flex-direction: column;
-    background-color: #1e1e1e;
-    position: absolute;
-    top: 60px;
-    left: -100%;
-    width: 100%;
-    transition: left 0.3s ease;
+/* -----------
+   RESPONSIVE
+   ----------- */
+@media screen and (max-width: 768px) {
+  .navbar {
+    height: auto; 
   }
 
-  .navbar-menu.active {
+  .navbar-container {
+    padding: 0 16px;
+  }
+  
+  .menu-icon {
+    display: block;
+  }
+
+  /* Hide the menu by default on mobile; we’ll open it via a class toggle */
+  .navbar-menu {
+    position: absolute;
+    top: 84px;  /* So it appears just below the navbar */
     left: 0;
+    width: 100%;
+    background-color: #679df8;
+    flex-direction: column; 
+    align-items: flex-start;
+    max-height: 0;  /* Hidden by default */
+    overflow: hidden;
+  }
+
+  /* When .active-menu is applied, show the menu */
+  .navbar-menu.active-menu {
+    max-height: 500px; /* Enough space for your links; adjust as needed or use auto */
+    overflow-y: auto;  /* Scroll vertically if there's a lot of content */
+    padding: 16px 0;
   }
 
   .navbar-item {
-    margin: 15px 0;
-    text-align: center;
+    margin: 12px 0;
+    padding: 0 16px;
   }
 
-  .hamburger {
-    display: block;
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: #ffffff;
+  .navbar-link {
+    font-size: 16px;
   }
-}
 
-.hamburger {
-  display: none;
+  .navbar-buttons {
+    flex-direction: column;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .navbar-button,
+  .navbar-login {
+    width: 100%;
+    margin: 8px 0;
+  }
+
+  .navbar-welcome {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
 }
