@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { uploadFile } from '../services/fileUpload';
 
- const user = localStorage.getItem("userId");
 
 function CreateListing() {
+  const user = localStorage.getItem("userId");
+  
   const [currentImage, setCurrentImage] = useState(null);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
