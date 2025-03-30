@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { auth } from '../firebase'; // Import Firebase auth
 import '../css/Navbar.css';
@@ -6,6 +6,43 @@ import { FaHome, FaInfoCircle, FaUser, FaEnvelope, FaComments, FaCreditCard, FaS
 
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+      if (user?.email) {
+        try {
+          const response = await fetch(`http://localhost:3001/api/users/profile/${user.email}`);
+          if (!response.ok) throw new Error("Failed to fetch user info from email");
+          const data = await response.json();
+          setProfilePicture(data.user[0]?.profilePicture);
+        } catch (error) {
+          console.error("Error fetching profile picture by email:", error);
+        }
+      }
+    };
+
+    fetchProfilePicture();
+  }, [user]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const handleLogout = async () => {
     try {
@@ -57,18 +94,27 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
         </ul>
         <div className="navbar-buttons">
           {user ? (
-            <div className="profile-dropdown">
+            <div className="profile-dropdown" ref={dropdownRef}>
               <div className="profile-trigger" onClick={toggleDropdown}>
-                <FaUserCircle className="profile-avatar" />
+                <img
+                  src={profilePicture}
+                  alt="Profile Picture"
+                  className='profile-avatar profile-img'
+                />
                 <span className="profile-username">{user.email}</span>
               </div>
               {isDropdownOpen && (
                 <div className="dropdown-menu">
-                  <Link to="/profile" className="dropdown-item">
+                  <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                     <FaUser className="dropdown-icon" />
                     Profile
                   </Link>
-                  <button onClick={handleLogout} className="dropdown-item">
+                  <button 
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      handleLogout();
+                    }} 
+                    className="dropdown-item" >
                     <FaSignOutAlt className="dropdown-icon" />
                     Logout
                   </button>
