@@ -77,10 +77,10 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [tempSearchTerm, setTempSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState("0");
-  const [maxPrice, setMaxPrice] = useState("1000");
+  const [maxPrice, setMaxPrice] = useState("10000");
 
   const [tempMinPrice, setTempMinPrice] = useState("0");
-  const [tempMaxPrice, setTempMaxPrice] = useState("1000");
+  const [tempMaxPrice, setTempMaxPrice] = useState("10000");
 
   const [favorites, setFavorites] = useState({});
   const [page, setPage] = useState(1);
@@ -312,7 +312,7 @@ function Home() {
               <input
                 type="number"
                 min="0"
-                max="1000"
+                max="10000"
                 value={tempMinPrice}
                 onChange={(e) => setTempMinPrice(e.target.value)}
                 placeholder="Min"
@@ -322,7 +322,7 @@ function Home() {
               <input
                 type="number"
                 min="0"
-                max="1000"
+                max="10000"
                 value={tempMaxPrice}
                 onChange={(e) => setTempMaxPrice(e.target.value)}
                 placeholder="Max"
