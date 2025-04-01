@@ -16,13 +16,16 @@ function Login() {
   const navigate = useNavigate();
   const sendUserDataToMongoDB = async (user) => {
     try {
-      
       const response = await fetch(
         `http://localhost:3001/api/users/profile/${user.email}`
-       
       );
-      console.log("successfully fetched user data from mongo", response.data);
-      return response;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("successfully fetched user data from mongo", data);
+      return data;
+      
     } catch (error) {
       console.error("Error sending user data to MongoDB:", error);
     }
@@ -58,9 +61,11 @@ function Login() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google Sign-In successful:", result.user);
-      const res = await sendUserDataToMongoDB(result.user);
-      const data = await res.json()
-      console.log('RES DATA FROM MONGO', data);
+      const data = await sendUserDataToMongoDB(result.user);
+      console.log("RES DATA FROM MONGO", data);
+      if (!data || !data.user || !data.user[0]) {
+        throw new Error("You have not registered this account yet");
+      }
       localStorage.setItem("userId", data.user[0]._id);
       navigate("/"); // Navigate to home page after successful login
     } catch (error) {
