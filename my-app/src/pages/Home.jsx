@@ -82,11 +82,7 @@ function Home() {
   const [tempMinPrice, setTempMinPrice] = useState("0");
   const [tempMaxPrice, setTempMaxPrice] = useState("1000");
 
-  const [favorites, setFavorites] = useState(() => {
-    const storedFavorites = localStorage.getItem("favorites");
-    console.log("Initial favorites loaded from localStorage:", storedFavorites);
-    return JSON.parse(storedFavorites) || {};
-  });
+  const [favorites, setFavorites] = useState({});
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -125,6 +121,23 @@ function Home() {
     setFilteredListings(filtered);
   }, [searchTerm, selectedCategory, listings]);
 
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      // Fetch user's interested listings when component mounts
+      fetch(`http://localhost:3001/api/users/${userId}/interestedListings`)
+        .then(res => res.json())
+        .then(data => {
+          const favoritesMap = {};
+          data.interestedListings.forEach(listing => {
+            favoritesMap[listing._id] = listing;
+          });
+          setFavorites(favoritesMap);
+        })
+        .catch(error => console.error("Error fetching favorites:", error));
+    }
+  }, []);
+
   const navigateToListingDetails = async (id) => {
     try {
       const response = await fetch(`http://localhost:3001/listing/${id}`);
@@ -147,6 +160,7 @@ function Home() {
       console.error("Invalid listing ID");
       return;
     }
+
     const isAuthenticated = checkAuth(() => {
       const userId = localStorage.getItem("userId");
       const isFavorited = favorites[listing._id];
@@ -155,6 +169,7 @@ function Home() {
         isFavorited
       );
 
+      // Update local state immediately for better UX
       setFavorites((prev) => {
         const newFavorites = { ...prev };
         if (isFavorited) {
@@ -162,8 +177,6 @@ function Home() {
         } else {
           newFavorites[listing._id] = listing;
         }
-        localStorage.setItem("favorites", JSON.stringify(newFavorites));
-        console.log("Updated favorites in localStorage");
         return newFavorites;
       });
 
@@ -174,6 +187,7 @@ function Home() {
       console.log("User needs to authenticate");
     }
   };
+
   const updateFavoriteInDatabase = async (listing, isFavorited, userId) => {
     console.log("Updating favorite in database:", {
       listingId: listing._id,
@@ -181,7 +195,7 @@ function Home() {
       action: isFavorited ? "remove" : "add",
     });
     try {
-      //Update the listing's interestedUsers array
+      // Update the listing's interestedUsers array
       const listingResponse = await fetch(
         `http://localhost:3001/listing/${listing._id}`,
         {
@@ -194,30 +208,39 @@ function Home() {
         }
       );
 
-      console.log("Listing favorites update response:", listingResponse.ok);
+      if (!listingResponse.ok) {
+        throw new Error("Failed to update listing's interestedUsers");
+      }
 
-      // Update user interested listings
-      const url = "http://localhost:3001/users/interestedListings";
+      // Update user's interested listings
+      const url = "http://localhost:3001/api/users/interestedListings";
       const method = isFavorited ? "DELETE" : "POST";
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: isFavorited ? "remove" : "add",
-          listingId: listing._id,
           userId,
           listingId: listing._id,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update interestedListings in database");
+        throw new Error("Failed to update user's interestedListings");
       }
 
       console.log('Successfully updated user interested listings');
-      window.dispatchEvent(new Event("favoritesUpdated"));
     } catch (error) {
       console.error("Error updating favorite:", error);
+      // Revert local state if server update fails
+      setFavorites((prev) => {
+        const newFavorites = { ...prev };
+        if (isFavorited) {
+          newFavorites[listing._id] = listing;
+        } else {
+          delete newFavorites[listing._id];
+        }
+        return newFavorites;
+      });
     }
   };
 

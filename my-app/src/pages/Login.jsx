@@ -43,7 +43,7 @@ function Login() {
       const data = await sendUserDataToMongoDB(userCredential.user);
       console.log("user data from mongo", data);
       if (!data || !data.user || !data.user[0]) {
-        throw new Error("Invalid user data received from server");
+        throw new Error("You have not registered this account yet");
       }
       console.log("this is data[0]: ", data.user[0].uid);
       console.log("this is data[0]: ", data.user[0]._id);
@@ -66,7 +66,7 @@ function Login() {
       const data = await sendUserDataToMongoDB(result.user);
       console.log("RES DATA FROM MONGO", data);
       if (!data || !data.user || !data.user[0]) {
-        throw new Error("Invalid user data received from server");
+        throw new Error("You have not registered this account yet");
       }
       localStorage.setItem("userId", data.user[0]._id);
       navigate("/"); // Navigate to home page after successful login
