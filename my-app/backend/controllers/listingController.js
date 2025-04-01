@@ -121,6 +121,7 @@ export const getFilteredListings = async (req, res) => {
                     }
                 }
             ]);
+            console.log(search)
             console.log("vector similarity finished")
              
             listings = aggregation?.data || [];
