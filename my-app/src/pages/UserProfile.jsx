@@ -54,8 +54,8 @@ function UserProfile({ userProp }) {
   console.log("this is the user prop", userProp);
   const editHandler = async () => {
     const prev = editMode;
-    seteditMode((prev) => !prev);
-    console.log(editMode);
+    seteditMode(!prev);
+
     if (prev) {
       try {
         const updates = {
@@ -63,18 +63,31 @@ function UserProfile({ userProp }) {
           username: displayName,
           bio: bio,
         };
-        console.log(updates);
-        const res = await fetch(`http://localhost:3001/api/users/${userId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updates),
+        
+        const response = await axios.patch(`http://localhost:3001/api/users/${userId}`, {
+          updates  
         });
-        console.log(res);
+        
+        console.log('Server response:', response.data);
+
+        if (!response.data) {
+          throw new Error('Failed to update profile');
+        }
+
+        console.log('Update successful, fetching fresh user data');
+        await getUserData();
+        console.log('User data refreshed');
+
       } catch (error) {
-        console.log(error);
+        console.error("Error updating profile:", error.response?.data || error.message);
+        alert("Failed to update profile. Please try again.");
       }
+    } else {
+      console.log('Entering edit mode with current values:', {
+        name,
+        displayName,
+        bio
+      });
     }
   };
 
