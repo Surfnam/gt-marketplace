@@ -86,7 +86,7 @@ const ListingDetails = () => {
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-    if (userId) {
+    if (userId && listingDetails) {
       // Check if listing is favorited by current user
       fetch(`http://localhost:3001/api/users/${userId}/interestedListings`)
         .then(res => res.json())
@@ -96,7 +96,7 @@ const ListingDetails = () => {
         })
         .catch(error => console.error("Error checking favorite status:", error));
     }
-  }, [listingDetails._id]);
+  }, [listingDetails]);
 
   if (!listingDetails || !seller) {
     return <div className="p-8 text-center">Loading...</div>;
