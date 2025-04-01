@@ -73,7 +73,6 @@ function Home() {
   const [listings, setListings] = useState([]);
 
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [filteredListings, setFilteredListings] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [tempSearchTerm, setTempSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState("0");
@@ -109,21 +108,6 @@ function Home() {
     fetchData();
   }, [page, selectedCategory, minPrice, maxPrice, searchTerm]);
 
-  useEffect(() => {
-    console.log("Filtering listings with:", {
-      searchTerm,
-      selectedCategory,
-      listingsCount: listings.length,
-    });
-
-    const filtered = listings.filter(
-      (listing) =>
-        listing.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (selectedCategory === "All" || listing.category === selectedCategory)
-    );
-    console.log("Filtered listings count:", filtered.length);
-    setFilteredListings(filtered);
-  }, [searchTerm, selectedCategory, listings]);
 
   const navigateToListingDetails = async (id) => {
     try {
@@ -332,7 +316,7 @@ function Home() {
           <div style={{ minHeight: "900px" }}>
             {/*Listings Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredListings.map((listing) => (
+              {listings.map((listing) => (
                 <div
                   key={listing.id}
                   className="bg-white rounded-lg shadow-md overflow-hidden"
