@@ -190,7 +190,6 @@ function Home() {
           action: isFavorited ? "remove" : "add",
           listingId: listing._id,
           userId,
-          listingId: listing._id,
         }),
       });
 
