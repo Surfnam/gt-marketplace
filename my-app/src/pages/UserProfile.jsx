@@ -68,15 +68,9 @@ function UserProfile({ userProp }) {
   console.log("this is the user prop", userProp);
   const editHandler = async () => {
     const prev = editMode;
-<<<<<<< HEAD
-    seteditMode(!prev);
-
-    if (prev) {
-=======
     seteditMode((prev) => !prev);
     console.log(editMode);
     if (prev) { // if we are in edit mode
->>>>>>> 1defed87687d6e5a5de456728decd8422ae3c5ec
       try {
         let imageUrl = user.profilePicture;
 
@@ -104,31 +98,9 @@ function UserProfile({ userProp }) {
           bio: bio,
           profilePicture: imageUrl,
         };
-<<<<<<< HEAD
-        
-        const response = await axios.patch(`http://localhost:3001/api/users/${userId}`, {
-          updates  
-        });
-        
-        console.log('Server response:', response.data);
-
-        if (!response.data) {
-          throw new Error('Failed to update profile');
-        }
-
-        console.log('Update successful, fetching fresh user data');
-        await getUserData();
-        console.log('User data refreshed');
-=======
 
         console.log(updates);
-        const res = await fetch(`http://localhost:3001/api/users/${userId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updates),
-        });
+        const res = await axios.patch(`http://localhost:3001/api/users/${userId}`, {updates});
         console.log(res);
 
 
@@ -145,18 +117,10 @@ function UserProfile({ userProp }) {
         // Reset temp image data
         setProfilePicturePreview(null);
         setSelectedImageFile(null);
->>>>>>> 1defed87687d6e5a5de456728decd8422ae3c5ec
 
       } catch (error) {
-        console.error("Error updating profile:", error.response?.data || error.message);
-        alert("Failed to update profile. Please try again.");
+        console.log(error);
       }
-    } else {
-      console.log('Entering edit mode with current values:', {
-        name,
-        displayName,
-        bio
-      });
     }
   };
 
