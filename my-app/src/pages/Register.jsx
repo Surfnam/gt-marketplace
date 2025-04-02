@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import ShoppingBag from "../images/1f6cd.png";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "../images/Google logo.png";
+import { FaArrowLeft } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -39,11 +41,19 @@ function Register() {
 
       // Send user data to MongoDB
       const data = await sendUserDataToMongoDB(userCredential.user);
-      console.log('RES DATA FROM MONGO', data);
-      console.log(data.data.userId)
+      console.log("RES DATA FROM MONGO", data);
+      console.log(data.data.userId);
       localStorage.setItem("userId", data.data.userId);
-      // Navigate to home page
-      navigate("/");
+
+      // Navigate to profile page on initial account creation
+      if (data.data.isNewUser) {
+        localStorage.setItem("justRegistered", "true");
+        navigate("/profile")
+      } else {
+        // Navigate to home page
+        navigate("/");
+      }
+
     } catch (error) {
       console.error("Error registering user:", error);
       setError(error.message);
@@ -55,19 +65,26 @@ function Register() {
     setSuccess(""); // Clear any success messages
 
     try {
-      console.log('why login automatic?')
+      console.log("why login automatic?");
       const result = await signInWithPopup(auth, googleProvider);
-      console.log(result)
+      console.log(result);
       console.log("Google Sign-In successful:", result.user);
 
       // Send user data to MongoDB
       const res = await sendUserDataToMongoDB(result.user);
-      console.log(res)
+      console.log(res);
       localStorage.setItem("userId", res.data.userId);
       setSuccess("Registration successful via Google! You can now log in.");
 
-      // Navigate to home page
-      navigate("/");
+      // Navigate to profile page on initial account creation
+      if (res.data.isNewUser) {
+        localStorage.setItem("justRegistered", "true");
+        navigate("/profile")
+      } else {
+        // Navigate to home page
+        navigate("/");
+      }
+
     } catch (error) {
       console.error("Error with Google sign-in:", error);
       setError(error.message);
@@ -98,6 +115,13 @@ function Register() {
 
       <div className="w-full max-w-lg bg-white p-16 mx-36 rounded-3xl shadow-lg">
         <div className="w-full">
+          <Link
+            to="/login"
+            className="flex items-center text-customBlue mb-6 hover:text-slate-700 transition-colors"
+          >
+            <FaArrowLeft className="mr-2" />
+            <span>Back to Login</span>
+          </Link>
           <div className="space-y-3 mb-8">
             <h1 className="text-2xl font-semibold text-customBlue">
               GT Marketplace
