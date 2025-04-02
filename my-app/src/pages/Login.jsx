@@ -27,13 +27,6 @@ function Login() {
       console.log("successfully fetched user data from mongo", data);
       return data;
       
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("successfully fetched user data from mongo", data);
-      return data;
     } catch (error) {
       console.error("Error sending user data to MongoDB:", error);
       throw error;
