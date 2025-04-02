@@ -22,6 +22,7 @@ import CreateListing from "./pages/CreateListing";
 import PaymentPage from './pages/PaymentPage';
 import EditListing from "./pages/EditListing";
 import Unauthorized from "./pages/Unauthorized";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -87,6 +88,7 @@ function Main() {
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/listing/:id" element={<ListingDetails />}></Route>
         <Route path="/unauthorized" element={<Unauthorized />}></Route>
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </>
   );
