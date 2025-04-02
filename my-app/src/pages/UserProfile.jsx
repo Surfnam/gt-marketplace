@@ -3,8 +3,11 @@ import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import {useNavigate} from "react-router-dom";
 import axios from 'axios';
 import MiniPagination from "../components/MiniPagination";
+import CompleteProfileModal from "../components/CompleteProfileModal";
 
 function UserProfile({ userProp }) {
+  const [showModal, setShowModal] = useState(false);
+
   const [editMode, seteditMode] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,6 +36,17 @@ function UserProfile({ userProp }) {
   const [totalInactiveListingsPages, setTotalInactiveListingsPages] = useState(1);
   const [inactivePage, setInactivePage] = useState(1);
 
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+
+  useEffect(() => {
+    const justRegistered = localStorage.getItem("justRegistered");
+    if (justRegistered === "true") {
+      setShowModal(true);
+      localStorage.removeItem("justRegistered");
+    }
+  }, []);
+
   if (!userProp) {
     navigate("/login");
   }
@@ -54,15 +68,43 @@ function UserProfile({ userProp }) {
   console.log("this is the user prop", userProp);
   const editHandler = async () => {
     const prev = editMode;
+<<<<<<< HEAD
     seteditMode(!prev);
 
     if (prev) {
+=======
+    seteditMode((prev) => !prev);
+    console.log(editMode);
+    if (prev) { // if we are in edit mode
+>>>>>>> 1defed87687d6e5a5de456728decd8422ae3c5ec
       try {
+        let imageUrl = user.profilePicture;
+
+        // Upload image to Backblaze if new image selected
+        if (selectedImageFile) {
+          const imageFormData = new FormData();
+          imageFormData.append("file", selectedImageFile);
+  
+          const uploadResponse = await fetch(`http://localhost:3001/api/fileUpload`, {
+            method: "PUT",
+            body: imageFormData,
+          });
+  
+          if (!uploadResponse.ok) {
+            throw new Error("Failed to upload profile image");
+          }
+  
+          const uploadResult = await uploadResponse.json();
+          imageUrl = uploadResult.fileURL;
+        }
+
         const updates = {
           fullName: name,
           username: displayName,
           bio: bio,
+          profilePicture: imageUrl,
         };
+<<<<<<< HEAD
         
         const response = await axios.patch(`http://localhost:3001/api/users/${userId}`, {
           updates  
@@ -77,6 +119,33 @@ function UserProfile({ userProp }) {
         console.log('Update successful, fetching fresh user data');
         await getUserData();
         console.log('User data refreshed');
+=======
+
+        console.log(updates);
+        const res = await fetch(`http://localhost:3001/api/users/${userId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updates),
+        });
+        console.log(res);
+
+
+        // Reflect changes in local state
+        setUser((prev) => ({
+          ...prev,
+          fullName: name,
+          username: displayName,
+          bio: bio,
+          profilePicture: imageUrl,
+        }));
+
+        await getUserData()
+        // Reset temp image data
+        setProfilePicturePreview(null);
+        setSelectedImageFile(null);
+>>>>>>> 1defed87687d6e5a5de456728decd8422ae3c5ec
 
       } catch (error) {
         console.error("Error updating profile:", error.response?.data || error.message);
@@ -108,6 +177,7 @@ function UserProfile({ userProp }) {
         }
       });
       const data = res.data;
+      console.log("data from GET:", data);
 
       setEmail(data.email);
       setUser(data || "temp user");
@@ -239,14 +309,52 @@ function UserProfile({ userProp }) {
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
+      {showModal && (
+      <CompleteProfileModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
+    )}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="p-6 sm:p-8">
             <div className="sm:flex sm:items-center sm:justify-between">
               <div className="sm:flex sm:space-x-5">
-                <div className="flex-shrink-0">
-                  <img className="mx-auto h-20 w-20 rounded-full" src={user.profilePicture || "https://via.placeholder.com/200"} alt={user.name || "Default User"} />
-                </div>
+              <div className="flex-shrink-0 text-center">
+                {editMode ? (
+                  <div className="relative flex flex-col items-center">
+                    <img 
+                      className="h-20 w-20 rounded-md cursor-pointer border-2 border-blue-300 hover:opacity-80 transition p-0.5"
+                      src={profilePicturePreview || user.profilePicture || "https://GTMarketplace.s3.us-east-005.backblazeb2.com/defaultPFP.jpg"} 
+                      alt={name || "Default User"} 
+                      onClick={() => document.getElementById('profileUpload').click()}
+                    />
+                    <input
+                      id="profileUpload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setSelectedImageFile(file);
+                          const imagePreviewUrl = URL.createObjectURL(file);
+                          setProfilePicturePreview(imagePreviewUrl);
+                        }
+                      }}
+                    />
+                    {selectedImageFile && (
+                      <span className="mt-1 text-xs text-gray-500">{selectedImageFile.name}</span>
+                    )}
+                  </div>
+                ) : (
+                  <img 
+                    className="h-20 w-20 rounded-full" 
+                    src={user.profilePicture || "https://GTMarketplace.s3.us-east-005.backblazeb2.com/defaultPFP.jpg"} 
+                    alt={name || "Default User"} 
+                  />
+                )}
+              </div>
                 <div className="mt-4 sm:mt-0 sm:pt-1 sm:text-left">
                 {editMode? (<input 
                   type="text" 

@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../css/App.css";
 import { Heart } from "lucide-react";
 import Icons from "../images/icons";
 import Pagination from "../components/Pagination";
+import AuthModal from "../components/AuthModal";
+import { useAuthCheck } from "../components/useAuthCheck";
 
 const fetchListings = async (page, category, min, max, search) => {
+  console.log("fetching all listings...");
   try {
     let searchEmbedding = null;
     if (search) {
-      searchEmbedding = await getEmbedding(search); 
+      searchEmbedding = await getEmbedding(search);
     }
     const res = await axios.post("http://localhost:3001/listing/filter", {
       page,
-      'category': category === "All" ? null : category,
+      category: category === "All" ? null : category,
       min,
       max,
-      'search': search === "" ? null : search,
+      search: search === "" ? null : search,
       searchEmbedding,
     });
 
@@ -30,7 +33,9 @@ const fetchListings = async (page, category, min, max, search) => {
 
 const getEmbedding = async (text) => {
   try {
-    const res = await axios.post("http://localhost:3001/listing/embedding", { text });
+    const res = await axios.post("http://localhost:3001/listing/embedding", {
+      text,
+    });
     return res.data.embedding;
   } catch (error) {
     if (error.response.status === 429) {
@@ -40,29 +45,43 @@ const getEmbedding = async (text) => {
   }
 };
 
-const categories = ["All", "Furniture", "Electronics", "Clothing", "Vehicles", "Property Rentals",
-  "Entertainment", "Free Stuff", "Garden & Outdoor", "Hobbies", "Home Goods", "Home Improvement", 
-  "Musical Instruments", "Office Supplies", "Pet Supplies", "Sporting Goods", "Toys & Games", "Other"]
-
+const categories = [
+  "All",
+  "Furniture",
+  "Electronics",
+  "Clothing",
+  "Vehicles",
+  "Property Rentals",
+  "Entertainment",
+  "Free Stuff",
+  "Garden & Outdoor",
+  "Hobbies",
+  "Home Goods",
+  "Home Improvement",
+  "Musical Instruments",
+  "Office Supplies",
+  "Pet Supplies",
+  "Sporting Goods",
+  "Toys & Games",
+  "Other",
+];
 
 function Home() {
   const navigate = useNavigate();
+  const { showAuthModal, setShowAuthModal, checkAuth } = useAuthCheck();
 
   const [listings, setListings] = useState([]);
 
   const [selectedCategory, setSelectedCategory] = useState("All");
-
   const [searchTerm, setSearchTerm] = useState("");
   const [tempSearchTerm, setTempSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState("0");
-  const [maxPrice, setMaxPrice] = useState("1000");
+  const [maxPrice, setMaxPrice] = useState("10000");
 
   const [tempMinPrice, setTempMinPrice] = useState("0");
-  const [tempMaxPrice, setTempMaxPrice] = useState("1000");
+  const [tempMaxPrice, setTempMaxPrice] = useState("10000");
 
-  const [favorites, setFavorites] = useState(() => {
-    return JSON.parse(localStorage.getItem("favorites")) || {};
-  });
+  const [favorites, setFavorites] = useState({});
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -71,14 +90,37 @@ function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchListings(page, selectedCategory, minPrice, maxPrice, searchTerm);
+      const data = await fetchListings(
+        page,
+        selectedCategory,
+        minPrice,
+        maxPrice,
+        searchTerm
+      );
       setListings(data.listings || []);
       setTotalPages(data.totalPages || 1);
     };
-  
-    fetchData();
 
+    fetchData();
   }, [page, selectedCategory, minPrice, maxPrice, searchTerm]);
+
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      // Fetch user's interested listings when component mounts
+      fetch(`http://localhost:3001/api/users/${userId}/interestedListings`)
+        .then(res => res.json())
+        .then(data => {
+          const favoritesMap = {};
+          data.interestedListings.forEach(listing => {
+            favoritesMap[listing._id] = listing;
+          });
+          setFavorites(favoritesMap);
+        })
+        .catch(error => console.error("Error fetching favorites:", error));
+    }
+  }, []);
 
   const navigateToListingDetails = async (id) => {
     try {
@@ -96,59 +138,93 @@ function Home() {
   };
 
   const handleFavorite = async (listing) => {
-    if (!listing._id) return;
+    console.log("Handling favorite for listing:", listing._id);
 
-    const userId = localStorage.getItem("userId"); //Assuming userId is stored in localStorage
-  if (!userId) {
-    console.error("User not logged in");
-    return;
-  }
-
-  const isFavorited = favorites[listing._id];
-
-  //Update local state first for instant UI response
-  setFavorites((prev) => {
-    const newFavorites = { ...prev };
-
-    if (isFavorited) {
-      delete newFavorites[listing._id]; //Unfavorite
-    } else {
-      newFavorites[listing._id] = listing; //Favorite
+    if (!listing._id) {
+      console.error("Invalid listing ID");
+      return;
     }
 
-    localStorage.setItem("favorites", JSON.stringify(newFavorites));
-    return newFavorites;
+    const isAuthenticated = checkAuth(() => {
+      const userId = localStorage.getItem("userId");
+      const isFavorited = favorites[listing._id];
+      console.log(
+        "User authenticated, updating favorites. Currently favorited:",
+        isFavorited
+      );
+
+      // Update local state immediately for better UX
+      setFavorites((prev) => {
+        const newFavorites = { ...prev };
+        if (isFavorited) {
+          delete newFavorites[listing._id];
+        } else {
+          newFavorites[listing._id] = listing;
+        }
+        return newFavorites;
+      });
+
+      updateFavoriteInDatabase(listing, isFavorited, userId);
+    });
+
+    if (!isAuthenticated) {
+      console.log("User needs to authenticate");
+    }
+  };
+
+  const updateFavoriteInDatabase = async (listing, isFavorited, userId) => {
+    console.log("Updating favorite in database:", {
+      listingId: listing._id,
+      userId,
+      action: isFavorited ? "remove" : "add",
     });
     try {
-      //Update the listing's interestedUsers array
-      await fetch(`http://localhost:3001/listing/${listing._id}`, {
-        method: "PATCH",
+      // Update the listing's interestedUsers array
+      const listingResponse = await fetch(
+        `http://localhost:3001/listing/${listing._id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: isFavorited ? "remove" : "add",
+            userId,
+          }),
+        }
+      );
+
+      if (!listingResponse.ok) {
+        throw new Error("Failed to update listing's interestedUsers");
+      }
+
+      // Update user's interested listings
+      const url = "http://localhost:3001/api/users/interestedListings";
+      const method = isFavorited ? "DELETE" : "POST";
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: isFavorited ? "remove" : "add", //Remove if already favorited, otherwise add
           userId,
         }),
       });
-  
-      // Update the user's interestedListings array
-      await fetch(`http://localhost:3001/api/users/${userId}/interestedListings`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            action: isFavorited ? "remove" : "add",
-            listingId: listing._id,
-        }),
-      });
-  
-      console.log(
-        `Successfully ${isFavorited ? "removed" : "added"} listing ${listing._id}`
-      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update user's interestedListings");
+      }
+
+      console.log('Successfully updated user interested listings');
     } catch (error) {
       console.error("Error updating favorite:", error);
+      // Revert local state if server update fails
+      setFavorites((prev) => {
+        const newFavorites = { ...prev };
+        if (isFavorited) {
+          newFavorites[listing._id] = listing;
+        } else {
+          delete newFavorites[listing._id];
+        }
+        return newFavorites;
+      });
     }
-  
-    //Dispatch event to notify UserProfile of updates
-    window.dispatchEvent(new Event("favoritesUpdated"));
   };
 
   const handleCategorySelect = (category) => {
@@ -157,9 +233,9 @@ function Home() {
   };
 
   const handleSearchTermSelect = () => {
-    setSearchTerm(tempSearchTerm)
-  }
-  
+    setSearchTerm(tempSearchTerm);
+  };
+
   const handlePriceFilterSelect = () => {
     setMinPrice(tempMinPrice);
     setMaxPrice(tempMaxPrice);
@@ -176,7 +252,7 @@ function Home() {
               placeholder="Search listings..."
               className="border border-gray-300 rounded-md p-2 w-full"
               value={tempSearchTerm}
-              onChange={e => setTempSearchTerm(e.target.value)}
+              onChange={(e) => setTempSearchTerm(e.target.value)}
             />
             <button
               onClick={handleSearchTermSelect}
@@ -188,20 +264,17 @@ function Home() {
           <div className="mt-4">
             <h3 className="font-semibold mb-2">Categories</h3>
             <ul className="space-y-2">
-              {categories.map(
-                (category) => (
-                  <li key={category}>
-                    <button
-                      className={
-                       `w-full flex items-center text-left py-1 px-2 rounded
+              {categories.map((category) => (
+                <li key={category}>
+                  <button
+                    className={`w-full flex items-center text-left py-1 px-2 rounded
                         ${
-                          selectedCategory === category 
-                            ? 'bg-gray-200'  // Highlight if selected
-                            : 'hover:bg-gray-200' // Otherwise, highlight on hover
-                        }`
-                      }
-                      onClick={() => handleCategorySelect(category)}
-                    >
+                          selectedCategory === category
+                            ? "bg-gray-200" // Highlight if selected
+                            : "hover:bg-gray-200" // Otherwise, highlight on hover
+                        }`}
+                    onClick={() => handleCategorySelect(category)}
+                  >
                     {Icons[category] && (
                       <img
                         src={Icons[category]}
@@ -209,11 +282,10 @@ function Home() {
                         className="w-6 h-6 mr-4"
                       />
                     )}
-                      {category}
-                    </button>
-                  </li>
-                )
-              )}
+                    {category}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -223,7 +295,7 @@ function Home() {
               <input
                 type="number"
                 min="0"
-                max="1000"
+                max="10000"
                 value={tempMinPrice}
                 onChange={(e) => setTempMinPrice(e.target.value)}
                 placeholder="Min"
@@ -233,7 +305,7 @@ function Home() {
               <input
                 type="number"
                 min="0"
-                max="1000"
+                max="10000"
                 value={tempMaxPrice}
                 onChange={(e) => setTempMaxPrice(e.target.value)}
                 placeholder="Max"
@@ -255,64 +327,72 @@ function Home() {
             <h1 className="text-2xl font-bold">Active Listings</h1>
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
-              onClick={() => navigate("/createlisting")}
+              onClick={() => {
+                checkAuth(() => navigate("/createlisting"));
+              }}
             >
               Create Listing
             </button>
           </div>
-          
-          <div style={{ minHeight: '900px' }}>
-          {/*Listings Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map((listing) => (
-              <div
-                key={listing._id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
-              >
-                <img
-                  src={listing.image}
-                  alt={listing.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <div className="w-full flex">
-                    <div className="w-[80%]">
-                      <h2 className="text-lg font-semibold">{listing.title}</h2>
-                      <p className="text-gray-600 mb-4">${listing.price}</p>
+
+          <div style={{ minHeight: "900px" }}>
+            {/*Listings Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {listings.map((listing) => (
+                <div
+                  key={listing.id}
+                  className="bg-white rounded-lg shadow-md overflow-hidden"
+                >
+                  <img
+                    src={listing.image}
+                    alt={listing.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4">
+                    <div className="w-full flex">
+                      <div className="w-[80%]">
+                        <h2 className="text-lg font-semibold">
+                          {listing.title}
+                        </h2>
+                        <p className="text-gray-600 mb-4">${listing.price}</p>
+                      </div>
+                      <div className="w-[20%]">
+                        {listing.seller === localStorage.getItem("userId") ? (
+                          <span className="inline-block px-2 bg-green-100 text-green-800 text-xs font-bold rounded">
+                            My Listing
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleFavorite(listing)}
+                            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+                          >
+                            <Heart
+                              size={24}
+                              className={`transition-colors ${
+                                favorites[listing._id]
+                                  ? "text-red-500"
+                                  : "text-gray-400"
+                              }`}
+                              fill={favorites[listing._id] ? "red" : "none"}
+                            />
+                          </button>
+                        )}
+                      </div>
+                      <AuthModal
+                        isOpen={showAuthModal}
+                        onClose={() => setShowAuthModal(false)}
+                      />
                     </div>
-                    <div className="w-[20%]">
-                      {listing.seller === localStorage.getItem("userId") ? (
-                        <span className="inline-block px-2 bg-green-100 text-green-800 text-xs font-bold rounded">
-                        My Listing
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => handleFavorite(listing)}
-                          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
-                        >
-                          <Heart
-                            size={24}
-                            className={`transition-colors ${
-                              favorites[listing._id]
-                                ? "text-red-500"
-                                : "text-gray-400"
-                            }`}
-                            fill={favorites[listing._id] ? "red" : "none"}
-                          />
-                        </button>
-                      )}
-                    </div>
+                    <button
+                      onClick={() => navigateToListingDetails(listing._id)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full"
+                    >
+                      View Details
+                    </button>
                   </div>
-                  <button
-                    onClick={() => navigateToListingDetails(listing._id)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full"
-                  >
-                    View Details
-                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
           </div>
 
           {/* Pagination Controls */}
