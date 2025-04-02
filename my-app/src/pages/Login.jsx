@@ -26,6 +26,7 @@ function Login() {
       const data = await response.json();
       console.log("successfully fetched user data from mongo", data);
       return data;
+
     } catch (error) {
       console.error("Error sending user data to MongoDB:", error);
       throw error;
@@ -34,6 +35,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(""); // Clear previous errors
+    console.log("hey")
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -151,7 +153,7 @@ function Login() {
             </label>
             <Link
               className="text-sm text-blue-500 hover:underline"
-              to="/register"
+              to="/forgot-password"
             >
               Forgot password?
             </Link>
