@@ -12,14 +12,13 @@ import teamMember9 from '../images/glenda.jpg';
 import teamMember10 from '../images/terry.jpg';
 
 const teamMembers = [
-  { name: 'Aryan Roy', position: 'Project Manager', img: teamMember1, description: 'Placeholder description for Aryan.' },
+  { name: 'Aryan Roy', position: 'Project Manager/Dev', img: teamMember1, description: 'Hope you enjoy our application!.' },
   { name: 'Fevin Felix', position: 'Developer', img: teamMember2, description: 'Placeholder description for Fevin.' },
   { name: 'Kevin Ma', position: 'Developer', img: teamMember3, description: 'Placeholder description for Kevin.' },
   { name: 'Viraj Kulkarni', position: 'Developer', img: teamMember4, description: 'Placeholder description for Viraj.' },
   { name: 'Kevin Zhang', position: 'Developer', img: teamMember5, description: 'Placeholder description for Kevin Zhang.' },
   { name: 'Daniel Lee', position: 'Developer', img: teamMember6, description: 'Placeholder description for Daniel.' },
   { name: 'Adwaith Ramesh', position: 'Developer', img: teamMember7, description: 'Placeholder description for Adwaith.' },
-  { name: 'Andi Xia', position: 'Developer', img: teamMember8, description: 'Placeholder description for Andi.' },
   { name: 'Glenda Setlock', position: 'UI Designer', img: teamMember9, description: 'Placeholder description for Glenda.' },
   { name: 'Terry Yin', position: 'Developer', img: teamMember10, description: 'Placeholder description for Terry.' },
 ];
@@ -52,7 +51,7 @@ Our main purpose is to connect students so they can easily trade school supplies
           <li><strong>Sign Up/Login:</strong> Create an account or log in to access personalized features.</li>
           <li><strong>Browse Listings:</strong> Explore a wide range of products available for purchase.</li>
           <li><strong>Post Items for Sale:</strong> Easily list items you wish to sell with detailed descriptions and images.</li>
-          <li><strong>Secure Transactions:</strong> Engage in secure transactions with our built-in payment systems.</li>
+          <li><strong>Chat with Sellers:</strong> Inquire and ask additional questions with the vendors of products you are interested in purchasing.</li>
           <li><strong>Feedback System:</strong> Rate and review transactions to maintain a trustworthy community.</li>
         </ol>
       </section>

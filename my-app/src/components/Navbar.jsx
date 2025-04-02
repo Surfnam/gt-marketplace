@@ -86,11 +86,6 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
               <FaComments className="navbar-icon" /> Chat
             </NavLink>
           </li>
-          <li className="navbar-item">
-            <NavLink to="/payment" activeClassName="active" className="navbar-link">
-              <FaCreditCard className="navbar-icon" /> Payment
-            </NavLink>
-          </li>
         </ul>
         <div className="navbar-buttons">
           {user ? (
