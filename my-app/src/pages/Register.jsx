@@ -94,7 +94,7 @@ function Register() {
   const sendUserDataToMongoDB = async (user) => {
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/users/register",
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/register`,
         {
           uid: user.uid,
           email: user.email,
