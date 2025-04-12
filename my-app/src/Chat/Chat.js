@@ -14,7 +14,7 @@ import {uploadFile} from '../services/fileUpload';
 import {postMessage} from '../services/message';
 
 
-const socket = io.connect(`http://localhost:3001/`);
+const socket = io.connect(`${process.env.REACT_APP_BACKEND_URL}`);
 const Chat = ({user}) => {
     user = user ? user.email : null;
     const location = useLocation();
@@ -39,7 +39,7 @@ const Chat = ({user}) => {
             return
         }
         try {
-            const res = await axios.get(`http://localhost:3001/api/users/${userId}`);
+            const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}`);
             const user  = res.data;
             const contacts = user.contacts.map(({ email, username, profilePicture }) => ({
                 email,
@@ -72,7 +72,7 @@ const Chat = ({user}) => {
 
     const fetchMessages = async (room, limit, skip) => {
         try {
-            const res = await axios.get(`http://localhost:3001/api/message/${room}?limit=${limit}&skip=${skip}`);
+            const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/message/${room}?limit=${limit}&skip=${skip}`);
 
             return res.data.map(message => ({
                 ...message,
@@ -187,7 +187,7 @@ const Chat = ({user}) => {
 
     const markMessagesAsRead = async (roomId) => {
         try {
-            await axios.post(`http://localhost:3001/api/message/read`, { roomId });
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/message/read`, { roomId });
         } catch (error) {
             console.error('Error marking messages as read:', error);
         }

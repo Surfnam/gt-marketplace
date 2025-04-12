@@ -13,7 +13,7 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
     const fetchProfilePicture = async () => {
       if (user?.email) {
         try {
-          const response = await fetch(`http://localhost:3001/api/users/profile/${user.email}`);
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/profile/${user.email}`);
           if (!response.ok) throw new Error("Failed to fetch user info from email");
           const data = await response.json();
           setProfilePicture(data.user[0]?.profilePicture);

@@ -6,7 +6,7 @@ import { MessageCircle } from "lucide-react";
 
 const getListing = async (id) => {
   try {
-    const response = await fetch(`http://localhost:3001/listing/${id}`);
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${id}`);
     return await response.json();
   } catch (error) {
     console.error("Error fetching listing:", error);
@@ -16,7 +16,7 @@ const getListing = async (id) => {
 
 const getSeller = async (id) => {
   try {
-    const response = await fetch(`http://localhost:3001/api/users/${id}`);
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`);
     return await response.json();
   } catch (error) {
     console.error("Error fetching seller:", error);
@@ -26,7 +26,7 @@ const getSeller = async (id) => {
 
 const addContact = async (user1Id, user2Id) => {
   try {
-    await axios.post("http://localhost:3001/api/users/addContact", {
+    await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/addContact`, {
       user1Id,
       user2Id,
     });
@@ -38,25 +38,25 @@ const addContact = async (user1Id, user2Id) => {
 const markAsInactive = async (listingId, sellerId, currentStatus) => {
   try {
     if (currentStatus === "available") {
-      await axios.patch(`http://localhost:3001/listing/${listingId}`, {
+      await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/listing/${listingId}`, {
         status: "unavailable",
       });
-      await axios.post("http://localhost:3001/api/users/inactiveListings", {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/inactiveListings`, {
         sellerId,
         listingId,
       });
-      await axios.delete("http://localhost:3001/api/users/activeListings", {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/activeListings`, {
         data: { sellerId, listingId },
       });
     } else {
-      await axios.patch(`http://localhost:3001/listing/${listingId}`, {
+      await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/listing/${listingId}`, {
         status: "available",
       });
-      await axios.post("http://localhost:3001/api/users/activeListings", {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/activeListings`, {
         sellerId,
         listingId,
       });
-      await axios.delete("http://localhost:3001/api/users/inactiveListings", {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/inactiveListings`, {
         data: { sellerId, listingId },
       });
     }
@@ -88,7 +88,7 @@ const ListingDetails = () => {
     const userId = localStorage.getItem("userId");
     if (userId && listingDetails) {
       // Check if listing is favorited by current user
-      fetch(`http://localhost:3001/api/users/${userId}/interestedListings`)
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/interestedListings`)
         .then(res => res.json())
         .then(data => {
           const isFav = data.interestedListings.some(listing => listing._id === listingDetails._id);
@@ -127,12 +127,12 @@ const ListingDetails = () => {
     }
 
     try {
-      const url = "http://localhost:3001/api/users/interestedListings";
+      const url = `${process.env.REACT_APP_BACKEND_URL}/api/users/interestedListings`;
       const method = isFavorited ? "DELETE" : "POST";
       
       // Update listing's interestedUsers array
       const listingResponse = await fetch(
-        `http://localhost:3001/listing/${listingDetails._id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/listing/${listingDetails._id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

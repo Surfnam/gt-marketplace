@@ -36,14 +36,14 @@ function EditListing({ userProp }) {
           throw new Error("No user logged in");
         }
         // Get user data using email
-        const fullUserRes = await fetch(`http://localhost:3001/api/users/profile/${userProp.email}`);
+        const fullUserRes = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/profile/${userProp.email}`);
         if (!fullUserRes.ok) throw new Error("Failed to fetch user info from email");
         const fullUser = await fullUserRes.json();
         const fullUserData = fullUser.user[0]
         const currentUserId = fullUserData._id;
   
         // Get the listing
-        const listingRes = await fetch(`http://localhost:3001/listing/${id}`);
+        const listingRes = await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${id}`);
         if (!listingRes.ok) throw new Error("Failed to fetch listing");
         const listing = await listingRes.json();
   
@@ -117,7 +117,7 @@ function EditListing({ userProp }) {
         const imageFormData = new FormData();
         imageFormData.append("file", formData.image);
 
-        const uploadResponse = await fetch(`http://localhost:3001/api/fileUpload`, {
+        const uploadResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/fileUpload`, {
           method: "PUT",
           body: imageFormData,
         });
@@ -131,7 +131,7 @@ function EditListing({ userProp }) {
       }
 
       // Step 2: Send a PATCH request with only modified fields
-      const patchResponse = await fetch(`http://localhost:3001/listing/${id}`, {
+      const patchResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

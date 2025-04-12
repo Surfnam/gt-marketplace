@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://localhost:3001';
+const baseURL = `${process.env.REACT_APP_BACKEND_URL}`;
 export const uploadFile = async (file) => {
     const formData = new FormData();
     formData.append('file', file);

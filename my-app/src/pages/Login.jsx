@@ -18,7 +18,7 @@ function Login() {
   const sendUserDataToMongoDB = async (user) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/users/profile/${user.email}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/profile/${user.email}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
