@@ -17,6 +17,7 @@ misc
 .env.test.local
 .env.production.local
 .env
+.specstory/
 
 npm-debug.log*
 yarn-debug.log*
