@@ -14,7 +14,7 @@ import bodyParser from 'body-parser';
 import stripePackage from 'stripe';
 
 const app = express();
-dotenv.config({ override: true });
+dotenv.config({ path: '../.env', override: true });
 
 const corsOptions = {
     origin: 'http://localhost:3000', // Allow your frontend origin
@@ -29,7 +29,7 @@ app.use(express.urlencoded({extended: true})); //parse form data
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-const port = process.env.PORT || 3001;
+const port = process.env.BACKEND_PORT || 3001;
 
 app.get('/', (req, res) => {
     res.send('hello world');
