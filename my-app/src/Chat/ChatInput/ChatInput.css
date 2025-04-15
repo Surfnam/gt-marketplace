@@ -67,3 +67,37 @@
 .file-upload-label:hover {
   background-color: #a9b7bb;
 }
+
+@media (max-width: 768px) {
+  .chat-input {
+    padding: 8px 8px;
+    gap: 8px;
+    border: none;
+  }
+
+  .chat-input .file-upload-label,
+  .chat-input button {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .file-upload-label {
+    margin-left: 10px;
+  }
+
+  .chat-input input.input-box {
+    font-size: 14px;
+    padding: 10px;
+    margin: 0px;
+  }
+
+  .chat-input button {
+    margin-right: 10px;
+  }
+
+  .chat-input p {
+    max-width: 100px;
+    font-size: 12px;
+  }
+}

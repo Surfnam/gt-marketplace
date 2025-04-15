@@ -9,6 +9,7 @@
   top: 0;
   z-index: 100;
   border-bottom: 4px solid #a8dadc;
+  overflow: hidden;
 }
 
 .navbar-container {
