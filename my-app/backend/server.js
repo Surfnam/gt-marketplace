@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors'; // Import cors
 import http from 'http';
 import session from 'express-session';
-import testRoutes from './routes/testroutes.js';
+import testRoutes from './routes/testRoutes.js';
 import listingRoutes from './routes/listing.js';
 import userRoutes from './routes/user.js'; // Correct import statement
 import initializeSocket  from './socket-backend.js';
