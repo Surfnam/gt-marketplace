@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors'; // Import cors
 import http from 'http';
 import session from 'express-session';
-import testRoutes from './routes/testroutes.js';
+import testRoutes from './routes/testRoutes.js';
 import listingRoutes from './routes/listing.js';
 import userRoutes from './routes/user.js'; // Correct import statement
 import initializeSocket  from './socket-backend.js';
@@ -14,10 +14,14 @@ import bodyParser from 'body-parser';
 import stripePackage from 'stripe';
 
 const app = express();
-dotenv.config({ override: true });
+if (process.env.NODE_ENV === 'production') {
+    dotenv.config(); // Let platform env vars take over, don't override
+} else {
+    dotenv.config({ override: true }); // In dev, force .env to override existing local env variables
+}
 
 const corsOptions = {
-    origin: 'http://localhost:3000', // Allow your frontend origin
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000', // only allow requests to backend that come from this frontend
     credentials: true, // Allow cookies to be sent with the request
 };
 
@@ -58,8 +62,7 @@ app.use('/api/fileUpload', fileUpload);
 const server = http.createServer(app);
 initializeSocket(server);
 
-server.listen(port, () => {
+server.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
     mongoSetup();
-    console.log(process.env.AWS_SECRET_ACCESS_KEY);
 });

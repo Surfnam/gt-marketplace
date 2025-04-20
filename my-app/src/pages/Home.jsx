@@ -8,6 +8,7 @@ import Pagination from "../components/Pagination";
 import AuthModal from "../components/AuthModal";
 import { useAuthCheck } from "../components/useAuthCheck";
 
+
 const fetchListings = async (page, category, min, max, search) => {
   console.log("fetching all listings...");
   try {
@@ -15,7 +16,7 @@ const fetchListings = async (page, category, min, max, search) => {
     if (search) {
       searchEmbedding = await getEmbedding(search);
     }
-    const res = await axios.post("http://localhost:3001/listing/filter", {
+    const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/listing/filter`, {
       page,
       category: category === "All" ? null : category,
       min,
@@ -33,7 +34,7 @@ const fetchListings = async (page, category, min, max, search) => {
 
 const getEmbedding = async (text) => {
   try {
-    const res = await axios.post("http://localhost:3001/listing/embedding", {
+    const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/listing/embedding`, {
       text,
     });
     return res.data.embedding;
@@ -109,7 +110,7 @@ function Home() {
     const userId = localStorage.getItem("userId");
     if (userId) {
       // Fetch user's interested listings when component mounts
-      fetch(`http://localhost:3001/api/users/${userId}/interestedListings`)
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/interestedListings`)
         .then(res => res.json())
         .then(data => {
           const favoritesMap = {};
@@ -124,7 +125,7 @@ function Home() {
 
   const navigateToListingDetails = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3001/listing/${id}`);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${id}`);
       const data = await response.json();
 
       if (data) {
@@ -181,7 +182,7 @@ function Home() {
     try {
       // Update the listing's interestedUsers array
       const listingResponse = await fetch(
-        `http://localhost:3001/listing/${listing._id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/listing/${listing._id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -197,7 +198,7 @@ function Home() {
       }
 
       // Update user's interested listings
-      const url = "http://localhost:3001/api/users/interestedListings";
+      const url = `${process.env.REACT_APP_BACKEND_URL}/api/users/interestedListings`;
       const method = isFavorited ? "DELETE" : "POST";
       const response = await fetch(url, {
         method,

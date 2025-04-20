@@ -79,7 +79,7 @@ function UserProfile({ userProp }) {
           const imageFormData = new FormData();
           imageFormData.append("file", selectedImageFile);
   
-          const uploadResponse = await fetch(`http://localhost:3001/api/fileUpload`, {
+          const uploadResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/fileUpload`, {
             method: "PUT",
             body: imageFormData,
           });
@@ -100,7 +100,7 @@ function UserProfile({ userProp }) {
         };
 
         console.log(updates);
-        const res = await fetch(`http://localhost:3001/api/users/${userId}`, {
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -134,12 +134,12 @@ function UserProfile({ userProp }) {
     try {
       let id = localStorage.getItem("userId");
       if (id == 'undefined') {
-        const res = await axios.get(`http://localhost:3001/api/users/profile/${userProp.email}`);
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/profile/${userProp.email}`);
         const userData = res.data;
         id = userData.user[0]._id
       }
 
-      const res = await axios.get(`http://localhost:3001/api/users/${id}/paginated/`, {
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}/paginated/`, {
         params: {
           activePage: activePage,
           interestedPage: interestedPage,
@@ -190,7 +190,7 @@ function UserProfile({ userProp }) {
   const handleDeleteListing = async (listingId) => {
     try {
       let res;
-      res = await axios.delete(`http://localhost:3001/listing/${listingId}/paginated`, {
+      res = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/listing/${listingId}/paginated`, {
         params: {
           listingStatus: listingToDeleteIsActive ? "available" : "unavailable",
           page: listingToDeleteIsActive ? activePage : inactivePage
@@ -213,7 +213,7 @@ function UserProfile({ userProp }) {
 
   const getListingById = async (listingId) => {
     try {
-      const res = await axios.get(`http://localhost:3001/listing/${listingId}`);
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/listing/${listingId}`);
       return res.data;
     } catch (err) {
       console.log(err);
