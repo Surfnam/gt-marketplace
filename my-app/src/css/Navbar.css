@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@100..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Michroma&family=Sora:wght@100..800&display=swap");
 
 .navbar {
   background-color: #679df8;
@@ -31,11 +31,13 @@
 .navbar-menu {
   list-style: none;
   display: flex;
-  display: space-between;
+  justify-content: space-between;
+  align-items: center;
+  gap: 28px;
 }
 
 .navbar-item {
-  margin-left: 28px;
+  /* margin handled by gap */
 }
 
 .navbar-link {
@@ -49,14 +51,12 @@
   gap: 8px;
 }
 
-.navbar-link:hover {
-  color: #a8dadc;
-}
-
+.navbar-link:hover,
 .active {
   color: #a8dadc;
 }
 
+/* buttons / dropdown */
 .navbar-buttons {
   display: flex;
   align-items: center;
@@ -79,7 +79,6 @@
 
 .profile-trigger:hover {
   background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
 }
 
 .profile-avatar {
@@ -87,10 +86,11 @@
   color: #ffffff;
 }
 
-.profile-username {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 500;
+.profile-img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .dropdown-menu {
@@ -111,7 +111,6 @@
   gap: 12px;
   padding: 12px 16px;
   color: #679df8;
-  text-decoration: none;
   font-size: 14px;
   font-weight: 500;
   border: none;
@@ -120,18 +119,13 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border-radius: 8px;
 }
 
 .dropdown-item:hover {
   background-color: #f5f5f5;
-  border-radius: 8px;
 }
 
-.dropdown-icon {
-  font-size: 16px;
-}
-
+/* login / signup */
 .navbar-login {
   font-weight: 600;
   color: #a8dadc;
@@ -141,7 +135,7 @@
 }
 
 .navbar-login:hover {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .navbar-button {
@@ -158,29 +152,34 @@
 }
 
 .navbar-button:hover {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
-.navbar-icon {
-  font-size: 32px;
+/* hamburger hidden on desktop */
+.hamburger {
+  display: none;
+  font-size: 28px;
+  color: #ffffff;
+  cursor: pointer;
 }
 
-.profile-img {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
+/* ---------- MOBILE ---------- */
 @media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
   .navbar-menu {
     flex-direction: column;
-    background-color: #1e1e1e;
-    position: absolute;
-    top: 60px;
+    position: fixed;
+    top: 84px;          /* height of navbar */
     left: -100%;
     width: 100%;
+    background-color: #679df8;
+    padding: 24px 0;
+    gap: 20px;
     transition: left 0.3s ease;
+    z-index: 999;
   }
 
   .navbar-menu.active {
@@ -188,18 +187,7 @@
   }
 
   .navbar-item {
-    margin: 15px 0;
+    margin: 0;
     text-align: center;
   }
-
-  .hamburger {
-    display: block;
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: #ffffff;
-  }
-}
-
-.hamburger {
-  display: none;
 }
