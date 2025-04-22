@@ -6,8 +6,6 @@ import { Heart } from "lucide-react";
 import { FiFilter } from "react-icons/fi";
 import Icons from "../images/icons";
 import Pagination from "../components/Pagination";
-import AuthModal from "../components/AuthModal";
-import { useAuthCheck } from "../components/useAuthCheck";
 
 const fetchListings = async (page, category, min, max, search) => {
   try {
@@ -64,9 +62,8 @@ const categories = [
   "Other",
 ];
 
-function Home() {
+function Home( { checkAuth } ) {
   const navigate = useNavigate();
-  const { showAuthModal, setShowAuthModal, checkAuth } = useAuthCheck();
   const [listings, setListings] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -97,7 +94,7 @@ function Home() {
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-    if (!userId) return;
+    if (!userId || userId === "guest") return;
     fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/interestedListings`
     )
@@ -356,10 +353,6 @@ function Home() {
           />
         </main>
       </div>
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
     </div>
   );
 }
