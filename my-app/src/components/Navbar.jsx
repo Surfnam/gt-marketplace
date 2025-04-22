@@ -108,6 +108,7 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
                   alt="profile"
                   className="profile-avatar profile-img"
                 />
+                <span className="profile-username">{user.email}</span>
               </div>
 
               {isDropdownOpen && (

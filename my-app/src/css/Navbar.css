@@ -191,3 +191,20 @@
     text-align: center;
   }
 }
+
+.profile-username {
+  display: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media screen and (min-width: 768px) {
+  .profile-username {
+    display: inline;
+  }
+}
+
+.navbar-link svg {
+  font-size: 28px;
+}
