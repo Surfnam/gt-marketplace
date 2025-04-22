@@ -20,13 +20,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const corsOptions = {
-<<<<<<< HEAD
-    origin: 'http://localhost:3000', 
-    credentials: true,
-=======
     origin: process.env.FRONTEND_URL || 'http://localhost:3000', // only allow requests to backend that come from this frontend
     credentials: true, // Allow cookies to be sent with the request
->>>>>>> 4b910a9c236770c4fffde443b79a40bf1d127c31
 };
 
 // const stripe = stripePackage(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key from .env

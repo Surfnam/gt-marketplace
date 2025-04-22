@@ -1,25 +1,12 @@
 import React, { useState } from "react";
-<<<<<<< HEAD:my-app/src/Auth/Login.jsx
 import "./Auth.css";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+import { auth, googleProvider } from "../services/firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "../assets/images/Google logo.png";
 import ShoppingBag from "../assets/images/1f6cd.png";
-=======
-import "../css/Auth.css";
-import {
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
-import { Link, useNavigate } from "react-router-dom";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import GoogleLogo from "../images/Google logo.png";
-import ShoppingBag from "../images/1f6cd.png";
 import { FaUserSecret } from "react-icons/fa";
->>>>>>> 4b910a9c236770c4fffde443b79a40bf1d127c31:my-app/src/pages/Login.jsx
 
 function Login() {
   const [email, setEmail] = useState("");

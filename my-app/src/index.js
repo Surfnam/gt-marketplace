@@ -16,13 +16,13 @@ import {
 import { createRoot } from "react-dom/client";
 import Chat from "./Chat/ChatInterface/Chat";
 import Navbar from "./Navbar/Navbar";
-import { auth } from "./firebase"; // Import Firebase auth
+import { auth } from "./services/firebase";
 import UserProfile from "./UserProfile/UserProfile";
 import CreateListing from "./Listings/CreateListing";
 import PaymentPage from './PaymentPage/PaymentPage';
 import EditListing from "./Listings/EditListing";
-import Unauthorized from "./pages/Unauthorized";
-import ForgotPassword from "./pages/ForgotPassword";
+import Unauthorized from "./Auth/Unauthorized";
+import ForgotPassword from "./Auth/ForgotPassword";
 
 const container = document.getElementById("root");
 const root = createRoot(container);

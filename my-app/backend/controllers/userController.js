@@ -47,8 +47,6 @@ export const getUserById = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-=======
 export const getUserByIdPaginated = async (req, res) => {
     const { id } = req.params;
     let { activePage = 1, interestedPage = 1, inactivePage = 1} = req.query;
@@ -109,7 +107,6 @@ export const getUserByIdPaginated = async (req, res) => {
     }
 };
 
->>>>>>> 4b910a9c236770c4fffde443b79a40bf1d127c31
 export const getUserByEmail = async (req, res) => {
   const email  = req.params.email;
 

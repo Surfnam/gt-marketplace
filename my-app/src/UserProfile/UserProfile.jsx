@@ -4,7 +4,7 @@ import {useNavigate} from "react-router-dom";
 import axios from 'axios';
 import MiniPagination from "../Pagination/MiniPagination";
 import './UserProfile.css';
-import CompleteProfileModal from "../components/CompleteProfileModal";
+import CompleteProfileModal from "./CompleteProfileModal";
 
 function UserProfile({ userProp }) {
   const [showModal, setShowModal] = useState(false);
@@ -66,7 +66,6 @@ function UserProfile({ userProp }) {
     }
   };
 
-  console.log("this is the user prop", userProp);
   const editHandler = async () => {
     const prev = editMode;
     seteditMode((prev) => !prev);

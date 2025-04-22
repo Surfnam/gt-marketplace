@@ -1,13 +1,7 @@
-<<<<<<< HEAD:my-app/src/Navbar/Navbar.jsx
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { auth } from '../firebase'; // Import Firebase auth
-import './Navbar.css';
-=======
-import React, { useState, useEffect, useRef } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { auth } from "../firebase";
-import "../css/Navbar.css";
+import { auth } from '../services/firebase';
+import "./Navbar.css";
 import {
   FaHome,
   FaInfoCircle,
@@ -18,7 +12,6 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
->>>>>>> 4b910a9c236770c4fffde443b79a40bf1d127c31:my-app/src/components/Navbar.jsx
 
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

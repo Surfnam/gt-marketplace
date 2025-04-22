@@ -1,27 +1,14 @@
 import React, { useState } from "react";
-<<<<<<< HEAD:my-app/src/Auth/Register.jsx
+import { Link } from 'react-router-dom';
 import "./Auth.css";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+import { auth, googleProvider } from "../services/firebase";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ShoppingBag from "../assets/images/1f6cd.png";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import GoogleLogo from "../assets/images/Google logo.png";
-=======
-import "../css/Auth.css";
-import {
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import ShoppingBag from "../images/1f6cd.png";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import GoogleLogo from "../images/Google logo.png";
 import { FaArrowLeft } from "react-icons/fa";
->>>>>>> 4b910a9c236770c4fffde443b79a40bf1d127c31:my-app/src/pages/Register.jsx
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -70,32 +57,6 @@ function Register() {
       const result = await signInWithPopup(auth, googleProvider);
       const res = await sendUserDataToMongoDB(result.user);
       localStorage.setItem("userId", res.data.userId);
-<<<<<<< HEAD:my-app/src/Auth/Register.jsx
-      setSuccess("Registration successful via Google! You can now log in.");
-
-      // Navigate to home page
-      navigate("/");
-    } catch (error) {
-      console.error("Error with Google sign-in:", error);
-      setError(error.message);
-    }
-  };
-
-  const sendUserDataToMongoDB = async (user) => {
-    try {
-      const userId = user.email.split('@')[0];
-      const response = await axios.post(
-        "http://localhost:3001/api/users/register",
-        {
-          uid: userId,
-          email: user.email,
-        }
-      );
-      console.log("User data sent to MongoDB:", response);
-      return response;
-    } catch (error) {
-      console.error("Error sending user data to MongoDB:", error);
-=======
       if (res.data.isNewUser) {
         localStorage.setItem("justRegistered", "true");
         navigate("/profile");
@@ -104,7 +65,6 @@ function Register() {
       }
     } catch (err) {
       setError(err.message);
->>>>>>> 4b910a9c236770c4fffde443b79a40bf1d127c31:my-app/src/pages/Register.jsx
     }
   };
 
