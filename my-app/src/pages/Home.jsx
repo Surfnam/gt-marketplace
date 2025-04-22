@@ -175,6 +175,7 @@ function Home() {
       <label className="font-semibold mb-2">Search</label>
       <div className="mb-4">
         <input
+          autoFocus
           placeholder="Search listings..."
           className="border border-gray-300 rounded-md p-2 w-full"
           value={tempSearchTerm}
