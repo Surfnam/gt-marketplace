@@ -88,45 +88,54 @@ export const getFilteredListings = async (req, res) => {
 
         let listings, totalListings;
         if (search) {
-            const [aggregation] = await Listing.aggregate([
-                { 
-                    $search: { 
-                        index: 'listingEmbeddingIndex',
-                        knnBeta: {
-                            vector: searchEmbedding,
-                            path: 'embedding',
-                            k: K_NEAREST_NEIGHBORS,
-                        },
+            if (searchEmbedding && searchEmbedding.length > 0) {
+                const [aggregation] = await Listing.aggregate([
+                    { 
+                        $search: { 
+                            index: 'listingEmbeddingIndex',
+                            knnBeta: {
+                                vector: searchEmbedding,
+                                path: 'embedding',
+                                k: K_NEAREST_NEIGHBORS,
+                            },
+                        }
+                    },
+                    {
+                        $addFields: { score: { $meta: "searchScore" } }
+                    },
+                    {
+                        $match: { score: { $gte: EMBEDDING_SIMILARITY_THRESHOLD } } 
+                    },
+                    {
+                        $match: query
+                    },
+                    { 
+                        $sort: { score: -1 } 
+                    },
+                    { 
+                        $facet: {
+                            metadata: [{ $count: "total" }], // Total before pagination
+                            data: [ // Paginated results
+                                { $skip: (page - 1) * MAX_LISTINGS_PER_PAGE },
+                                { $limit: MAX_LISTINGS_PER_PAGE }
+                            ]
+                        }
                     }
-                },
-                {
-                    $addFields: { score: { $meta: "searchScore" } }
-                },
-                {
-                    $match: { score: { $gte: EMBEDDING_SIMILARITY_THRESHOLD } } 
-                },
-                {
-                    $match: query
-                },
-                { 
-                    $sort: { score: -1 } 
-                },
-                { 
-                    $facet: {
-                        metadata: [{ $count: "total" }], // Total before pagination
-                        data: [ // Paginated results
-                            { $skip: (page - 1) * MAX_LISTINGS_PER_PAGE },
-                            { $limit: MAX_LISTINGS_PER_PAGE }
-                        ]
-                    }
-                }
-            ]);
-            console.log(search)
-            console.log("vector similarity finished")
-             
-            listings = aggregation?.data || [];
-            totalListings = aggregation?.metadata?.[0]?.total || 0;
-            console.log(listings.length);
+                ]);
+                console.log(search)
+                console.log("vector similarity finished")
+                
+                listings = aggregation?.data || [];
+                totalListings = aggregation?.metadata?.[0]?.total || 0;
+                console.log(listings.length);
+            } else {
+                // fallback regex search
+                query.title = { $regex: search, $options: "i" };
+                listings = await Listing.find(query)
+                  .skip((page - 1) * PAGE_SIZE)
+                  .limit(PAGE_SIZE);
+                totalListings = await Listing.countDocuments(query);
+            }
         } else {
             console.log("hi");
             listings = await Listing.find(query)
