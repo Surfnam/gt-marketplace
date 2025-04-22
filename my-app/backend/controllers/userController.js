@@ -47,6 +47,69 @@ export const getUserById = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
+=======
+export const getUserByIdPaginated = async (req, res) => {
+    const { id } = req.params;
+    let { activePage = 1, interestedPage = 1, inactivePage = 1} = req.query;
+    activePage = parseInt(activePage);
+    interestedPage = parseInt(interestedPage);
+    inactivePage = parseInt(inactivePage)
+
+    try {
+        const user = await User.findById(id)
+            .select("fullName username email bio interestedListings profilePicture") 
+            .lean(); // Convert Mongoose object to JSON
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Fetch paginated active listings
+        const [activeListings, totalActiveListings] = await Promise.all([
+            Listing.find({ seller: id, status: "available" })
+                .sort({ createdAt: -1 }) 
+                .skip((activePage-1) * MAX_USER_LISTINGS_PER_PAGE)
+                .limit(MAX_USER_LISTINGS_PER_PAGE)
+                .select("title price image category createdAt"),
+            Listing.countDocuments({ seller: id, status: "available" })
+        ]);
+
+        // Fetch paginated interested listings
+        const [interestedListings, totalInterestedListings] = await Promise.all([
+            Listing.find({ _id: { $in: user.interestedListings } })
+                .sort({ createdAt: -1 }) 
+                .skip((interestedPage-1) * MAX_USER_LISTINGS_PER_PAGE)
+                .limit(MAX_USER_LISTINGS_PER_PAGE)
+                .select("title price image category createdAt"),
+            Listing.countDocuments({ _id: { $in: user.interestedListings } })
+        ]);
+
+         // Fetch paginated inactive listings
+         const [inactiveListings, totalInactiveListings] = await Promise.all([
+            Listing.find({ seller: id, status: { $ne: "available" } }) // Exclude active listings
+                .sort({ createdAt: -1 })
+                .skip((inactivePage - 1) * MAX_USER_LISTINGS_PER_PAGE)
+                .limit(MAX_USER_LISTINGS_PER_PAGE)
+                .select("title price image category createdAt status"),
+            Listing.countDocuments({ seller: id, status: { $ne: "available" } })
+        ]);
+
+        res.status(200).json({
+            ...user, // Include user details
+            activeListings,
+            totalActiveListingsPages: Math.ceil(totalActiveListings / MAX_USER_LISTINGS_PER_PAGE),
+            interestedListings,
+            totalInterestedListingsPages: Math.ceil(totalInterestedListings / MAX_USER_LISTINGS_PER_PAGE),
+            inactiveListings,
+            totalInactiveListings: Math.ceil(totalInactiveListings / MAX_USER_LISTINGS_PER_PAGE )
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving user', error: error.message });
+    }
+};
+
+>>>>>>> 4b910a9c236770c4fffde443b79a40bf1d127c31
 export const getUserByEmail = async (req, res) => {
   const email  = req.params.email;
 

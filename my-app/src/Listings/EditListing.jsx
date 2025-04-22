@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import './EditListing.css';
 
-function EditListing() {
+function EditListing({ userProp }) {
   const navigate = useNavigate();
   const { id } = useParams(); // Get listing ID from URL
+  const [isLoading, setIsLoading] = useState(true);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   // State for form data
   const [formData, setFormData] = useState({
@@ -28,30 +30,53 @@ function EditListing() {
   
   const conditions = ["New", "Used - Like New", "Used - Good", "Used - Fair", "Non-functional/Broken"];
 
-  // Fetch listing details when component loads
   useEffect(() => {
-    fetch(`http://localhost:3001/listing/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setFormData({
-          title: data.title,
-          price: data.price,
-          condition: data.condition,
-          category: data.category,
-          description: data.description,
-          status: data.status,
-          image: null, // Reset file input
-        });
-
-        setOriginalData(data); // Store the original data for comparison
-
-        if (data.image) {
-          setCurrentImage(data.image); // Store the existing image URL
+    const verifyAccessAndFetchListing = async () => {
+      try {
+        if (!userProp) {
+          throw new Error("No user logged in");
         }
-      })
-      .catch((err) => console.error("Error fetching listing:", err));
-  }, [id]);
+        // Get user data using email
+        const fullUserRes = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/profile/${userProp.email}`);
+        if (!fullUserRes.ok) throw new Error("Failed to fetch user info from email");
+        const fullUser = await fullUserRes.json();
+        const fullUserData = fullUser.user[0]
+        const currentUserId = fullUserData._id;
+  
+        // Get the listing
+        const listingRes = await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${id}`);
+        if (!listingRes.ok) throw new Error("Failed to fetch listing");
+        const listing = await listingRes.json();
+  
+        // Check if current user is the seller
+        if (listing.seller !== currentUserId) {
+          setUnauthorized(true);
+          return;
+        }
 
+        setFormData({
+          title: listing.title,
+          price: listing.price,
+          condition: listing.condition,
+          category: listing.category,
+          description: listing.description,
+          status: listing.status,
+          image: null,
+        });
+  
+        setOriginalData(listing);
+        if (listing.image) setCurrentImage(listing.image);
+      } catch (err) {
+        console.error("Access verification or data fetch failed:", err);
+        setUnauthorized(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    verifyAccessAndFetchListing();
+  }, [id, userProp]);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -93,7 +118,7 @@ function EditListing() {
         const imageFormData = new FormData();
         imageFormData.append("file", formData.image);
 
-        const uploadResponse = await fetch(`http://localhost:3001/api/fileUpload`, {
+        const uploadResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/fileUpload`, {
           method: "PUT",
           body: imageFormData,
         });
@@ -107,7 +132,7 @@ function EditListing() {
       }
 
       // Step 2: Send a PATCH request with only modified fields
-      const patchResponse = await fetch(`http://localhost:3001/listing/${id}`, {
+      const patchResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -126,6 +151,15 @@ function EditListing() {
       console.error("Error updating listing:", error);
     }
   };
+
+  if (isLoading) {
+    return <div className="text-center p-8">Loading...</div>;
+  }
+  
+  if (unauthorized && !isLoading) {
+    navigate("/unauthorized");
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">

@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { uploadFile } from '../services/fileUpload';
 import './CreateListing.css';
 
- const user = localStorage.getItem("userId");
 
 function CreateListing() {
+  const user = localStorage.getItem("userId");
+  
   const [currentImage, setCurrentImage] = useState(null);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -64,7 +65,7 @@ function CreateListing() {
         const imageFormData = new FormData();
         imageFormData.append("file", formData.image);
 
-        const uploadResponse = await fetch(`http://localhost:3001/api/fileUpload`, {
+        const uploadResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/fileUpload`, {
           method: "PUT",
           body: imageFormData,
         });
@@ -79,7 +80,7 @@ function CreateListing() {
         formData.image = uploadResult.fileURL; // Use the new image URL from Backblaze
       }
 
-      const response = await fetch(`http://localhost:3001/listing/${user}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${user}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

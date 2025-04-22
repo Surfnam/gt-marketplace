@@ -7,6 +7,15 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
   const { uid, email } = req.body;
+
+  let existingUser = await User.findOne({ username: uid });
+  if (existingUser) {
+    return res.status(200).json({
+      message: "User already exists",
+      userId: existingUser._id,
+      isNewUser: false,
+    });
+  }
   
   try {
     const pw = await bcrypt.hash(uid, 10)
@@ -18,7 +27,12 @@ router.post('/register', async (req, res) => {
     });
 
     const user = await newUser.save();
-    res.status(201).json({ message: 'User registered successfully', userId: user._id });
+
+    res.status(201).json({ 
+      message: 'User registered successfully', 
+      userId: user._id,
+      isNewUser: true,
+    });
   } catch (error) {
     console.error('Error saving user to MongoDB:', error);
     res.status(500).json({ error: 'Internal Server Error' });

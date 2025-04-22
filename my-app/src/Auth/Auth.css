@@ -1,72 +1,85 @@
-/* Auth.css */
-.auth-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f8f9fa;
-  }
-  /* This container is set as the flex format on the page display, so the position might be a bit wierd, but it can self-adjust to any page. If the design part want to make it more beautiful, we can disucss it later and change the code to use the absolute display to show the container box. */
-  .auth-form {
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 400px;
-  }
-  
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
-  }
-  
-  .input-group label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .input-group input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    outline: none;
-    transition: border 0.3s ease;
-  }
-  
-  .input-group input:focus {
-    border-color: #007bff;
-  }
-  
-  .auth-button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    width: 100%;
-    transition: background-color 0.3s ease;
-  }
-  
-  .auth-button:hover {
-    background-color: #0056b3;
-  }
-  
+/* Shared auth page tweaks */
 
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.auth-form {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+}
+
+/* inputs */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.input-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.25s ease;
+}
+
+.input-group input:focus {
+  border-color: #007bff;
+}
+
+/* buttons */
+.auth-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  transition: background-color 0.25s ease;
+}
+
+.auth-button:hover {
+  background-color: #0056b3;
+}
+
+/* Google */
 .google-button {
-  background-color: #4285F4;
+  background-color: #4285f4;
   color: white;
   padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
 .google-button:hover {
   background-color: #357ae8;
+}
+
+/* --- small screens --- */
+@media (max-width: 640px) {
+  .auth-form {
+    padding: 20px;
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
+  }
 }

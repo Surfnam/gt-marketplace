@@ -7,7 +7,7 @@ import './ViewListing.css';
 
 const getListing = async (id) => {
   try {
-    const response = await fetch(`http://localhost:3001/listing/${id}`);
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${id}`);
     return await response.json();
   } catch (error) {
     console.error("Error fetching listing:", error);
@@ -17,7 +17,7 @@ const getListing = async (id) => {
 
 const getSeller = async (id) => {
   try {
-    const response = await fetch(`http://localhost:3001/api/users/${id}`);
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}`);
     return await response.json();
   } catch (error) {
     console.error("Error fetching seller:", error);
@@ -27,7 +27,7 @@ const getSeller = async (id) => {
 
 const addContact = async (user1Id, user2Id) => {
   try {
-    await axios.post("http://localhost:3001/api/users/addContact", {
+    await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/addContact`, {
       user1Id,
       user2Id,
     });
@@ -39,25 +39,25 @@ const addContact = async (user1Id, user2Id) => {
 const markAsInactive = async (listingId, sellerId, currentStatus) => {
   try {
     if (currentStatus === "available") {
-      await axios.patch(`http://localhost:3001/listing/${listingId}`, {
+      await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/listing/${listingId}`, {
         status: "unavailable",
       });
-      await axios.post("http://localhost:3001/api/users/inactiveListings", {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/inactiveListings`, {
         sellerId,
         listingId,
       });
-      await axios.delete("http://localhost:3001/api/users/activeListings", {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/activeListings`, {
         data: { sellerId, listingId },
       });
     } else {
-      await axios.patch(`http://localhost:3001/listing/${listingId}`, {
+      await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/listing/${listingId}`, {
         status: "available",
       });
-      await axios.post("http://localhost:3001/api/users/activeListings", {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/activeListings`, {
         sellerId,
         listingId,
       });
-      await axios.delete("http://localhost:3001/api/users/inactiveListings", {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/inactiveListings`, {
         data: { sellerId, listingId },
       });
     }
@@ -72,6 +72,7 @@ const ListingDetails = () => {
   const [seller, setSeller] = useState(null);
   const [listingStatus, setListingStatus] = useState("");
   const navigate = useNavigate();
+  const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,6 +84,20 @@ const ListingDetails = () => {
     };
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId && listingDetails) {
+      // Check if listing is favorited by current user
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/interestedListings`)
+        .then(res => res.json())
+        .then(data => {
+          const isFav = data.interestedListings.some(listing => listing._id === listingDetails._id);
+          setIsFavorited(isFav);
+        })
+        .catch(error => console.error("Error checking favorite status:", error));
+    }
+  }, [listingDetails]);
 
   if (!listingDetails || !seller) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -103,6 +118,54 @@ const ListingDetails = () => {
   const handleMarkAsInactive = async () => {
     await markAsInactive(listingDetails._id, seller._id, listingStatus);
     setListingStatus((prev) => (prev === "available" ? "unavailable" : "available"));
+  };
+
+  const handleFavorite = async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      // Handle unauthenticated user
+      return;
+    }
+
+    try {
+      const url = `${process.env.REACT_APP_BACKEND_URL}/api/users/interestedListings`;
+      const method = isFavorited ? "DELETE" : "POST";
+      
+      // Update listing's interestedUsers array
+      const listingResponse = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/listing/${listingDetails._id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: isFavorited ? "remove" : "add",
+            userId,
+          }),
+        }
+      );
+
+      if (!listingResponse.ok) {
+        throw new Error("Failed to update listing's interestedUsers");
+      }
+
+      // Update user's interested listings
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          listingId: listingDetails._id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update user's interestedListings");
+      }
+
+      setIsFavorited(!isFavorited);
+    } catch (error) {
+      console.error("Error updating favorite:", error);
+    }
   };
 
   return (
@@ -148,12 +211,15 @@ const ListingDetails = () => {
                             Message
                         </button>
                         <button
+                            onClick={handleFavorite}
                             className="p-2 rounded bg-gray-200 hover:bg-gray-300 transition group"
                             aria-label="Add to Favorites"
                             >
                             <Heart
-                                className="w-5 h-5 text-gray-400 group-hover:text-red-500 group-hover:fill-red-500 transition-colors"
-                                fill="none"
+                                className={`w-5 h-5 transition-colors ${
+                                    isFavorited ? "text-red-500 fill-red-500" : "text-gray-400 group-hover:text-red-500 group-hover:fill-red-500"
+                                }`}
+                                fill={isFavorited ? "red" : "none"}
                             />
                         </button>
                         </>
@@ -195,7 +261,7 @@ const ListingDetails = () => {
                 </p>
                 <div className="flex items-center gap-3">
                 <img
-                    src={seller.profileImageUrl || "/images/defaultPFP.jpg"}
+                    src={seller.profilePicture || "/images/defaultPFP.jpg"}
                     alt={`${seller.fullName}'s profile`}
                     className="w-10 h-10 rounded-full object-cover bg-gray-200 border border-black/20"
                 />

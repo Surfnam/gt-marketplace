@@ -1,17 +1,66 @@
+<<<<<<< HEAD:my-app/src/Navbar/Navbar.jsx
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { auth } from '../firebase'; // Import Firebase auth
 import './Navbar.css';
+=======
+import React, { useState, useEffect, useRef } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { auth } from "../firebase";
+import "../css/Navbar.css";
+import {
+  FaHome,
+  FaInfoCircle,
+  FaUser,
+  FaEnvelope,
+  FaComments,
+  FaSignOutAlt,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
+>>>>>>> 4b910a9c236770c4fffde443b79a40bf1d127c31:my-app/src/components/Navbar.jsx
 
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const dropdownRef = useRef(null);
+
+  /* fetch profile pic */
+  useEffect(() => {
+    const fetchPic = async () => {
+      if (!user?.email) return;
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/users/profile/${user.email}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch profile");
+        const data = await res.json();
+        setProfilePicture(data.user[0]?.profilePicture);
+      } catch (err) {
+        console.error("Error fetching profile picture:", err);
+      }
+    };
+    fetchPic();
+  }, [user]);
+
+  /* close dropdown when clicking outside */
+  useEffect(() => {
+    const handleOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+        setIsDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
+
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      localStorage.removeItem('userId');
-      console.log('User logged out successfully');
+      localStorage.removeItem("userId");
       navigateToLogin();
-    } catch (error) {
-      console.error('Error logging out:', error);
+    } catch (err) {
+      console.error("Error logging out:", err);
     }
   };
 
@@ -21,62 +70,82 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
         <Link to="/" className="navbar-logo">
           GT Marketplace
         </Link>
-        <ul className="navbar-menu">
-          <li className="navbar-item">
-            <NavLink exact to="/" activeClassName="active" className="navbar-link">
-              Home
-            </NavLink>
-          </li>
-          <li className="navbar-item">
-            <NavLink to="/about-us" activeClassName="active" className="navbar-link">
-              About Us
-            </NavLink>
-          </li>
-          <li className="navbar-item">
-            <NavLink to="/profile" activeClassName="active" className="navbar-link">
-              My Profile
-            </NavLink>
-          </li>
-          <li className="navbar-item">
-            <NavLink to="/contact" activeClassName="active" className="navbar-link">
-              Contact
-            </NavLink>
-          </li>
-          <li className="navbar-item">
-            <NavLink to="/chat" activeClassName="active" className="navbar-link">
-              Chat
-            </NavLink>
-          </li>
-          <li className="navbar-item">
-            <NavLink to="/payment" activeClassName="active" className="navbar-link">
-              Make Payment
-            </NavLink>
-          </li>
+
+        {/* hamburger (mobile) */}
+        <div
+          className="hamburger"
+          onClick={() => setIsMobileMenuOpen((p) => !p)}
+        >
+          {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+        </div>
+
+        <ul
+          className={`navbar-menu ${
+            isMobileMenuOpen ? "active" : ""
+          }`}
+        >
+          {[
+            { to: "/", icon: <FaHome />, text: "Home" },
+            { to: "/about-us", icon: <FaInfoCircle />, text: "About Us" },
+            { to: "/contact", icon: <FaEnvelope />, text: "Contact" },
+            { to: "/chat", icon: <FaComments />, text: "Chat" },
+          ].map(({ to, icon, text }) => (
+            <li key={to} className="navbar-item">
+              <NavLink
+                to={to}
+                className="navbar-link"
+                activeclassname="active"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {icon} {text}
+              </NavLink>
+            </li>
+          ))}
         </ul>
+
         <div className="navbar-buttons">
           {user ? (
-            <>
-              <span className="navbar-welcome" style={{ color: 'white' }}>Welcome, {user.email}!</span>
-              <button
-                onClick={handleLogout}
-                className="navbar-button"
+            <div className="profile-dropdown" ref={dropdownRef}>
+              <div
+                className="profile-trigger"
+                onClick={() => setIsDropdownOpen((p) => !p)}
               >
-                Logout
-              </button>
-            </>
+                <img
+                  src={profilePicture}
+                  alt="profile"
+                  className="profile-avatar profile-img"
+                />
+                <span className="profile-username">{user.email}</span>
+              </div>
+
+              {isDropdownOpen && (
+                <div className="dropdown-menu">
+                  <Link
+                    to="/profile"
+                    className="dropdown-item"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    <FaUser className="dropdown-icon" /> Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      handleLogout();
+                    }}
+                    className="dropdown-item"
+                  >
+                    <FaSignOutAlt className="dropdown-icon" /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
-              <button
-                onClick={navigateToLogin}
-                className="navbar-login"
-              >
-                Log In
+              <button onClick={navigateToLogin} className="navbar-login">
+                Log&nbsp;In
               </button>
-              <button
-                onClick={navigateToRegister}
-                className="navbar-button"
-              >
-                Sign Up
+              <button onClick={navigateToRegister} className="navbar-button">
+                Sign&nbsp;Up
               </button>
             </>
           )}
