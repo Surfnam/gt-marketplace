@@ -1,0 +1,103 @@
+.chat-input {
+    display: flex;
+    align-items: center;
+    padding: 20px 20px 20px 5px;
+    background-color: #ffffff;
+    border-left: 3px solid #c2bcbc;
+  }
+  
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  margin-right: 10px;
+  background-color: #c9d9dd;
+  transition: background-color 0.3s ease;
+}
+
+.chat-input .input-box:hover, .input-box:focus {
+  background-color: #a9b7bb;
+}
+
+.chat-input .input-box {
+  padding-left: 30px;
+}
+
+.chat-input button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #c9d9dd;
+  color: rgb(78, 85, 87);
+  width: 45px;
+  height: 45px;
+  font-size: 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 25px;
+  margin-left: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.chat-input button:hover {
+  background-color: #a9b7bb;
+}
+
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 30px;
+  margin-right: 10px;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  background-color: #c9d9dd;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.file-upload-label .plus-icon {
+  font-size: 20px;
+  color: rgb(78, 85, 87);
+}
+
+.file-upload-label:hover {
+  background-color: #a9b7bb;
+}
+
+@media (max-width: 768px) {
+  .chat-input {
+    padding: 8px 8px;
+    gap: 8px;
+    border: none;
+  }
+
+  .chat-input .file-upload-label,
+  .chat-input button {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .file-upload-label {
+    margin-left: 10px;
+  }
+
+  .chat-input input.input-box {
+    font-size: 14px;
+    padding: 10px;
+    margin: 0px;
+  }
+
+  .chat-input button {
+    margin-right: 10px;
+  }
+
+  .chat-input p {
+    max-width: 100px;
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,66 @@
+.messages-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    position: relative;
+    flex: 1;
+    background-color: #ffffff;
+    padding-left: 20px;
+    padding-right: 20px;
+    overflow-y: auto;
+    border-left: 3px solid #c2bcbc;
+  }
+
+.messages-container > :first-child {
+    margin-top: auto !important;
+}
+
+  .messages-container::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .messages-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .messages-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 6px;
+  }
+
+  .messages-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+.modal-overlay {
+  position: fixed; /* Covers the entire viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75); /* transparent black */
+  z-index: 999; /* Below the modal but above everything else */
+}
+
+.modal {
+  position: fixed;
+  left: 55%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+.modal .selectedMedia-link {
+  color: rgb(184, 184, 184);
+  font-size: 17px;
+}
+.modal .selectedMedia-link:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .messages-container {
+    border: none;
+  }
+}
