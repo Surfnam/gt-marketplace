@@ -24,6 +24,7 @@ import EditListing from "./pages/EditListing";
 import Unauthorized from "./pages/Unauthorized";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminHome from "./pages/AdminHome";
+import RequireAdmin from "./pages/RequireAdmin";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -90,7 +91,14 @@ function Main() {
         <Route path="/listing/:id" element={<ListingDetails />}></Route>
         <Route path="/unauthorized" element={<Unauthorized />}></Route>
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/admin" element={<AdminHome />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin user={user}>
+              <AdminHome />
+            </RequireAdmin>
+          }
+        />
       </Routes>
     </>
   );

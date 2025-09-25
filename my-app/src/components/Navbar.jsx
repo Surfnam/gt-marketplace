@@ -123,13 +123,16 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
                   >
                     <FaUser className="dropdown-icon" /> Profile
                   </Link> 
-                  <Link
-                    to="/admin"
-                    className="dropdown-item"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    <FaShieldAlt className="dropdown-icon" /> Admin Dashboard
-                  </Link>
+                  
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="dropdown-item"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <FaShieldAlt className="dropdown-icon" /> Admin Dashboard
+                    </Link>
+                  )}
                   <button 
                     onClick={() => {
                       setIsDropdownOpen(false);
