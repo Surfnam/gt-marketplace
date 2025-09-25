@@ -99,6 +99,14 @@ function Main() {
             </RequireAdmin>
           }
         />
+        <Route
+          path="/admin/users/:id"
+          element={
+            <RequireAdmin user={user}>
+              <UserProfile readOnly />
+            </RequireAdmin>
+          }
+        />
       </Routes>
     </>
   );
