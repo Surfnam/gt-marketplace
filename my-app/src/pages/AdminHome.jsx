@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../css/App.css";
-import { Heart, Trash2 } from "lucide-react";
+import { Heart, Trash2, Users, Package } from "lucide-react";
 import { FiFilter } from "react-icons/fi";
 import Icons from "../images/icons";
 import Pagination from "../components/Pagination";
 import AuthModal from "../components/AuthModal";
 import { useAuthCheck } from "../components/useAuthCheck";
+import UserSearch from "../components/UserSearch";
 
 const fetchListings = async (page, category, min, max, search) => {
   try {
@@ -67,6 +68,7 @@ const categories = [
 function AdminHome() {
   const navigate = useNavigate();
   const { showAuthModal, setShowAuthModal, checkAuth } = useAuthCheck();
+  const [activeTab, setActiveTab] = useState("listings"); // "listings" or "users"
   const [listings, setListings] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -284,124 +286,165 @@ function AdminHome() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="md:hidden px-4 pt-4">
-        <button
-          onClick={() => setShowFilters(true)}
-          className="flex items-center gap-2 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md"
-        >
-          <FiFilter size={20} />
-          Filters
-        </button>
-      </div>
-
-      {showFilters && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden"
-          onClick={() => setShowFilters(false)}
-        >
-          <div
-            className="absolute left-0 top-0 h-full w-3/4 max-w-xs bg-white pt-24 p-6 overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FilterPanel />
+      {/* Tab Navigation */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+          <div className="flex space-x-8">
             <button
-              onClick={() => setShowFilters(false)}
-              className="mt-6 w-full bg-gray-600 text-white font-semibold py-2 px-4 rounded-md"
+              onClick={() => setActiveTab("listings")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "listings"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
             >
-              Close
+              <div className="flex items-center space-x-2">
+                <Package size={20} />
+                <span>Listings Search</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("users")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "users"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Users size={20} />
+                <span>User Search</span>
+              </div>
             </button>
           </div>
         </div>
-      )}
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8 flex">
-        <aside className="hidden md:block w-64 mr-8 flex flex-col sticky top-24">
-          <FilterPanel />
-        </aside>
-        <main className="flex-1">
-          <div className="flex justify-between items-center mt-4 mb-4">
-     
+      {/* Content based on active tab */}
+      {activeTab === "listings" ? (
+        <>
+          <div className="md:hidden px-4 pt-4">
             <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
-              onClick={() => checkAuth(() => navigate("/createlisting"))}
+              onClick={() => setShowFilters(true)}
+              className="flex items-center gap-2 bg-gray-600 text-white font-semibold py-2 px-4 rounded-md"
             >
-              Create Listing
+              <FiFilter size={20} />
+              Filters
             </button>
           </div>
-          <div className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
-            <p className="font-semibold">Admin Mode</p>
-            <p>You can delete any listing</p>
-          </div>
-          <div style={{ minHeight: "900px" }}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {listings.map((listing) => (
-                <div
-                  key={listing.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden border-2 border-red-200"
+
+          {showFilters && (
+            <div
+              className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden"
+              onClick={() => setShowFilters(false)}
+            >
+              <div
+                className="absolute left-0 top-0 h-full w-3/4 max-w-xs bg-white pt-24 p-6 overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FilterPanel />
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="mt-6 w-full bg-gray-600 text-white font-semibold py-2 px-4 rounded-md"
                 >
-                  <img
-                    src={listing.image}
-                    alt={listing.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <div className="w-full flex">
-                      <div className="w-[60%]">
-                        <h2 className="text-lg font-semibold">
-                          {listing.title}
-                        </h2>
-                        <p className="text-gray-600 mb-2">${listing.price}</p>
-                        <p className="text-xs text-gray-500">
-                          ID: {listing._id}
-                        </p>
-                      </div>
-                      <div className="w-[40%] flex flex-col gap-2">
-                        <button
-                          onClick={() => handleFavorite(listing)}
-                          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition self-end"
-                        >
-                          <Heart
-                            size={20}
-                            className={`transition-colors ${
-                              favorites[listing._id]
-                                ? "text-red-500"
-                                : "text-gray-400"
-                            }`}
-                            fill={favorites[listing._id] ? "red" : "none"}
-                          />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteListing(listing._id)}
-                          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-100 transition self-end"
-                          title="Delete Listing"
-                        >
-                          <Trash2
-                            size={20}
-                            className="text-red-500 hover:text-red-700"
-                          />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <button
-                        onClick={() => navigateToListingDetails(listing._id)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex-1"
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  Close
+                </button>
+              </div>
             </div>
+          )}
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8 flex">
+            <aside className="hidden md:block w-64 mr-8 flex flex-col sticky top-24">
+              <FilterPanel />
+            </aside>
+            <main className="flex-1">
+              <div className="flex justify-between items-center mt-4 mb-4">
+                <button
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded"
+                  onClick={() => checkAuth(() => navigate("/createlisting"))}
+                >
+                  Create Listing
+                </button>
+              </div>
+              <div className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+                <p className="font-semibold">Admin Mode</p>
+                <p>You can delete any listing</p>
+              </div>
+              <div style={{ minHeight: "900px" }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {listings.map((listing) => (
+                    <div
+                      key={listing.id}
+                      className="bg-white rounded-lg shadow-md overflow-hidden border-2 border-red-200"
+                    >
+                      <img
+                        src={listing.image}
+                        alt={listing.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <div className="w-full flex">
+                          <div className="w-[60%]">
+                            <h2 className="text-lg font-semibold">
+                              {listing.title}
+                            </h2>
+                            <p className="text-gray-600 mb-2">${listing.price}</p>
+                            <p className="text-xs text-gray-500">
+                              ID: {listing._id}
+                            </p>
+                          </div>
+                          <div className="w-[40%] flex flex-col gap-2">
+                            <button
+                              onClick={() => handleFavorite(listing)}
+                              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition self-end"
+                            >
+                              <Heart
+                                size={20}
+                                className={`transition-colors ${
+                                  favorites[listing._id]
+                                    ? "text-red-500"
+                                    : "text-gray-400"
+                                }`}
+                                fill={favorites[listing._id] ? "red" : "none"}
+                              />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteListing(listing._id)}
+                              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-100 transition self-end"
+                              title="Delete Listing"
+                            >
+                              <Trash2
+                                size={20}
+                                className="text-red-500 hover:text-red-700"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 mt-4">
+                          <button
+                            onClick={() => navigateToListingDetails(listing._id)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex-1"
+                          >
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
+            </main>
           </div>
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
-        </main>
-      </div>
+        </>
+      ) : (
+        <UserSearch />
+      )}
+      
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
