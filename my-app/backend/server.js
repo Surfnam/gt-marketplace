@@ -12,6 +12,7 @@ import messageRoutes from './routes/message.js';
 import fileUpload from './routes/fileUpload.js'; 
 import bodyParser from 'body-parser';
 import stripePackage from 'stripe';
+import adminRoutes from './routes/adminRoutes.js'; // import the admin routes
 
 const app = express();
 if (process.env.NODE_ENV === 'production') {
@@ -56,6 +57,7 @@ app.use('/api/users', userRoutes); // Use the new user routes
 app.use('/api/message', messageRoutes); // Use the new message routes
 app.use('/api/fileUpload', fileUpload);
 // app.use('/file', fileUpload);
+app.use('/api/admins', adminRoutes);
 
 
 // Creating the server (http) const
