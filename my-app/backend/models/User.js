@@ -43,7 +43,18 @@ const userSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
         default:[]
-    }]
+    }],
+    isSuspended: {
+        type:Boolean,
+        default:false
+    }
+    /*
+    //Suspension reason (if wanted)
+    suspensionReason: {
+        type:String,
+        default:''
+    },
+
     /*
     pastTransactions: {
         //define a trasaction schema?
