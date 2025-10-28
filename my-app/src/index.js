@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
+import AdminLogin from "./pages/AdminLogin";
 import ListingDetails from "./pages/ListingDetails";
 import {
   BrowserRouter as Router,
@@ -68,7 +69,10 @@ function Main() {
         console.log("onAuthchanged unsubscribe")
         setUser(null);
         localStorage.removeItem("userId");
-        navigateToLogin()
+        // Don't auto-redirect away from admin login when unauthenticated
+        if (location.pathname !== "/admin/login") {
+          navigateToLogin()
+        }
       } 
       setLoadingAuth(false);
     });
@@ -82,7 +86,7 @@ function Main() {
 
   return (
     <>
-      {location.pathname !== "/login" && location.pathname !== "/register" && (
+      {location.pathname !== "/login" && location.pathname !== "/register" && location.pathname !== "/admin/login" && (
         <Navbar
           navigateToLogin={navigateToLogin}
           navigateToRegister={navigateToRegister}
@@ -92,6 +96,7 @@ function Main() {
       <Routes>
         <Route path="/" element={<Home checkAuth={checkAuth} />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
