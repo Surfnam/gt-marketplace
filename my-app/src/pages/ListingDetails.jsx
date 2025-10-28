@@ -65,7 +65,7 @@ const markAsInactive = async (listingId, sellerId, currentStatus) => {
   }
 };
 
-const ListingDetails = () => {
+const ListingDetails = ( { checkAuth } ) => {
   const { id } = useParams();
   const [listingDetails, setListingDetails] = useState(null);
   const [seller, setSeller] = useState(null);
@@ -119,52 +119,41 @@ const ListingDetails = () => {
     setListingStatus((prev) => (prev === "available" ? "unavailable" : "available"));
   };
 
-  const handleFavorite = async () => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      // Handle unauthenticated user
-      return;
-    }
 
-    try {
-      const url = `${process.env.REACT_APP_BACKEND_URL}/api/users/interestedListings`;
-      const method = isFavorited ? "DELETE" : "POST";
-      
-      // Update listing's interestedUsers array
-      const listingResponse = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/listing/${listingDetails._id}`,
-        {
+  const handleFavorite = () => {
+    checkAuth(async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      try {
+        const url = `${process.env.REACT_APP_BACKEND_URL}/api/users/interestedListings`;
+        const method = isFavorited ? "DELETE" : "POST";
+
+        // Update listing's interestedUsers array
+        await fetch(`${process.env.REACT_APP_BACKEND_URL}/listing/${listingDetails._id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: isFavorited ? "remove" : "add",
             userId,
           }),
-        }
-      );
+        });
 
-      if (!listingResponse.ok) {
-        throw new Error("Failed to update listing's interestedUsers");
+        // Update user's interested listings
+        await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            listingId: listingDetails._id,
+          }),
+        });
+
+        setIsFavorited(!isFavorited);
+      } catch (error) {
+        console.error("Error updating favorite:", error);
       }
-
-      // Update user's interested listings
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          listingId: listingDetails._id,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update user's interestedListings");
-      }
-
-      setIsFavorited(!isFavorited);
-    } catch (error) {
-      console.error("Error updating favorite:", error);
-    }
+    });
   };
 
   return (
@@ -215,7 +204,7 @@ const ListingDetails = () => {
                             aria-label="Add to Favorites"
                             >
                             <Heart
-                                className={`w-5 h-5 transition-colors ${
+                                className={`w-5 h-5 transition-colors pointer-events-none ${
                                     isFavorited ? "text-red-500 fill-red-500" : "text-gray-400 group-hover:text-red-500 group-hover:fill-red-500"
                                 }`}
                                 fill={isFavorited ? "red" : "none"}
