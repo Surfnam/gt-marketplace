@@ -23,6 +23,8 @@ import PaymentPage from './pages/PaymentPage';
 import EditListing from "./pages/EditListing";
 import Unauthorized from "./pages/Unauthorized";
 import ForgotPassword from "./pages/ForgotPassword";
+import AdminHome from "./pages/AdminHome";
+import RequireAdmin from "./pages/RequireAdmin";
 import AuthModal from "./components/AuthModal";
 
 const container = document.getElementById("root");
@@ -101,6 +103,22 @@ function Main() {
         <Route path="/listing/:id" element={<ListingDetails checkAuth={checkAuth} />} />
         <Route path="/unauthorized" element={<Unauthorized />}></Route>
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin user={user}>
+              <AdminHome />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/users/:id"
+          element={
+            <RequireAdmin user={user}>
+              <UserProfile readOnly />
+            </RequireAdmin>
+          }
+        />
       </Routes>
 
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />

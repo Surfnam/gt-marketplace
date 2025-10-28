@@ -11,12 +11,14 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
+  FaShieldAlt,
 } from "react-icons/fa";
 
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const dropdownRef = useRef(null);
 
   /* fetch profile pic */
@@ -30,6 +32,7 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
         if (!res.ok) throw new Error("Failed to fetch profile");
         const data = await res.json();
         setProfilePicture(data.user[0]?.profilePicture);
+        setIsAdmin(data.user[0]?.role === 'admin');
       } catch (err) {
         console.error("Error fetching profile picture:", err);
       }
@@ -119,8 +122,18 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     <FaUser className="dropdown-icon" /> Profile
-                  </Link>
-                  <button
+                  </Link> 
+                  
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="dropdown-item"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <FaShieldAlt className="dropdown-icon" /> Admin Dashboard
+                    </Link>
+                  )}
+                  <button 
                     onClick={() => {
                       setIsDropdownOpen(false);
                       handleLogout();

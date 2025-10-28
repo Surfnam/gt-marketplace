@@ -43,7 +43,12 @@ const userSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
         default:[]
-    }]
+    }],
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
+    }
     /*
     pastTransactions: {
         //define a trasaction schema?
