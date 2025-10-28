@@ -25,6 +25,7 @@ import Unauthorized from "./pages/Unauthorized";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminHome from "./pages/AdminHome";
 import RequireAdmin from "./pages/RequireAdmin";
+import AuthModal from "./components/AuthModal";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -34,6 +35,17 @@ function Main() {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  const checkAuth = (callback) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId || userId === "guest") {
+      setShowAuthModal(true);
+      return false;
+    }
+    if (callback) callback();
+    return true;
+  };
 
   const navigateToLogin = () => {
     navigate("/login");
@@ -78,7 +90,7 @@ function Main() {
         />
       )}
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home checkAuth={checkAuth} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/about-us" element={<AboutUs />} />
@@ -88,7 +100,7 @@ function Main() {
         <Route path="/createlisting" element={<CreateListing />} />
         <Route path="/edit-listing/:id" element={<EditListing userProp={user}/>} />
         <Route path="/payment" element={<PaymentPage />} />
-        <Route path="/listing/:id" element={<ListingDetails />}></Route>
+        <Route path="/listing/:id" element={<ListingDetails checkAuth={checkAuth} />} />
         <Route path="/unauthorized" element={<Unauthorized />}></Route>
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
@@ -108,6 +120,8 @@ function Main() {
           }
         />
       </Routes>
+
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </>
   );
 }
