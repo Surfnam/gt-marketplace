@@ -47,13 +47,14 @@ const userSchema = new mongoose.Schema({
     isSuspended: {
         type:Boolean,
         default:false
-    }
+    },
     /*
     //Suspension reason (if wanted)
     suspensionReason: {
         type:String,
         default:''
     },
+    */
     role: {
         type: String,
         enum: ['user', 'admin'],
