@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt'
-import {updateUser, updateInterestedListings, getUserById, getUserByIdPaginated, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact, getUserInactiveListings, addInactiveListing, removeInactiveListing, removeActiveListing, addActiveListing } from '../controllers/userController.js';
+import {updateUser, updateInterestedListings, getUserById, getUserByIdPaginated, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact, getUserInactiveListings, addInactiveListing, removeInactiveListing, removeActiveListing, addActiveListing, searchUsers } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -67,6 +67,9 @@ router.patch('/:id', checkSuspension, updateUser);
 router.patch('/:id/interestedListings', checkSuspension, updateInterestedListings);
 
 router.get('/profile/:email', getUserByEmail)
+
+// search users
+router.get('/search', searchUsers)
 
 // get all user info (except password) by id
 router.get('/:id', getUserById)
@@ -144,5 +147,7 @@ router.get('/:id/inactiveListings', getUserInactiveListings);
 
 // add new contact
 router.post('/addContact', checkSuspension, addContact)
+
+
 
 export default router;

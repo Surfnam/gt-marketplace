@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import axios from 'axios';
 import MiniPagination from "../components/MiniPagination";
 import CompleteProfileModal from "../components/CompleteProfileModal";
 
-function UserProfile({ userProp }) {
+function UserProfile({ userProp, readOnly = false }) {
+  const { id: viewedUserId } = useParams();
   const [showModal, setShowModal] = useState(false);
 
   const [editMode, seteditMode] = useState(false);
@@ -40,16 +41,20 @@ function UserProfile({ userProp }) {
   const [selectedImageFile, setSelectedImageFile] = useState(null);
 
   useEffect(() => {
+    if (readOnly) return;
     const justRegistered = localStorage.getItem("justRegistered");
     if (justRegistered === "true") {
       setShowModal(true);
       localStorage.removeItem("justRegistered");
     }
-  }, []);
+  }, [readOnly]);
 
-  if (!userProp) {
-    navigate("/login");
-  }
+  useEffect(() => {
+    if (!readOnly && !userProp) {
+      navigate("/login");
+    }
+  }, [readOnly, userProp, navigate]);
+
 
   const confirmDelete = (listingId, isActive) => {
     setListingIdToDelete(listingId);
@@ -67,6 +72,7 @@ function UserProfile({ userProp }) {
 
   console.log("this is the user prop", userProp);
   const editHandler = async () => {
+    if (readOnly) return;
     const prev = editMode;
     seteditMode((prev) => !prev);
     console.log(editMode);
@@ -132,11 +138,13 @@ function UserProfile({ userProp }) {
 
   const getUserData = async () => {
     try {
-      let id = localStorage.getItem("userId");
-      if (id == 'undefined') {
-        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/profile/${userProp.email}`);
-        const userData = res.data;
-        id = userData.user[0]._id
+      let id = readOnly ? viewedUserId : null;
+      if (!id) {
+        id = localStorage.getItem("userId");
+        if (id == "undefined") {
+          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/profile/${userProp.email}`);
+          id = res.data.user[0]._id;
+        }
       }
 
       const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${id}/paginated/`, {
@@ -241,9 +249,11 @@ function UserProfile({ userProp }) {
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-0">
+                  {!readOnly && (
                   <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Edit Profile
                   </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -279,7 +289,7 @@ function UserProfile({ userProp }) {
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
-      {showModal && (
+      {!readOnly && showModal && (
       <CompleteProfileModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -291,7 +301,7 @@ function UserProfile({ userProp }) {
             <div className="sm:flex sm:items-center sm:justify-between">
               <div className="sm:flex sm:space-x-5">
               <div className="flex-shrink-0 text-center">
-                {editMode ? (
+                {editMode && !readOnly ? (
                   <div className="relative flex flex-col items-center">
                     <img 
                       className="h-20 w-20 rounded-md cursor-pointer border-2 border-blue-300 hover:opacity-80 transition p-0.5"
@@ -326,7 +336,7 @@ function UserProfile({ userProp }) {
                 )}
               </div>
                 <div className="mt-4 sm:mt-0 sm:pt-1 sm:text-left">
-                {editMode? (<input 
+                {editMode && !readOnly ? (<input 
                   type="text" 
                   value={name} 
                   onChange={(e) => setName(e.target.value)} 
@@ -334,7 +344,7 @@ function UserProfile({ userProp }) {
                   className="text-xl font-bold text-gray-900  sm:text-2xl bg-transparent border-2 border-blue-300 outline-none"
                 />) : (<p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p>)}
                     {/* <p className="text-xl font-bold text-gray-900 sm:text-2xl">{name || "Default User"}</p> */}
-                    {editMode? (<input 
+                    {editMode && !readOnly ? (<input 
                     type="text" 
                     value={displayName} 
                     onChange={(e) => setDisplayName(e.target.value)} 
@@ -347,9 +357,11 @@ function UserProfile({ userProp }) {
                 </div>
               </div>
               <div className="mt-5 sm:mt-0">
+                {!readOnly && (
                 <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onClick = {editHandler}>
-                  {editMode ? "Confirm" : "Edit Profile"}
+                  {editMode && !readOnly ? "Confirm" : "Edit Profile"}
                 </button>
+                )}
               </div>
             </div>
           </div>
@@ -366,7 +378,7 @@ function UserProfile({ userProp }) {
               </div>
               <div className="sm:col-span-2">
                 <dt className="text-sm font-medium text-gray-500">Bio</dt>
-                {editMode? (<input 
+                {editMode && !readOnly ? (<input 
               type="text" 
               value={bio} 
               onChange={(e) => setBio(e.target.value)} 

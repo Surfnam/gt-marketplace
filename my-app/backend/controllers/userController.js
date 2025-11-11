@@ -386,3 +386,76 @@ export const addContact = async (req, res) => {
         res.status(500).json({ message: "Failed to add contact", error });
     }
 };
+
+export const searchUsers = async (req, res) => {
+    try {
+        const { 
+            search = '', 
+            role = '', 
+            page = 1, 
+            limit = 10,
+            sortBy = 'createdAt',
+            sortOrder = 'desc'
+        } = req.query;
+
+        // Build search query
+        let query = {};
+        
+        // Text search across multiple fields
+        if (search) {
+            query.$or = [
+                { username: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { fullName: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Role filter
+        if (role && role !== 'all') {
+            query.role = role;
+        }
+
+        // Calculate pagination
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        
+        // Build sort object
+        const sort = {};
+        sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+        // Execute search with pagination
+        const [users, totalUsers] = await Promise.all([
+            User.find(query)
+                .select('-password') // Exclude password for security
+                .sort(sort)
+                .skip(skip)
+                .limit(parseInt(limit))
+                .populate('listings', 'title status')
+                .lean(),
+            User.countDocuments(query)
+        ]);
+
+        // Calculate pagination info
+        const totalPages = Math.ceil(totalUsers / parseInt(limit));
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        res.status(200).json({
+            users,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalUsers,
+                hasNextPage,
+                hasPrevPage,
+                limit: parseInt(limit)
+            }
+        });
+
+    } catch (error) {
+        console.error('Error searching users:', error);
+        res.status(500).json({ 
+            message: 'Error searching users', 
+            error: error.message 
+        });
+    }
+};
