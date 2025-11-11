@@ -14,8 +14,8 @@ export const addListing = async (req, res) => {
         if (user && user.isSuspended) {
             return res.status(403).json({ error: 'Suspended users cannot add listings' });
         }
+        */
         const embedding = await getEmbedding(title);
-*/
         const newListing = new Listing({
             ...req.body,
             seller: id,
