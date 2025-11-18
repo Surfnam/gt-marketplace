@@ -52,7 +52,7 @@ function AdminLogin() {
       }
       localStorage.setItem("userId", data.user[0]._id);
       // Successful admin login – redirect to home for now (replace with /admin when dashboard exists)
-      navigate("/");
+      navigate("/admin");
     } catch (err) {
       setError(err.message || "Login failed");
     }
