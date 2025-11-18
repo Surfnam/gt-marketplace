@@ -12,6 +12,7 @@ import {
   FaBars,
   FaTimes,
   FaShieldAlt,
+  FaWpforms
 } from "react-icons/fa";
 
 function Navbar({ navigateToLogin, navigateToRegister, user }) {
@@ -19,6 +20,7 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuspended, setIsSuspended] = useState(false);
   const dropdownRef = useRef(null);
 
   /* fetch profile pic */
@@ -32,7 +34,8 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
         if (!res.ok) throw new Error("Failed to fetch profile");
         const data = await res.json();
         setProfilePicture(data.user[0]?.profilePicture);
-        setIsAdmin(data.user[0]?.role === 'admin');
+        setIsAdmin(data.user[0]?.role === 'admin' && data.user[0]?.isSuspended === false); // suspended admins arent admins
+        setIsSuspended(data.user[0]?.isSuspended);
       } catch (err) {
         console.error("Error fetching profile picture:", err);
       }
@@ -75,14 +78,13 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </div>
 
-        <ul
-          className={`navbar-menu ${
-            isMobileMenuOpen ? "active" : ""
-          }`}
-        >
+        <ul className={`navbar-menu ${isMobileMenuOpen ? "active" : ""}`}>
           {[
             { to: "/", icon: <FaHome />, text: "Home" },
             { to: "/about-us", icon: <FaInfoCircle />, text: "About Us" },
+            ...(isSuspended
+              ? [{ to: "/unsuspend-request", icon: <FaWpforms />, text: "Unsuspend" }]
+              : []),
             { to: "/contact", icon: <FaEnvelope />, text: "Contact" },
             { to: "/chat", icon: <FaComments />, text: "Chat" },
           ].map(({ to, icon, text }) => (
@@ -122,8 +124,8 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     <FaUser className="dropdown-icon" /> Profile
-                  </Link> 
-                  
+                  </Link>
+
                   {isAdmin && (
                     <Link
                       to="/admin"
@@ -133,7 +135,7 @@ function Navbar({ navigateToLogin, navigateToRegister, user }) {
                       <FaShieldAlt className="dropdown-icon" /> Admin Dashboard
                     </Link>
                   )}
-                  <button 
+                  <button
                     onClick={() => {
                       setIsDropdownOpen(false);
                       handleLogout();

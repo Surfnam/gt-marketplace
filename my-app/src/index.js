@@ -27,6 +27,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import AdminHome from "./pages/AdminHome";
 import RequireAdmin from "./pages/RequireAdmin";
 import AuthModal from "./components/AuthModal";
+import RequireSuspension from "./pages/RequireSuspension";
+import UnsuspendRequest from "./pages/UnsuspendRequest";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -37,7 +39,7 @@ function Main() {
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  
+
   const checkAuth = (callback) => {
     const userId = localStorage.getItem("userId");
     if (!userId || userId === "guest") {
@@ -73,7 +75,7 @@ function Main() {
         if (location.pathname !== "/admin/login") {
           navigateToLogin()
         }
-      } 
+      }
       setLoadingAuth(false);
     });
 
@@ -100,10 +102,15 @@ function Main() {
         <Route path="/register" element={<Register />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/unsuspend-request" element={
+          <RequireSuspension user={user}>
+            <UnsuspendRequest user={user} />
+          </RequireSuspension>
+        } />
         <Route path="/chat" element={<Chat user={user} />} />
-        <Route path="/profile" element={<UserProfile userProp = {user}/>} />
+        <Route path="/profile" element={<UserProfile userProp={user} />} />
         <Route path="/createlisting" element={<CreateListing />} />
-        <Route path="/edit-listing/:id" element={<EditListing userProp={user}/>} />
+        <Route path="/edit-listing/:id" element={<EditListing userProp={user} />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/listing/:id" element={<ListingDetails checkAuth={checkAuth} />} />
         <Route path="/unauthorized" element={<Unauthorized />}></Route>

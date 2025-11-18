@@ -19,8 +19,8 @@ const checkSuspension = async(req, res, next) => {
     }
     if (user.isSuspended) {
       return res.status(403).json({ error: 'User is suspended' }); /*Reason: ${user.suspensionReason}*/
-  }
-  next();
+    }
+    next();
   } catch (error) {
     console.error('Error checking user suspension status:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -116,6 +116,24 @@ router.patch('/:id/suspend', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' }); 
     }
 });
+
+// for testing
+/* router.patch('/:id/admin', async (req, res) => {
+  //const {reason} = req.body; // if we want to reason
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id, 
+      { role: "admin" }, 
+      { new: true });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      res.status(200).json({ message: 'User suspended successfully', user }); 
+    } catch (error) {
+      console.error('Error suspending user in MongoDB:', error);
+      res.status(500).json({ error: 'Internal Server Error' }); 
+    }
+}); */
 
 
 // Add an interested listing to a user's interestedListings. Pass in "userId" and "listingId" in post body.

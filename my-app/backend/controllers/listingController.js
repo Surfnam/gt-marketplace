@@ -9,12 +9,11 @@ export const addListing = async (req, res) => {
         const {id} = req.params;
         const { title } = req.body;
 
-        /* Unfinished feature: prevent suspended users from adding listings --> will add after suspended users feature is complete
+        /* Unfinished feature: prevent suspended users from adding listings --> will add after suspended users feature is complete */
         const user = await User.findById(id);
         if (user && user.isSuspended) {
             return res.status(403).json({ error: 'Suspended users cannot add listings' });
         }
-        */
         const embedding = await getEmbedding(title);
         const newListing = new Listing({
             ...req.body,

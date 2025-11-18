@@ -5,30 +5,30 @@ import { MAX_USER_LISTINGS_PER_PAGE } from "../config/config.js";
 
 export const updateUser = async (req, res) => {
     try {
-      const userId = req.params.id; 
-      const updates = req.body; 
-      
-      // Remove any fields that are undefined (not provided in the request)
-      const filteredUpdates = Object.fromEntries(
-        Object.entries(updates).filter(([_, value]) => value !== undefined)
-      );
+        const userId = req.params.id;
+        const updates = req.body;
 
-      console.log('filteredUpdates', filteredUpdates)
-  
-      // Use findByIdAndUpdate with $set to update only specified fields
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { $set: filteredUpdates },
-        { new: true }  // Option to return the updated document
-      );
-  
-      if (!updatedUser) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      res.status(200).json({ user: updatedUser });
+        // Remove any fields that are undefined (not provided in the request)
+        const filteredUpdates = Object.fromEntries(
+            Object.entries(updates).filter(([_, value]) => value !== undefined)
+        );
+
+        console.log('filteredUpdates', filteredUpdates)
+
+        // Use findByIdAndUpdate with $set to update only specified fields
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: filteredUpdates },
+            { new: true }  // Option to return the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ user: updatedUser });
     } catch (error) {
-      res.status(500).json({ message: 'Failed to update user profile', error });
+        res.status(500).json({ message: 'Failed to update user profile', error });
     }
 };
 
@@ -66,7 +66,7 @@ export const updateInterestedListings = async (req, res) => {
         res.status(500).json({ message: "Failed to update interestedListings", error });
     }
 };
-  
+
 export const getUserById = async (req, res) => {
     const { id } = req.params;
 
@@ -87,14 +87,14 @@ export const getUserById = async (req, res) => {
 
 export const getUserByIdPaginated = async (req, res) => {
     const { id } = req.params;
-    let { activePage = 1, interestedPage = 1, inactivePage = 1} = req.query;
+    let { activePage = 1, interestedPage = 1, inactivePage = 1 } = req.query;
     activePage = parseInt(activePage);
     interestedPage = parseInt(interestedPage);
     inactivePage = parseInt(inactivePage)
 
     try {
         const user = await User.findById(id)
-            .select("fullName username email bio interestedListings profilePicture") 
+            .select("fullName username email bio interestedListings profilePicture")
             .lean(); // Convert Mongoose object to JSON
 
         if (!user) {
@@ -104,8 +104,8 @@ export const getUserByIdPaginated = async (req, res) => {
         // Fetch paginated active listings
         const [activeListings, totalActiveListings] = await Promise.all([
             Listing.find({ seller: id, status: "available" })
-                .sort({ createdAt: -1 }) 
-                .skip((activePage-1) * MAX_USER_LISTINGS_PER_PAGE)
+                .sort({ createdAt: -1 })
+                .skip((activePage - 1) * MAX_USER_LISTINGS_PER_PAGE)
                 .limit(MAX_USER_LISTINGS_PER_PAGE)
                 .select("title price image category createdAt"),
             Listing.countDocuments({ seller: id, status: "available" })
@@ -114,15 +114,15 @@ export const getUserByIdPaginated = async (req, res) => {
         // Fetch paginated interested listings
         const [interestedListings, totalInterestedListings] = await Promise.all([
             Listing.find({ _id: { $in: user.interestedListings } })
-                .sort({ createdAt: -1 }) 
-                .skip((interestedPage-1) * MAX_USER_LISTINGS_PER_PAGE)
+                .sort({ createdAt: -1 })
+                .skip((interestedPage - 1) * MAX_USER_LISTINGS_PER_PAGE)
                 .limit(MAX_USER_LISTINGS_PER_PAGE)
                 .select("title price image category createdAt"),
             Listing.countDocuments({ _id: { $in: user.interestedListings } })
         ]);
 
-         // Fetch paginated inactive listings
-         const [inactiveListings, totalInactiveListings] = await Promise.all([
+        // Fetch paginated inactive listings
+        const [inactiveListings, totalInactiveListings] = await Promise.all([
             Listing.find({ seller: id, status: { $ne: "available" } }) // Exclude active listings
                 .sort({ createdAt: -1 })
                 .skip((inactivePage - 1) * MAX_USER_LISTINGS_PER_PAGE)
@@ -138,7 +138,7 @@ export const getUserByIdPaginated = async (req, res) => {
             interestedListings,
             totalInterestedListingsPages: Math.ceil(totalInterestedListings / MAX_USER_LISTINGS_PER_PAGE),
             inactiveListings,
-            totalInactiveListings: Math.ceil(totalInactiveListings / MAX_USER_LISTINGS_PER_PAGE )
+            totalInactiveListings: Math.ceil(totalInactiveListings / MAX_USER_LISTINGS_PER_PAGE)
         });
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving user', error: error.message });
@@ -146,119 +146,125 @@ export const getUserByIdPaginated = async (req, res) => {
 };
 
 export const getUserByEmail = async (req, res) => {
-  const email  = req.params.email;
+    const email = req.params.email;
+    console.log("finding user by email: " + email);
 
-  try {
-      
-      const user = await User.find({ email: email })
-          .populate('listings interestedListings') // Populate references
-          .select('-password'); // Exclude the password field for security
-     console.log("is this being hit?")
-      console.log(user)
-      if (!user) {
-          return res.status(404).json({ message: 'User not found' });
-      }
+    try {
 
-      res.status(200).json({user: user});
-  } catch (error) {
-      res.status(500).json({ message: 'Error retrieving user', error: error.message });
-  }
+        const user = await User.find({ email: email })
+            .populate('listings interestedListings') // Populate references
+            .select('-password'); // Exclude the password field for security
+        console.log("is this being hit?")
+        console.log(user)
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (user[0].isSuspended) {
+            console.log("user is suspended");
+        } else {
+            console.log("user is NOT suspended");
+        }
+
+        res.status(200).json({ user: user });
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving user', error: error.message });
+    }
 };
 
 export const addInterestedListing = async (req, res) => {
-  try {
-      const { userId, listingId } = req.body; // Expect userId and listingId in request body
+    try {
+        const { userId, listingId } = req.body; // Expect userId and listingId in request body
 
-      if (!userId || !listingId) {
-          return res.status(400).json({ message: "User ID and Listing ID are required." });
-      }
+        if (!userId || !listingId) {
+            return res.status(400).json({ message: "User ID and Listing ID are required." });
+        }
 
-      // Update the user's interestedListings array
-      const updatedUser = await User.findByIdAndUpdate(
-          userId,
-          { $addToSet: { interestedListings: listingId } }, // $addToSet prevents duplicates
-          { new: true } // Return updated document
-      );
+        // Update the user's interestedListings array
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { interestedListings: listingId } }, // $addToSet prevents duplicates
+            { new: true } // Return updated document
+        );
 
-      if (!updatedUser) {
-          return res.status(404).json({ message: "User not found" });
-      }
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-      res.status(200).json({ message: "Listing added to interestedListings" });
-  } catch (error) {
-      res.status(500).json({ message: "Failed to add interested listing", error });
-  }
+        res.status(200).json({ message: "Listing added to interestedListings" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to add interested listing", error });
+    }
 };
 
 export const removeInterestedListing = async (req, res) => {
-  try {
-      const { userId, listingId } = req.body;
+    try {
+        const { userId, listingId } = req.body;
 
-      if (!userId || !listingId) {
-          return res.status(400).json({ message: "User ID and Listing ID are required." });
-      }
+        if (!userId || !listingId) {
+            return res.status(400).json({ message: "User ID and Listing ID are required." });
+        }
 
-      const updatedUser = await User.findByIdAndUpdate(
-          userId,
-          { $pull: { interestedListings: listingId } }, // $pull removes matching value
-          { new: true }
-      );
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $pull: { interestedListings: listingId } }, // $pull removes matching value
+            { new: true }
+        );
 
-      if (!updatedUser) {
-          return res.status(404).json({ message: "User not found" });
-      }
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-      res.status(200).json({ message: "Listing removed from interestedListings" });
-  } catch (error) {
-      res.status(500).json({ message: "Failed to remove interested listing", error });
-  }
+        res.status(200).json({ message: "Listing removed from interestedListings" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to remove interested listing", error });
+    }
 };
 
 export const getUserListings = async (req, res) => {
-  try {
-      const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-      // Find the user and return only the listings array, populating the listing details
-      const user = await User.findById(id).populate('listings', '-__v'); // Exclude __v (version) field
+        // Find the user and return only the listings array, populating the listing details
+        const user = await User.findById(id).populate('listings', '-__v'); // Exclude __v (version) field
 
-      if (!user) {
-          return res.status(404).json({ message: "User not found" });
-      }
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-      res.status(200).json({ listings: user.listings });
-  } catch (error) {
-      res.status(500).json({ message: "Failed to retrieve user listings", error });
-  }
+        res.status(200).json({ listings: user.listings });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to retrieve user listings", error });
+    }
 };
 
 export const getUserInterestedListings = async (req, res) => {
-  try {
-      const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-      // Find the user and return only the interestedListings array, populating listing details
-      const user = await User.findById(id).populate('interestedListings', '-__v');
+        // Find the user and return only the interestedListings array, populating listing details
+        const user = await User.findById(id).populate('interestedListings', '-__v');
 
-      if (!user) {
-          return res.status(404).json({ message: "User not found" });
-      }
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-      res.status(200).json({ interestedListings: user.interestedListings });
-  } catch (error) {
-      res.status(500).json({ message: "Failed to retrieve user's interested listings", error });
-  }
+        res.status(200).json({ interestedListings: user.interestedListings });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to retrieve user's interested listings", error });
+    }
 };
 
 export const getUserInactiveListings = async (req, res) => {
     try {
         const { id } = req.params;
-  
+
         // Find the user and return only the inactiveListings array, populating listing details
         const user = await User.findById(id).populate('inactiveListings', '-__v');
-  
+
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-  
+
         res.status(200).json({ inactiveListings: user.inactiveListings });
     } catch (error) {
         res.status(500).json({ message: "Failed to retrieve user's inactive listings", error });
@@ -268,22 +274,22 @@ export const getUserInactiveListings = async (req, res) => {
 export const addInactiveListing = async (req, res) => {
     try {
         const { sellerId, listingId } = req.body; // Expect userId and listingId in request body
-  
+
         if (!sellerId || !listingId) {
             return res.status(400).json({ message: "User ID and Listing ID are required." });
         }
-  
+
         // Update the user's inactiveListings array
         const updatedUser = await User.findByIdAndUpdate(
             sellerId,
             { $addToSet: { inactiveListings: listingId } }, // $addToSet prevents duplicates
             { new: true } // Return updated document
         );
-  
+
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
-  
+
         res.status(200).json({ message: "Listing added to inactiveListings" });
     } catch (error) {
         res.status(500).json({ message: "Failed to add inactive listing", error });
@@ -293,21 +299,21 @@ export const addInactiveListing = async (req, res) => {
 export const removeInactiveListing = async (req, res) => {
     try {
         const { sellerId, listingId } = req.body;
-  
+
         if (!sellerId || !listingId) {
             return res.status(400).json({ message: "User ID and Listing ID are required." });
         }
-  
+
         const updatedUser = await User.findByIdAndUpdate(
             sellerId,
             { $pull: { inactiveListings: listingId } }, // $pull removes matching value
             { new: true }
         );
-  
+
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
-  
+
         res.status(200).json({ message: "Listing removed from inactiveListings" });
     } catch (error) {
         res.status(500).json({ message: "Failed to remove inactive listing", error });
@@ -317,22 +323,22 @@ export const removeInactiveListing = async (req, res) => {
 export const addActiveListing = async (req, res) => {
     try {
         const { sellerId, listingId } = req.body; // Expect userId and listingId in request body
-  
+
         if (!sellerId || !listingId) {
             return res.status(400).json({ message: "User ID and Listing ID are required." });
         }
-  
+
         // Update the user's inactiveListings array
         const updatedUser = await User.findByIdAndUpdate(
             sellerId,
             { $addToSet: { listings: listingId } }, // $addToSet prevents duplicates
             { new: true } // Return updated document
         );
-  
+
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
-  
+
         res.status(200).json({ message: "Listing added to listings" });
     } catch (error) {
         res.status(500).json({ message: "Failed to add listing", error });
@@ -342,21 +348,21 @@ export const addActiveListing = async (req, res) => {
 export const removeActiveListing = async (req, res) => {
     try {
         const { sellerId, listingId } = req.body;
-  
+
         if (!sellerId || !listingId) {
             return res.status(400).json({ message: "User ID and Listing ID are required." });
         }
-  
+
         const updatedUser = await User.findByIdAndUpdate(
             sellerId,
             { $pull: { listings: listingId } }, // $pull removes matching value
             { new: true }
         );
-  
+
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
-  
+
         res.status(200).json({ message: "Listing removed from listings" });
     } catch (error) {
         res.status(500).json({ message: "Failed to remove listing", error });
@@ -375,7 +381,7 @@ export const addContact = async (req, res) => {
             User.findByIdAndUpdate(user1Id, { $addToSet: { contacts: user2Id } }),
             User.findByIdAndUpdate(user2Id, { $addToSet: { contacts: user1Id } })
         ]);
-        
+
         const user1 = await User.findById(user1Id);
         const user2 = await User.findById(user2Id);
         console.log('user1: ' + user1.fullName);
@@ -389,10 +395,10 @@ export const addContact = async (req, res) => {
 
 export const searchUsers = async (req, res) => {
     try {
-        const { 
-            search = '', 
-            role = '', 
-            page = 1, 
+        const {
+            search = '',
+            role = '',
+            page = 1,
             limit = 10,
             sortBy = 'createdAt',
             sortOrder = 'desc'
@@ -400,7 +406,7 @@ export const searchUsers = async (req, res) => {
 
         // Build search query
         let query = {};
-        
+
         // Text search across multiple fields
         if (search) {
             query.$or = [
@@ -417,7 +423,7 @@ export const searchUsers = async (req, res) => {
 
         // Calculate pagination
         const skip = (parseInt(page) - 1) * parseInt(limit);
-        
+
         // Build sort object
         const sort = {};
         sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
@@ -453,9 +459,9 @@ export const searchUsers = async (req, res) => {
 
     } catch (error) {
         console.error('Error searching users:', error);
-        res.status(500).json({ 
-            message: 'Error searching users', 
-            error: error.message 
+        res.status(500).json({
+            message: 'Error searching users',
+            error: error.message
         });
     }
 };

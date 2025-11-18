@@ -25,4 +25,11 @@ router.route('/:id')
 router.route('/:id/moderation')
   .post(addModerationAction);
 
+router.post('/unsuspend/email', (req, res) => {
+  const { userId, email, reason, details, subject, body } = req.body;
+  // send emails to admins
+  console.log('Sending email to admins:', { userId, email, reason, details, subject, body }); // implement email sending
+  res.status(200).json({ message: 'Unsuspend request email sent to admins.' });
+});
+
 export default router;
