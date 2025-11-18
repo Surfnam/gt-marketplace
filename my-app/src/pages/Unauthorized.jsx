@@ -23,12 +23,9 @@ function Unauthorized() {
             Log In
           </button>
 
-          <button
-            onClick={() => navigate("/register")}
-            className="w-full border border-[#679df8] text-[#679df8] py-2 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Sign Up
-          </button>
+          <p className="text-sm text-gray-600">
+            New accounts are provisioned by administrators. Please reach out if you need access.
+          </p>
 
           <button
             onClick={() => navigate("/")}
