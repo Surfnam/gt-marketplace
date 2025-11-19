@@ -1,6 +1,5 @@
 import express from 'express';
 import { 
-  createAdmin, 
   getAllAdmins, 
   getAdminById, 
   updateAdmin, 
@@ -12,8 +11,14 @@ const router = express.Router();
 
 // Route for getting all admins and creating a new admin
 router.route('/')
-  .get(getAllAdmins)
-  .post(createAdmin);
+  .get(getAllAdmins);
+
+// Disable admin creation via API; admins must be added directly in the database
+router.post('/', (req, res) => {
+  return res.status(403).json({
+    message: 'Admin creation via API is disabled. Please create admins directly in the database.',
+  });
+});
 
 // Routes for getting, updating, and deactivating a specific admin
 router.route('/:id')

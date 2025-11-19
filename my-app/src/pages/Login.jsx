@@ -136,7 +136,7 @@ function Login() {
             </Link>
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
 
           {/* primary login */}
           <button
