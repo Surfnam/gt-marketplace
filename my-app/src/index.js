@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./css/index.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
@@ -12,7 +13,6 @@ import {
   Routes,
   useNavigate,
   useLocation,
-  Navigate,
 } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import Chat from "./Chat/Chat";
@@ -52,6 +52,10 @@ function Main() {
     navigate("/login");
   };
 
+  const navigateToRegister = () => {
+    navigate("/register");
+  };
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -82,9 +86,10 @@ function Main() {
 
   return (
     <>
-      {location.pathname !== "/login" && location.pathname !== "/admin/login" && (
+      {location.pathname !== "/login" && location.pathname !== "/register" && location.pathname !== "/admin/login" && (
         <Navbar
           navigateToLogin={navigateToLogin}
+          navigateToRegister={navigateToRegister}
           user={user}
         />
       )}
@@ -92,7 +97,7 @@ function Main() {
         <Route path="/" element={<Home checkAuth={checkAuth} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/register" element={<Navigate to="/login" replace />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/chat" element={<Chat user={user} />} />

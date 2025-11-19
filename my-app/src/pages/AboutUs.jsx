@@ -48,7 +48,7 @@ Our main purpose is to connect students so they can easily trade school supplies
       <section className="how-it-works">
         <h2>How It Works</h2>
         <ol>
-          <li><strong>Log In:</strong> Use your administrator-provisioned account to access personalized features.</li>
+          <li><strong>Sign Up/Login:</strong> Create an account or log in to access personalized features.</li>
           <li><strong>Browse Listings:</strong> Explore a wide range of products available for purchase.</li>
           <li><strong>Post Items for Sale:</strong> Easily list items you wish to sell with detailed descriptions and images.</li>
           <li><strong>Chat with Sellers:</strong> Inquire and ask additional questions with the vendors of products you are interested in purchasing.</li>

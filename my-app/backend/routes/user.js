@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
+import bcrypt from 'bcrypt'
 import {updateUser, updateInterestedListings, getUserById, getUserByIdPaginated, getUserByEmail, addInterestedListing, removeInterestedListing, getUserListings, getUserInterestedListings, addContact, getUserInactiveListings, addInactiveListing, removeInactiveListing, removeActiveListing, addActiveListing, searchUsers } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -28,9 +29,37 @@ const checkSuspension = async(req, res, next) => {
 
 
 router.post('/register', async (req, res) => {
-  return res.status(403).json({
-    error: 'User self-registration is disabled. Please contact an administrator to provision access.',
-  });
+  const { uid, email } = req.body;
+
+  let existingUser = await User.findOne({ username: uid });
+  if (existingUser) {
+    return res.status(200).json({
+      message: "User already exists",
+      userId: existingUser._id,
+      isNewUser: false,
+    });
+  }
+  
+  try {
+    const pw = await bcrypt.hash(uid, 10)
+    const newUser = new User({
+      username: uid,
+      password: pw,
+      email: email, // Assuming you want to store the uid as password, otherwise hash the password
+      fullName: '', // Add fullName if available
+    });
+
+    const user = await newUser.save();
+
+    res.status(201).json({ 
+      message: 'User registered successfully', 
+      userId: user._id,
+      isNewUser: true,
+    });
+  } catch (error) {
+    console.error('Error saving user to MongoDB:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 // update user related details

@@ -14,7 +14,7 @@ import {
   FaShieldAlt,
 } from "react-icons/fa";
 
-function Navbar({ navigateToLogin, user }) {
+function Navbar({ navigateToLogin, navigateToRegister, user }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
@@ -149,6 +149,9 @@ function Navbar({ navigateToLogin, user }) {
             <>
               <button onClick={navigateToLogin} className="navbar-login">
                 Log&nbsp;In
+              </button>
+              <button onClick={navigateToRegister} className="navbar-button">
+                Sign&nbsp;Up
               </button>
             </>
           )}

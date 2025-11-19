@@ -34,7 +34,7 @@ function Login() {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
       const data = await sendUserDataToMongoDB(cred.user);
-      if (!data?.user?.[0]) throw new Error("This account is not provisioned. Please contact an administrator.");
+      if (!data?.user?.[0]) throw new Error("You have not registered this account yet");
       localStorage.setItem("userId", data.user[0]._id);
       navigate("/");
     } catch (err) {
@@ -47,7 +47,7 @@ function Login() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const data = await sendUserDataToMongoDB(result.user);
-      if (!data?.user?.[0]) throw new Error("This account is not provisioned. Please contact an administrator.");
+      if (!data?.user?.[0]) throw new Error("You have not registered this account yet");
       localStorage.setItem("userId", data.user[0]._id);
       navigate("/");
     } catch (err) {
@@ -175,8 +175,12 @@ function Login() {
             Continue as Guest
           </button>
 
-          <p className="text-sm text-center text-gray-600">
-            Need access? Please contact an administrator to have an account created.
+          {/* signup link */}
+          <p className="text-sm text-center">
+            Don’t have an account?{" "}
+            <Link to="/register" className="text-blue-500 hover:underline">
+              Sign up now
+            </Link>
           </p>
         </form>
       </div>

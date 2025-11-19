@@ -14,7 +14,7 @@ function PleaseLogin({ isOpen, onClose }) {
           <FaUserCircle className="mx-auto text-6xl text-[#679df8] mb-4" />
           <h2 className="text-2xl font-bold mb-4">Login Required</h2>
           <p className="text-gray-600 mb-6">
-            Please log in with an existing account to access this feature. New sign-ups are handled by administrators.
+            Please login or create an account to access this feature.
           </p>
         </div>
 
@@ -27,6 +27,16 @@ function PleaseLogin({ isOpen, onClose }) {
             className="w-full bg-[#679df8] text-white py-2 rounded-lg hover:bg-slate-700 transition-colors"
           >
             Log In
+          </button>
+
+          <button
+            onClick={() => {
+              onClose();
+              navigate("/register");
+            }}
+            className="w-full border border-[#679df8] text-[#679df8] py-2 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Sign Up
           </button>
 
           <button
